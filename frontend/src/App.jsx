@@ -13,6 +13,8 @@ import Modules from "./pages/Modules";
 import Posts from "./pages/Posts";
 import Ask from "./pages/Ask";
 import NotFound from "./pages/NotFound";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 const App = () => {
   return (
@@ -26,6 +28,10 @@ const App = () => {
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/safety" element={<Safety />} />
           <Route path="/faqs" element={<FAQs />} />
+
+          {/* auth routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
           {/* private routes */}
           <Route path="/dashboard" element={<Dashboard />} />
