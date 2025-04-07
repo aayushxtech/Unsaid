@@ -1,9 +1,11 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../../supabaseClient";
 
 const Login = ({ onClose }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from || "/dashboard";
   const [formData, setFormData] = React.useState({
     email: "",
     password: "",
@@ -22,30 +24,17 @@ const Login = ({ onClose }) => {
     setError("");
 
     try {
-      const email = formData.email.trim().toLowerCase();
-      const password = formData.password;
-
-      if (!email || !email.includes("@")) {
-        throw new Error("Please enter a valid email address.");
-      }
-
-      if (!password || password.length < 6) {
-        throw new Error("Password must be at least 6 characters.");
-      }
-
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: formData.email,
+        password: formData.password,
       });
 
       if (error) throw error;
 
       if (data?.user) {
-        localStorage.setItem("user", JSON.stringify(data.user));
-        onClose?.(); // Close modal if provided
-        navigate("/dashboard");
-      } else {
-        throw new Error("No user data received.");
+        onClose?.();
+        // Navigate to the original intended route or dashboard
+        navigate(from, { replace: true });
       }
     } catch (err) {
       setError(err.message || "Login failed. Please check your credentials.");

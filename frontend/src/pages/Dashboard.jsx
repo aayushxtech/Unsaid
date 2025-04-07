@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../supabaseClient";
+import getAgeGroup from "../lib/ageGroup";
+import calculateAge from "../lib/calculateAge";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -109,6 +111,12 @@ const Dashboard = () => {
     }
   };
 
+  // Calculate age and age group when profile is available
+  const userAge = profile
+    ? calculateAge(new Date(profile.date_of_birth))
+    : null;
+  const userAgeGroup = profile ? getAgeGroup(userAge) : null;
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
@@ -141,6 +149,197 @@ const Dashboard = () => {
   // Render tab content
   const renderTabContent = () => {
     switch (activeTab) {
+      case "overview":
+        return (
+          <div className="space-y-6">
+            {/* User Info */}
+            <section className="bg-white rounded-3xl shadow-lg p-6 transform transition-all hover:scale-105 border border-indigo-50">
+              <div className="flex items-center mb-4">
+                <div className="bg-indigo-100 p-3 rounded-2xl">
+                  <span className="text-2xl">👤</span>
+                </div>
+                <h2 className="text-xl font-bold ml-3 text-indigo-800">
+                  Your Profile
+                </h2>
+              </div>
+
+              <div className="flex items-center mb-6">
+                <img
+                  src={profile.avatar_url}
+                  alt="User Avatar"
+                  className="w-16 h-16 rounded-full border-4 border-indigo-100"
+                />
+                <div className="ml-4">
+                  <p className="font-bold text-lg">
+                    {profile.first_name} {profile.last_name}
+                  </p>
+                  <p className="text-gray-500 text-sm">
+                    Member since{" "}
+                    {new Date(profile.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-3 pl-2">
+                <p className="flex justify-between border-b border-gray-100 pb-2">
+                  <span className="text-gray-500">Email</span>
+                  <span className="font-medium text-indigo-700">
+                    {profile.email}
+                  </span>
+                </p>
+                <p className="flex justify-between border-b border-gray-100 pb-2">
+                  <span className="text-gray-500">Date of Birth</span>
+                  <span className="font-medium text-indigo-700">
+                    {new Date(profile.date_of_birth).toLocaleDateString()}
+                  </span>
+                </p>
+                <p className="flex justify-between border-b border-gray-100 pb-2">
+                  <span className="text-gray-500">Age</span>
+                  <span className="font-medium text-indigo-700">
+                    {userAge} years
+                  </span>
+                </p>
+                <p className="flex justify-between pb-2">
+                  <span className="text-gray-500">Age Group</span>
+                  <span className="font-medium text-indigo-700">
+                    {userAgeGroup}
+                  </span>
+                </p>
+              </div>
+            </section>
+
+            {/* Progress Summary */}
+            <section className="bg-white rounded-3xl shadow-lg p-6 transform transition-all hover:scale-105 border border-indigo-50">
+              <div className="flex items-center mb-4">
+                <div className="bg-indigo-100 p-3 rounded-2xl">
+                  <span className="text-2xl">📊</span>
+                </div>
+                <h2 className="text-xl font-bold ml-3 text-indigo-800">
+                  Progress Summary
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div className="bg-gray-50 p-4 rounded-xl text-center">
+                  <p className="text-gray-500 text-sm">Content Viewed</p>
+                  <p className="text-2xl font-bold text-indigo-700">
+                    {contentProgress.filter((p) => p.is_viewed).length}/
+                    {contents.length}
+                  </p>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-xl text-center">
+                  <p className="text-gray-500 text-sm">Quiz Score</p>
+                  <p className="text-2xl font-bold text-indigo-700">
+                    {quizAttempts[0]?.total_score || 0}/
+                    {quizzes[0]?.total_marks || 100}
+                  </p>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-xl text-center">
+                  <p className="text-gray-500 text-sm">Time Spent</p>
+                  <p className="text-2xl font-bold text-indigo-700">
+                    {contentProgress.reduce(
+                      (total, curr) => total + curr.time_spent_minutes,
+                      0
+                    )}{" "}
+                    min
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <p className="text-gray-500 text-sm mb-1">Overall Progress</p>
+                <div className="w-full bg-gray-100 rounded-full h-4">
+                  <div
+                    className="bg-gradient-to-r from-indigo-400 to-purple-500 h-full rounded-full"
+                    style={{
+                      width: `${
+                        (contentProgress.filter((p) => p.is_viewed).length /
+                          contents.length) *
+                        100
+                      }%`,
+                    }}
+                  />
+                </div>
+              </div>
+            </section>
+
+            {/* Daily Tip */}
+            <section className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl shadow-lg p-6 text-white transform transition-all hover:scale-105">
+              <div className="flex items-center">
+                <div className="bg-white bg-opacity-20 p-3 rounded-2xl backdrop-blur-sm">
+                  <span className="text-2xl">💡</span>
+                </div>
+                <h3 className="font-bold text-xl ml-3">Daily Tip</h3>
+              </div>
+              <p className="mt-4 text-lg font-medium pl-2">{dailyTip?.tip}</p>
+              <p className="text-white text-opacity-70 text-sm mt-2 pl-2">
+                Source: {dailyTip?.source}
+              </p>
+            </section>
+
+            {/* Recent Content */}
+            <section className="bg-white rounded-3xl shadow-lg p-6">
+              <div className="flex items-center mb-4">
+                <div className="bg-indigo-100 p-3 rounded-2xl">
+                  <span className="text-2xl">📚</span>
+                </div>
+                <h3 className="font-bold text-xl ml-3 text-indigo-800">
+                  Recent Content
+                </h3>
+              </div>
+
+              <div className="space-y-3">
+                {contents.map((content, index) => {
+                  // Find related subtopic
+                  const subtopic = subtopics.find(
+                    (s) => s.id === content.subtitle_id
+                  );
+                  // Find user progress for this content
+                  const progress = contentProgress.find(
+                    (p) => p.content_id === content.id
+                  );
+
+                  return (
+                    <div
+                      key={index}
+                      className="flex justify-between items-center p-3 bg-gray-50 rounded-xl hover:bg-indigo-50 transition-colors"
+                    >
+                      <div>
+                        <p className="font-medium">{content.title}</p>
+                        <div className="flex space-x-3 text-sm text-gray-500 mt-1">
+                          <span>{subtopic?.title || "Unknown Subtopic"}</span>
+                          <span
+                            className={`${
+                              content.content_type === "article"
+                                ? "text-blue-600"
+                                : content.content_type === "quiz"
+                                ? "text-purple-600"
+                                : "text-green-600"
+                            }`}
+                          >
+                            {content.content_type.charAt(0).toUpperCase() +
+                              content.content_type.slice(1)}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        {progress?.is_viewed && (
+                          <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">
+                            Viewed
+                          </span>
+                        )}
+                        <button className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1 rounded-lg text-sm font-medium transition-colors">
+                          {progress?.is_viewed ? "Review" : "Start"}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          </div>
+        );
+
       case "progress":
         return (
           <div className="space-y-6">
@@ -399,196 +598,8 @@ const Dashboard = () => {
           </div>
         );
 
-      default: // overview tab
-        return (
-          <div className="space-y-6">
-            {/* User Info */}
-            <section className="bg-white rounded-3xl shadow-lg p-6 transform transition-all hover:scale-105 border border-indigo-50">
-              <div className="flex items-center mb-4">
-                <div className="bg-indigo-100 p-3 rounded-2xl">
-                  <span className="text-2xl">👤</span>
-                </div>
-                <h2 className="text-xl font-bold ml-3 text-indigo-800">
-                  Your Profile
-                </h2>
-              </div>
-
-              <div className="flex items-center mb-6">
-                <img
-                  src={profile.avatar_url}
-                  alt="User Avatar"
-                  className="w-16 h-16 rounded-full border-4 border-indigo-100"
-                />
-                <div className="ml-4">
-                  <p className="font-bold text-lg">
-                    {profile.first_name} {profile.last_name}
-                  </p>
-                  <p className="text-gray-500 text-sm">
-                    Member since{" "}
-                    {new Date(profile.created_at).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-3 pl-2">
-                <p className="flex justify-between border-b border-gray-100 pb-2">
-                  <span className="text-gray-500">Email</span>
-                  <span className="font-medium text-indigo-700">
-                    {profile.email}
-                  </span>
-                </p>
-                <p className="flex justify-between border-b border-gray-100 pb-2">
-                  <span className="text-gray-500">Date of Birth</span>
-                  <span className="font-medium text-indigo-700">
-                    {new Date(profile.date_of_birth).toLocaleDateString()}
-                  </span>
-                </p>
-                <p className="flex justify-between border-b border-gray-100 pb-2">
-                  <span className="text-gray-500">Gender</span>
-                  <span className="font-medium text-indigo-700">
-                    {profile.gender}
-                  </span>
-                </p>
-                <p className="flex justify-between pb-2">
-                  <span className="text-gray-500">Age Group</span>
-                  <span className="font-medium text-indigo-700">
-                    {profile.age_group}
-                  </span>
-                </p>
-              </div>
-            </section>
-
-            {/* Progress Summary */}
-            <section className="bg-white rounded-3xl shadow-lg p-6 transform transition-all hover:scale-105 border border-indigo-50">
-              <div className="flex items-center mb-4">
-                <div className="bg-indigo-100 p-3 rounded-2xl">
-                  <span className="text-2xl">📊</span>
-                </div>
-                <h2 className="text-xl font-bold ml-3 text-indigo-800">
-                  Progress Summary
-                </h2>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div className="bg-gray-50 p-4 rounded-xl text-center">
-                  <p className="text-gray-500 text-sm">Content Viewed</p>
-                  <p className="text-2xl font-bold text-indigo-700">
-                    {contentProgress.filter((p) => p.is_viewed).length}/
-                    {contents.length}
-                  </p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-xl text-center">
-                  <p className="text-gray-500 text-sm">Quiz Score</p>
-                  <p className="text-2xl font-bold text-indigo-700">
-                    {quizAttempts[0]?.total_score || 0}/
-                    {quizzes[0]?.total_marks || 100}
-                  </p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-xl text-center">
-                  <p className="text-gray-500 text-sm">Time Spent</p>
-                  <p className="text-2xl font-bold text-indigo-700">
-                    {contentProgress.reduce(
-                      (total, curr) => total + curr.time_spent_minutes,
-                      0
-                    )}{" "}
-                    min
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-4">
-                <p className="text-gray-500 text-sm mb-1">Overall Progress</p>
-                <div className="w-full bg-gray-100 rounded-full h-4">
-                  <div
-                    className="bg-gradient-to-r from-indigo-400 to-purple-500 h-full rounded-full"
-                    style={{
-                      width: `${
-                        (contentProgress.filter((p) => p.is_viewed).length /
-                          contents.length) *
-                        100
-                      }%`,
-                    }}
-                  />
-                </div>
-              </div>
-            </section>
-
-            {/* Daily Tip */}
-            <section className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl shadow-lg p-6 text-white transform transition-all hover:scale-105">
-              <div className="flex items-center">
-                <div className="bg-white bg-opacity-20 p-3 rounded-2xl backdrop-blur-sm">
-                  <span className="text-2xl">💡</span>
-                </div>
-                <h3 className="font-bold text-xl ml-3">Daily Tip</h3>
-              </div>
-              <p className="mt-4 text-lg font-medium pl-2">{dailyTip?.tip}</p>
-              <p className="text-white text-opacity-70 text-sm mt-2 pl-2">
-                Source: {dailyTip?.source}
-              </p>
-            </section>
-
-            {/* Recent Content */}
-            <section className="bg-white rounded-3xl shadow-lg p-6">
-              <div className="flex items-center mb-4">
-                <div className="bg-indigo-100 p-3 rounded-2xl">
-                  <span className="text-2xl">📚</span>
-                </div>
-                <h3 className="font-bold text-xl ml-3 text-indigo-800">
-                  Recent Content
-                </h3>
-              </div>
-
-              <div className="space-y-3">
-                {contents.map((content, index) => {
-                  // Find related subtopic
-                  const subtopic = subtopics.find(
-                    (s) => s.id === content.subtitle_id
-                  );
-                  // Find user progress for this content
-                  const progress = contentProgress.find(
-                    (p) => p.content_id === content.id
-                  );
-
-                  return (
-                    <div
-                      key={index}
-                      className="flex justify-between items-center p-3 bg-gray-50 rounded-xl hover:bg-indigo-50 transition-colors"
-                    >
-                      <div>
-                        <p className="font-medium">{content.title}</p>
-                        <div className="flex space-x-3 text-sm text-gray-500 mt-1">
-                          <span>{subtopic?.title || "Unknown Subtopic"}</span>
-                          <span
-                            className={`${
-                              content.content_type === "article"
-                                ? "text-blue-600"
-                                : content.content_type === "quiz"
-                                ? "text-purple-600"
-                                : "text-green-600"
-                            }`}
-                          >
-                            {content.content_type.charAt(0).toUpperCase() +
-                              content.content_type.slice(1)}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        {progress?.is_viewed && (
-                          <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">
-                            Viewed
-                          </span>
-                        )}
-                        <button className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1 rounded-lg text-sm font-medium transition-colors">
-                          {progress?.is_viewed ? "Review" : "Start"}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-          </div>
-        );
+      default:
+        return null;
     }
   };
 

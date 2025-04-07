@@ -5,7 +5,7 @@ import {
   Route,
   useNavigate,
 } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import Navbar from "./components/Navbar";
 
@@ -25,14 +25,30 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
 // Example of a protected route component
 const PrivateRoute = ({ children }) => {
-  const { user } = useAuth();
+  const { user, loading, sessionChecked } = useAuth();
   const navigate = useNavigate();
+  const [redirecting, setRedirecting] = useState(false);
 
   useEffect(() => {
-    if (!user) {
-      navigate("/login");
+    if (sessionChecked && !user && !loading && !redirecting) {
+      setRedirecting(true);
+      navigate("/login", {
+        state: { from: window.location.pathname },
+        replace: true,
+      });
     }
-  }, [user, navigate]);
+  }, [user, loading, sessionChecked, navigate, redirecting]);
+
+  if (loading || !sessionChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-indigo-600 font-medium">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return user ? children : null;
 };

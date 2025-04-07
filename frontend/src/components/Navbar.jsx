@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { supabase } from "../supabaseClient";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -26,15 +27,29 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await signOut();
-      // Clear any local storage data
-      localStorage.removeItem("user");
+      // Sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        throw error;
+      }
+
+      // Clear any user-related data from local storage
+      localStorage.clear();
+
       // Close mobile menu if open
       setMobileMenuOpen(false);
+
+      // Reset any user-specific state
+      if (toggleLoginPopup) {
+        setShowLoginPopup(false);
+      }
+
       // Navigate to home page
       navigate("/");
     } catch (error) {
-      console.error("Error logging out:", error.message);
+      console.error("Error during logout:", error.message);
+      // Optionally show error to user via toast/alert
     }
   };
 
