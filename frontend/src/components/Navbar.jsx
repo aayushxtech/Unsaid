@@ -1,12 +1,12 @@
 import { useState } from "react";
-import Login from "../pages/Login";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
-  const [user, setUser] = useState(null);
+  const { user, signOut } = useAuth();
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -24,9 +24,18 @@ const Navbar = () => {
     navigate("/register");
   };
 
-  const handleLogout = () => {
-    setUser(null);
-    // Add any additional logout logic here (e.g., clearing tokens)
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      // Clear any local storage data
+      localStorage.removeItem("user");
+      // Close mobile menu if open
+      setMobileMenuOpen(false);
+      // Navigate to home page
+      navigate("/");
+    } catch (error) {
+      console.error("Error logging out:", error.message);
+    }
   };
 
   return (

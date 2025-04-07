@@ -1,5 +1,11 @@
 import "./App.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useNavigate,
+} from "react-router-dom";
+import { useEffect } from "react";
 
 import Navbar from "./components/Navbar";
 
@@ -13,12 +19,27 @@ import Modules from "./pages/Modules";
 import Posts from "./pages/Posts";
 import Ask from "./pages/Ask";
 import NotFound from "./pages/NotFound";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+
+// Example of a protected route component
+const PrivateRoute = ({ children }) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
+
+  return user ? children : null;
+};
 
 const App = () => {
   return (
-    <>
+    <AuthProvider>
       <Router>
         <Navbar />
         <Routes>
@@ -34,16 +55,44 @@ const App = () => {
           <Route path="/register" element={<Register />} />
 
           {/* private routes */}
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/modules" element={<Modules />} />
-          <Route path="/posts" element={<Posts />} />
-          <Route path="/ask" element={<Ask />} />
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/modules"
+            element={
+              <PrivateRoute>
+                <Modules />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/posts"
+            element={
+              <PrivateRoute>
+                <Posts />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/ask"
+            element={
+              <PrivateRoute>
+                <Ask />
+              </PrivateRoute>
+            }
+          />
 
           {/* Not Found */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
-    </>
+    </AuthProvider>
   );
 };
 
