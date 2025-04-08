@@ -31,6 +31,10 @@ const Home = () => {
     },
   ];
 
+  const handlemergency = () => {
+    window.open("tel:112", "_blank");
+    alert("Called 112");
+  };
   return (
     <>
       <section
@@ -144,7 +148,10 @@ const Home = () => {
               If you or someone you know is in immediate danger, please contact
               local authorities or a trusted individual.
             </Typography>
-            <Button className="!bg-red-600 !text-white !font-medium !py-3 !px-8 !text-lg !rounded-lg !shadow-md hover:!bg-red-700 !transition !duration-300 !normal-case">
+            <Button
+              className="!bg-red-600 !text-white !font-medium !py-3 !px-8 !text-lg !rounded-lg !shadow-md hover:!bg-red-700 !transition !duration-300 !normal-case"
+              onClick={handlemergency}
+            >
               Get Help Now
             </Button>
           </div>
