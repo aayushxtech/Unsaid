@@ -23,9 +23,22 @@ import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 
 import Admin from "./pages/admin/Admin";
-import Content from "./pages/admin/pages/Content";
-import Quizzes from "./pages/admin/pages/Quizzes";
-import PostsAdmin from "./pages/admin/pages/Posts";
+// Admin Content Imports
+import Content from "./pages/admin/pages/content/Content";
+import ContentAdd from "./pages/admin/pages/content/ContentAdd";
+import ContentView from "./pages/admin/pages/content/ContentView";
+import TopicAdd from "./pages/admin/pages/content/TopicAdd";
+import TopicView from "./pages/admin/pages/content/TopicView";
+import SubTopicAdd from "./pages/admin/pages/content/SubTopicAdd";
+import SubTopicView from "./pages/admin/pages/content/SubTopicView";
+// Admin Quiz Imports
+import Quizzes from "./pages/admin/pages/quiz/Quizzes";
+import QuizAdd from "./pages/admin/pages/quiz/QuizAdd";
+import QuizEdit from "./pages/admin/pages/quiz/QuizEdit";
+// Admin Post Imports
+import PostsAdmin from "./pages/admin/pages/posts/Posts";
+import PostsView from "./pages/admin/pages/posts/PostsView";
+import UsersBan from "./pages/admin/pages/posts/UsersBan";
 
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
@@ -119,6 +132,7 @@ const App = () => {
               </PrivateRoute>
             }
           />
+          {/* admin content routes */}
           <Route
             path="/admin/content"
             element={
@@ -128,6 +142,56 @@ const App = () => {
             }
           />
           <Route
+            path="/admin/content/contents/add"
+            element={
+              <PrivateRoute>
+                <ContentAdd />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/content/topics/add"
+            element={
+              <PrivateRoute>
+                <TopicAdd />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/content/topics/view"
+            element={
+              <PrivateRoute>
+                <TopicView />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/content/subtopics/add"
+            element={
+              <PrivateRoute>
+                <SubTopicAdd />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/content/subtopics/view"
+            element={
+              <PrivateRoute>
+                <SubTopicView />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/content/contents/view"
+            element={
+              <PrivateRoute>
+                <ContentView />
+              </PrivateRoute>
+            }
+          />
+
+          {/* admin quiz routes */}
+          <Route
             path="/admin/quizzes"
             element={
               <PrivateRoute>
@@ -136,10 +200,44 @@ const App = () => {
             }
           />
           <Route
+            path="/admin/quizzes/create"
+            element={
+              <PrivateRoute>
+                <QuizAdd />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/quizzes/edit"
+            element={
+              <PrivateRoute>
+                <QuizEdit />
+              </PrivateRoute>
+            }
+          />
+          {/* admin posts routes */}
+          <Route
             path="/admin/posts"
             element={
               <PrivateRoute>
                 <PostsAdmin />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/posts/view"
+            element={
+              <PrivateRoute>
+                <PostsView />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/admin/posts/users/ban"
+            element={
+              <PrivateRoute>
+                <UsersBan />
               </PrivateRoute>
             }
           />
