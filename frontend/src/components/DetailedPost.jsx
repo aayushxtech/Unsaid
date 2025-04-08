@@ -14,6 +14,8 @@ import {
   Button,
   DialogTitle,
   DialogContent,
+  Dialog,
+  DialogActions,
 } from "@mui/material";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
@@ -33,6 +35,7 @@ const DetailedPost = ({
   fullName,
   userAvatar,
   onClose,
+  open,
 }) => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
@@ -44,7 +47,6 @@ const DetailedPost = ({
 
   const fetchComments = async () => {
     try {
-      // First fetch the comments
       const { data: commentsData, error } = await supabase
         .from("comments")
         .select("*")
@@ -53,7 +55,6 @@ const DetailedPost = ({
 
       if (error) throw error;
 
-      // Then fetch profiles for those comments separately
       const userIds = commentsData
         .filter((comment) => !comment.is_anonymous && comment.user_id)
         .map((comment) => comment.user_id);
@@ -70,9 +71,7 @@ const DetailedPost = ({
         }
       }
 
-      // Now combine the data
       const formattedComments = commentsData.map((comment) => {
-        // Find corresponding profile
         const profile = comment.is_anonymous
           ? null
           : profilesData.find((p) => p.id === comment.user_id);
@@ -139,8 +138,21 @@ const DetailedPost = ({
   };
 
   return (
-    <>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      aria-labelledby="post-dialog-title"
+      maxWidth="md"
+      fullWidth
+      sx={{
+        "& .MuiDialog-paper": {
+          borderRadius: 2,
+          overflow: "hidden",
+        },
+      }}
+    >
       <DialogTitle
+        id="post-dialog-title"
         sx={{
           m: 0,
           p: 3,
@@ -185,7 +197,6 @@ const DetailedPost = ({
           overflow: "hidden",
         }}
       >
-        {/* Article Content Section */}
         <Box sx={{ flex: "1 1 65%", p: 3, overflowY: "auto" }}>
           <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
             <Avatar
@@ -260,7 +271,6 @@ const DetailedPost = ({
         />
         <Divider sx={{ display: { xs: "block", md: "none" } }} />
 
-        {/* Comments Section */}
         <Box
           sx={{
             flex: "1 1 35%",
@@ -282,7 +292,6 @@ const DetailedPost = ({
             Comments
           </Typography>
 
-          {/* Comments list */}
           <List sx={{ flex: 1, overflowY: "auto", p: 0 }}>
             {loading ? (
               <Box sx={{ p: 3, textAlign: "center" }}>
@@ -361,7 +370,6 @@ const DetailedPost = ({
             )}
           </List>
 
-          {/* Add comment */}
           <Box
             sx={{
               p: 2.5,
@@ -430,7 +438,7 @@ const DetailedPost = ({
           </Box>
         </Box>
       </DialogContent>
-    </>
+    </Dialog>
   );
 };
 

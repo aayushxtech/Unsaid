@@ -125,6 +125,7 @@ const CreatePostForm = ({ open, onClose, onPostCreated }) => {
       onClose={onClose}
       maxWidth="sm"
       fullWidth
+      aria-labelledby="create-post-dialog-title"
       PaperProps={{
         sx: {
           borderRadius: 2,
@@ -133,6 +134,7 @@ const CreatePostForm = ({ open, onClose, onPostCreated }) => {
       }}
     >
       <DialogTitle
+        id="create-post-dialog-title"
         sx={{
           m: 0,
           p: 2,
@@ -143,8 +145,10 @@ const CreatePostForm = ({ open, onClose, onPostCreated }) => {
           borderColor: "divider",
         }}
       >
-        <Typography variant="h6">Create New Post</Typography>
-        <IconButton onClick={onClose}>
+        <Box component="div" sx={{ typography: "h5" }}>
+          Create New Post
+        </Box>
+        <IconButton onClick={onClose} aria-label="close">
           <CloseIcon />
         </IconButton>
       </DialogTitle>

@@ -21,6 +21,12 @@ import Ask from "./pages/Ask";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+
+import Admin from "./pages/admin/Admin";
+import Content from "./pages/admin/pages/Content";
+import Quizzes from "./pages/admin/pages/Quizzes";
+import PostsAdmin from "./pages/admin/pages/Posts";
+
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
 // Example of a protected route component
@@ -100,6 +106,40 @@ const App = () => {
             element={
               <PrivateRoute>
                 <Ask />
+              </PrivateRoute>
+            }
+          />
+
+          {/* admin route */}
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute>
+                <Admin />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/content"
+            element={
+              <PrivateRoute>
+                <Content />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/quizzes"
+            element={
+              <PrivateRoute>
+                <Quizzes />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/posts"
+            element={
+              <PrivateRoute>
+                <PostsAdmin />
               </PrivateRoute>
             }
           />

@@ -169,32 +169,20 @@ const PostCard = ({
         </CardActions>
       </Card>
 
-      <Dialog
-        open={openDetailedPost}
+      <DetailedPost
+        id={id}
+        user_id={user_id}
+        title={title}
+        content={content}
+        is_anonymous={is_anonymous}
+        created_at={created_at}
+        updated_at={updated_at}
+        imageUrl={imageUrl}
+        fullName={fullName}
+        userAvatar={userAvatar}
         onClose={handleCloseDetailedPost}
-        maxWidth="md"
-        fullWidth
-        sx={{
-          "& .MuiDialog-paper": {
-            borderRadius: 2,
-            overflow: "hidden",
-          },
-        }}
-      >
-        <DetailedPost
-          id={id}
-          user_id={user_id}
-          title={title}
-          content={content}
-          is_anonymous={is_anonymous}
-          created_at={created_at}
-          updated_at={updated_at}
-          imageUrl={imageUrl}
-          fullName={fullName}
-          userAvatar={userAvatar}
-          onClose={handleCloseDetailedPost}
-        />
-      </Dialog>
+        open={openDetailedPost}
+      />
     </>
   );
 };
