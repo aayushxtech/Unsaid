@@ -7,6 +7,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const { user, signOut } = useAuth();
 
   const toggleMobileMenu = () => {

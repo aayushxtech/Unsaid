@@ -31,7 +31,7 @@ const Home = () => {
     },
   ];
 
-  const handlemergency = () => {
+  const handleEmergency = () => {
     window.open("tel:112", "_blank");
     alert("Called 112");
   };
@@ -150,7 +150,7 @@ const Home = () => {
             </Typography>
             <Button
               className="!bg-red-600 !text-white !font-medium !py-3 !px-8 !text-lg !rounded-lg !shadow-md hover:!bg-red-700 !transition !duration-300 !normal-case"
-              onClick={handlemergency}
+              onClick={handleEmergency}
             >
               Get Help Now
             </Button>
