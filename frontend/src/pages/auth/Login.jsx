@@ -24,6 +24,7 @@ const Login = ({ onClose }) => {
     setError("");
 
     try {
+      // Step 1: Authenticate with email and password
       const { data, error } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
@@ -32,6 +33,31 @@ const Login = ({ onClose }) => {
       if (error) throw error;
 
       if (data?.user) {
+        // Step 2: Check if the user is banned
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("is_banned, banned_reason")
+          .eq("id", data.user.id)
+          .single();
+
+        if (profileError) {
+          console.error("Error checking user ban status:", profileError);
+          throw new Error("Could not verify account status. Please try again.");
+        }
+
+        // If the user is banned, sign them out immediately and show error
+        if (profileData?.is_banned) {
+          // Sign the user out
+          await supabase.auth.signOut();
+
+          const banReason = profileData.banned_reason
+            ? `Reason: ${profileData.banned_reason}`
+            : "Please contact support for more information.";
+
+          throw new Error(`Your account has been suspended. ${banReason}`);
+        }
+
+        // User is not banned, proceed with login
         onClose?.();
         // Navigate to the original intended route or dashboard
         navigate(from, { replace: true });

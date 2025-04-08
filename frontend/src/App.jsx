@@ -41,6 +41,7 @@ import PostsView from "./pages/admin/pages/posts/PostsView";
 import UsersBan from "./pages/admin/pages/posts/UsersBan";
 
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import PostsDelete from "./pages/admin/pages/posts/PostsDelete";
 
 // Example of a protected route component
 const PrivateRoute = ({ children }) => {
@@ -229,6 +230,14 @@ const App = () => {
             element={
               <PrivateRoute>
                 <PostsView />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/posts/delete"
+            element={
+              <PrivateRoute>
+                <PostsDelete />
               </PrivateRoute>
             }
           />
