@@ -5,6 +5,95 @@ import getAgeGroup from "../lib/ageGroup";
 import calculateAge from "../lib/calculateAge";
 import { useNavigate } from "react-router-dom";
 
+const calculateAnalytics = (contentProgress, quizAttempts, contents) => {
+  const now = new Date();
+  const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+  // Calculate recent activities from content progress
+  const recentActivities = contentProgress
+    .filter((p) => new Date(p.last_interacted_at) > lastWeek)
+    .sort(
+      (a, b) => new Date(b.last_interacted_at) - new Date(a.last_interacted_at)
+    );
+
+  // Calculate weekly progress
+  const weeklyProgress = recentActivities.length;
+
+  // Calculate total time spent
+  const totalTimeSpent = contentProgress.reduce(
+    (total, curr) => total + (curr.time_spent_minutes || 0),
+    0
+  );
+
+  // Calculate quiz performance
+  const quizPerformance =
+    quizAttempts.length > 0
+      ? {
+          totalAttempts: quizAttempts.length,
+          averageScore:
+            quizAttempts.reduce((acc, curr) => acc + curr.total_score, 0) /
+            quizAttempts.length,
+          bestScore: Math.max(...quizAttempts.map((a) => a.total_score)),
+        }
+      : { totalAttempts: 0, averageScore: 0, bestScore: 0 };
+
+  // Calculate completion rate
+  const completionRate =
+    contents.length > 0
+      ? (contentProgress.filter((p) => p.is_completed).length /
+          contents.length) *
+        100
+      : 0;
+
+  // Calculate learning streak
+  const learningStreak = calculateLearningStreak(contentProgress);
+
+  return {
+    weeklyProgress,
+    totalTimeSpent,
+    averageQuizScore: quizPerformance.averageScore,
+    completionRate,
+    learningStreak,
+    recentActivity: recentActivities.slice(0, 5).map((activity) => ({
+      ...activity,
+      content: contents.find((c) => c.id === activity.content_id),
+    })),
+  };
+};
+
+const calculateLearningStreak = (contentProgress) => {
+  if (!contentProgress.length) return 0;
+
+  const dates = [
+    ...new Set(
+      contentProgress.map(
+        (p) => new Date(p.last_interacted_at).toISOString().split("T")[0]
+      )
+    ),
+  ].sort();
+
+  let streak = 1;
+  let currentStreak = 1;
+  let currentDate = new Date();
+
+  for (let i = dates.length - 1; i > 0; i--) {
+    const diff =
+      Math.abs(
+        new Date(dates[i]).getTime() - new Date(dates[i - 1]).getTime()
+      ) /
+      (1000 * 60 * 60 * 24);
+
+    if (diff === 1) {
+      currentStreak++;
+      streak = Math.max(streak, currentStreak);
+    } else {
+      break;
+    }
+  }
+
+  return currentStreak;
+};
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
@@ -175,182 +264,234 @@ const Dashboard = () => {
   // Render tab content
   const renderTabContent = () => {
     switch (activeTab) {
-      case "overview":
+      case "overview": {
+        const analytics = calculateAnalytics(
+          contentProgress,
+          quizAttempts,
+          contents
+        );
+
         return (
           <div className="space-y-6">
-            {/* User Info */}
-            <section className="bg-white rounded-3xl shadow-lg p-6 transform transition-all hover:scale-105 border border-indigo-50">
-              <div className="flex items-center mb-4">
-                <div className="bg-indigo-100 p-3 rounded-2xl">
-                  <span className="text-2xl">👤</span>
-                </div>
-                <h2 className="text-xl font-bold ml-3 text-indigo-800">
-                  Your Profile
-                </h2>
-              </div>
-
+            <section className="bg-white rounded-3xl shadow-lg p-6">
               <div className="flex items-center mb-6">
-                <img
-                  src={profile.avatar_url}
-                  alt="User Avatar"
-                  className="w-16 h-16 rounded-full border-4 border-indigo-100"
-                />
-                <div className="ml-4">
-                  <p className="font-bold text-lg">
-                    {profile.first_name} {profile.last_name}
-                  </p>
-                  <p className="text-gray-500 text-sm">
-                    Member since{" "}
-                    {new Date(profile.created_at).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-3 pl-2">
-                <p className="flex justify-between border-b border-gray-100 pb-2">
-                  <span className="text-gray-500">Email</span>
-                  <span className="font-medium text-indigo-700">
-                    {profile.email}
-                  </span>
-                </p>
-                <p className="flex justify-between border-b border-gray-100 pb-2">
-                  <span className="text-gray-500">Date of Birth</span>
-                  <span className="font-medium text-indigo-700">
-                    {new Date(profile.date_of_birth).toLocaleDateString()}
-                  </span>
-                </p>
-                <p className="flex justify-between border-b border-gray-100 pb-2">
-                  <span className="text-gray-500">Age</span>
-                  <span className="font-medium text-indigo-700">
-                    {userAge} years
-                  </span>
-                </p>
-                <p className="flex justify-between pb-2">
-                  <span className="text-gray-500">Age Group</span>
-                  <span className="font-medium text-indigo-700">
-                    {userAgeGroup}
-                  </span>
-                </p>
-              </div>
-            </section>
-
-            {/* Progress Summary */}
-            <section className="bg-white rounded-3xl shadow-lg p-6 transform transition-all hover:scale-105 border border-indigo-50">
-              <div className="flex items-center mb-4">
                 <div className="bg-indigo-100 p-3 rounded-2xl">
                   <span className="text-2xl">📊</span>
                 </div>
                 <h2 className="text-xl font-bold ml-3 text-indigo-800">
-                  Progress Summary
+                  Learning Analytics
                 </h2>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div className="bg-gray-50 p-4 rounded-xl text-center">
-                  <p className="text-gray-500 text-sm">Content Viewed</p>
-                  <p className="text-2xl font-bold text-indigo-700">
-                    {contentProgress.filter((p) => p.is_viewed).length}/
-                    {contents.length}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="bg-gradient-to-br from-orange-50 to-red-50 p-4 rounded-xl">
+                  <div className="flex items-center justify-between">
+                    <p className="text-gray-600">Learning Streak</p>
+                    <span className="text-2xl">🔥</span>
+                  </div>
+                  <p className="text-3xl font-bold text-orange-600 mt-2">
+                    {analytics.learningStreak} days
                   </p>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-xl text-center">
-                  <p className="text-gray-500 text-sm">Quiz Score</p>
-                  <p className="text-2xl font-bold text-indigo-700">
-                    {quizAttempts[0]?.total_score || 0}/
-                    {quizzes[0]?.total_marks || 100}
-                  </p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-xl text-center">
-                  <p className="text-gray-500 text-sm">Time Spent</p>
-                  <p className="text-2xl font-bold text-indigo-700">
-                    {contentProgress.reduce(
-                      (total, curr) => total + curr.time_spent_minutes,
-                      0
-                    )}{" "}
-                    min
-                  </p>
-                </div>
-              </div>
 
-              <div className="mt-4">
-                <p className="text-gray-500 text-sm mb-1">Overall Progress</p>
-                <div className="w-full bg-gray-100 rounded-full h-4">
-                  <div
-                    className="bg-gradient-to-r from-indigo-400 to-purple-500 h-full rounded-full"
-                    style={{
-                      width: `${
-                        (contentProgress.filter((p) => p.is_viewed).length /
-                          contents.length) *
-                        100
-                      }%`,
-                    }}
-                  />
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl">
+                  <div className="flex items-center justify-between">
+                    <p className="text-gray-600">This Week</p>
+                    <span className="text-2xl">📈</span>
+                  </div>
+                  <p className="text-3xl font-bold text-emerald-600 mt-2">
+                    {analytics.weeklyProgress} topics
+                  </p>
+                </div>
+
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl">
+                  <div className="flex items-center justify-between">
+                    <p className="text-gray-600">Progress</p>
+                    <span className="text-2xl">✅</span>
+                  </div>
+                  <p className="text-3xl font-bold text-indigo-600 mt-2">
+                    {Math.round(analytics.completionRate)}%
+                  </p>
                 </div>
               </div>
             </section>
 
-            {/* Recent Content */}
-            <section className="bg-white rounded-3xl shadow-lg p-6">
-              <div className="flex items-center mb-4">
+            <section className="bg-white rounded-3xl shadow-lg p-6 mb-6">
+              <div className="flex items-center mb-6">
                 <div className="bg-indigo-100 p-3 rounded-2xl">
-                  <span className="text-2xl">📚</span>
+                  <span className="text-2xl">👤</span>
                 </div>
-                <h3 className="font-bold text-xl ml-3 text-indigo-800">
-                  Recent Content
+                <h2 className="text-xl font-bold ml-3 text-indigo-800">
+                  Personal Details
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Basic Information */}
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl">
+                  <h3 className="font-semibold text-indigo-800 mb-3">
+                    Basic Information
+                  </h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Name</span>
+                      <span className="font-medium text-indigo-700">
+                        {profile.first_name} {profile.last_name}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Age</span>
+                      <span className="font-medium text-indigo-700">
+                        {userAge} years
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Age Group</span>
+                      <span className="font-medium text-indigo-700">
+                        {userAgeGroup}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contact Information */}
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-xl">
+                  <h3 className="font-semibold text-indigo-800 mb-3">
+                    Contact Details
+                  </h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Email</span>
+                      <span className="font-medium text-indigo-700">
+                        {user.email}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Phone</span>
+                      <span className="font-medium text-indigo-700">
+                        {profile.phone || "Not provided"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Location</span>
+                      <span className="font-medium text-indigo-700">
+                        {profile.location || "Not provided"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Account Information */}
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl">
+                  <h3 className="font-semibold text-indigo-800 mb-3">
+                    Account Status
+                  </h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Member Since</span>
+                      <span className="font-medium text-indigo-700">
+                        {new Date(profile.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Last Login</span>
+                      <span className="font-medium text-indigo-700">
+                        {new Date(user.last_sign_in_at).toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Health Information */}
+                <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-4 rounded-xl">
+                  <h3 className="font-semibold text-indigo-800 mb-3">
+                    Health Information
+                  </h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Date of Birth</span>
+                      <span className="font-medium text-indigo-700">
+                        {new Date(profile.date_of_birth).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Gender</span>
+                      <span className="font-medium text-indigo-700">
+                        {profile.gender || "Not specified"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Blood Group</span>
+                      <span className="font-medium text-indigo-700">
+                        {profile.blood_group || "Not provided"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section className="bg-white rounded-3xl shadow-lg p-6">
+              <div className="flex items-center mb-6">
+                <div className="bg-indigo-100 p-3 rounded-2xl">
+                  <span className="text-2xl">🕒</span>
+                </div>
+                <h3 className="text-xl font-bold ml-3 text-indigo-800">
+                  Recent Activity
                 </h3>
               </div>
 
-              <div className="space-y-3">
-                {contents.map((content, index) => {
-                  // Find related subtopic
-                  const subtopic = subtopics.find(
-                    (s) => s.id === content.subtitle_id
-                  );
-                  // Find user progress for this content
-                  const progress = contentProgress.find(
-                    (p) => p.content_id === content.id
-                  );
-
-                  return (
-                    <div
-                      key={index}
-                      className="flex justify-between items-center p-3 bg-gray-50 rounded-xl hover:bg-indigo-50 transition-colors"
-                    >
-                      <div>
-                        <p className="font-medium">{content.title}</p>
-                        <div className="flex space-x-3 text-sm text-gray-500 mt-1">
-                          <span>{subtopic?.title || "Unknown Subtopic"}</span>
-                          <span
-                            className={`${
-                              content.content_type === "article"
-                                ? "text-blue-600"
-                                : content.content_type === "quiz"
-                                ? "text-purple-600"
-                                : "text-green-600"
-                            }`}
-                          >
-                            {content.content_type.charAt(0).toUpperCase() +
-                              content.content_type.slice(1)}
-                          </span>
-                        </div>
+              <div className="space-y-4">
+                {analytics.recentActivity.map((activity, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-xl"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="text-2xl">
+                        {activity.content?.content_type === "video"
+                          ? "🎥"
+                          : activity.content?.content_type === "quiz"
+                          ? "📝"
+                          : activity.content?.content_type === "image"
+                          ? "🖼️"
+                          : activity.content?.content_type === "document"
+                          ? "📄"
+                          : "📚"}
                       </div>
-                      <div className="flex items-center space-x-2">
-                        {progress?.is_viewed && (
-                          <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">
-                            Viewed
-                          </span>
-                        )}
-                        <button className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1 rounded-lg text-sm font-medium transition-colors">
-                          {progress?.is_viewed ? "Review" : "Start"}
-                        </button>
+                      <div>
+                        <p className="font-medium">
+                          {activity.content?.title || "Deleted Content"}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {new Date(
+                            activity.last_interacted_at
+                          ).toLocaleString()}
+                        </p>
                       </div>
                     </div>
-                  );
-                })}
+                    <div className="flex items-center space-x-2">
+                      <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm">
+                        {activity.time_spent_minutes} min
+                      </span>
+                      {activity.is_completed && (
+                        <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">
+                          Completed
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                {analytics.recentActivity.length === 0 && (
+                  <div className="text-center py-8 text-gray-500">
+                    No recent activity found. Start learning!
+                  </div>
+                )}
               </div>
             </section>
           </div>
         );
+      }
 
       case "progress":
         return (
@@ -481,9 +622,9 @@ const Dashboard = () => {
                   {subtopics
                     .filter((st) => st.topic_id === topic.id)
                     .map((subtopic) => {
-                      // Find content for this subtopic
-                      const subtopicContent = contents.find(
-                        (c) => c.subtitle_id === subtopic.id
+                      // Find contents for this subtopic
+                      const subtopicContents = contents.filter(
+                        (c) => c.subtopic_id === subtopic.id
                       );
 
                       return (
@@ -495,25 +636,31 @@ const Dashboard = () => {
                             <div>
                               <h5 className="font-medium">{subtopic.title}</h5>
                               <p className="text-sm text-gray-500">
-                                {subtopicContent?.title || ""}
+                                {subtopicContents.length} content items
                               </p>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <span
-                                className={`px-3 py-1 rounded-full text-xs ${
-                                  subtopic.content_type === "article"
-                                    ? "bg-blue-100 text-blue-700"
-                                    : subtopic.content_type === "quiz"
-                                    ? "bg-purple-100 text-purple-700"
-                                    : "bg-green-100 text-green-700"
-                                }`}
-                              >
-                                {subtopic.content_type.charAt(0).toUpperCase() +
-                                  subtopic.content_type.slice(1)}
-                              </span>
-                              <button className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 p-2 rounded-full text-sm">
-                                →
-                              </button>
+                              {subtopicContents.map((content) => (
+                                <span
+                                  key={content.id}
+                                  className={`px-3 py-1 rounded-full text-xs ${
+                                    content.content_type === "text"
+                                      ? "bg-blue-100 text-blue-700"
+                                      : content.content_type === "quiz"
+                                      ? "bg-purple-100 text-purple-700"
+                                      : content.content_type === "image"
+                                      ? "bg-green-100 text-green-700"
+                                      : content.content_type === "video"
+                                      ? "bg-red-100 text-red-700"
+                                      : "bg-gray-100 text-gray-700"
+                                  }`}
+                                >
+                                  {content.content_type
+                                    .charAt(0)
+                                    .toUpperCase() +
+                                    content.content_type.slice(1)}
+                                </span>
+                              ))}
                             </div>
                           </div>
                         </div>
@@ -713,13 +860,13 @@ const Dashboard = () => {
       <div className="mt-6">{renderTabContent()}</div>
 
       {/* Navigation */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center mt-8">
-        <button className="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-2xl hover:shadow-lg hover:from-indigo-700 hover:to-purple-700 transition-all font-bold text-lg flex items-center justify-center gap-2">
-          <span className="text-xl">🚀</span> Explore Topics
+      <div class="flex flex-col sm:flex-row gap-4 justify-between items-center mt-8">
+        <button class="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-2xl hover:shadow-lg hover:from-indigo-700 hover:to-purple-700 transition-all font-bold text-lg flex items-center justify-center gap-2">
+          <span class="text-xl">🚀</span> Explore Topics
         </button>
 
-        <button className="w-full sm:w-auto bg-white text-indigo-600 border-2 border-indigo-100 px-8 py-4 rounded-2xl hover:border-indigo-300 hover:shadow-md transition-all font-medium flex items-center justify-center gap-2">
-          View Quiz Results <span className="ml-1">→</span>
+        <button class="w-full sm:w-auto bg-white text-indigo-600 border-2 border-indigo-100 px-8 py-4 rounded-2xl hover:border-indigo-300 hover:shadow-md transition-all font-medium flex items-center justify-center gap-2">
+          View Quiz Results <span class="ml-1">→</span>
         </button>
       </div>
     </div>

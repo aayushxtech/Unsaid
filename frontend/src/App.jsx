@@ -44,6 +44,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import PostsDelete from "./pages/admin/pages/posts/PostsDelete";
 import ErrorBoundary from "./components/ErrorBoundary";
 import QuizPage from "./pages/QuizPage";
+import AdminRoute from "./components/AdminRoute";
 
 // Example of a protected route component
 const PrivateRoute = ({ children }) => {
@@ -139,66 +140,66 @@ const App = () => {
             <Route
               path="/admin"
               element={
-                <PrivateRoute>
+                <AdminRoute>
                   <Admin />
-                </PrivateRoute>
+                </AdminRoute>
               }
             />
             {/* admin content routes */}
             <Route
               path="/admin/content"
               element={
-                <PrivateRoute>
+                <AdminRoute>
                   <Content />
-                </PrivateRoute>
+                </AdminRoute>
               }
             />
             <Route
               path="/admin/content/contents/add"
               element={
-                <PrivateRoute>
+                <AdminRoute>
                   <ContentAdd />
-                </PrivateRoute>
+                </AdminRoute>
               }
             />
             <Route
               path="/admin/content/topics/add"
               element={
-                <PrivateRoute>
+                <AdminRoute>
                   <TopicAdd />
-                </PrivateRoute>
+                </AdminRoute>
               }
             />
             <Route
               path="/admin/content/topics/view"
               element={
-                <PrivateRoute>
+                <AdminRoute>
                   <TopicView />
-                </PrivateRoute>
+                </AdminRoute>
               }
             />
             <Route
               path="/admin/content/subtopics/add"
               element={
-                <PrivateRoute>
+                <AdminRoute>
                   <SubTopicAdd />
-                </PrivateRoute>
+                </AdminRoute>
               }
             />
             <Route
               path="/admin/content/subtopics/view"
               element={
-                <PrivateRoute>
+                <AdminRoute>
                   <SubTopicView />
-                </PrivateRoute>
+                </AdminRoute>
               }
             />
             <Route
               path="/admin/content/contents/view"
               element={
-                <PrivateRoute>
+                <AdminRoute>
                   <ContentView />
-                </PrivateRoute>
+                </AdminRoute>
               }
             />
 
@@ -206,67 +207,67 @@ const App = () => {
             <Route
               path="/admin/quizzes"
               element={
-                <PrivateRoute>
+                <AdminRoute>
                   <Quizzes />
-                </PrivateRoute>
+                </AdminRoute>
               }
             />
             <Route
               path="/admin/quizzes/create"
               element={
-                <PrivateRoute>
+                <AdminRoute>
                   <QuizAdd />
-                </PrivateRoute>
+                </AdminRoute>
               }
             />
             <Route
               path="/admin/quizzes/edit"
               element={
-                <PrivateRoute>
+                <AdminRoute>
                   <QuizEdit />
-                </PrivateRoute>
+                </AdminRoute>
               }
             />
             <Route
               path="/admin/quizzes/edit/:id"
               element={
-                <PrivateRoute>
+                <AdminRoute>
                   <QuizEdit />
-                </PrivateRoute>
+                </AdminRoute>
               }
             />
             {/* admin posts routes */}
             <Route
               path="/admin/posts"
               element={
-                <PrivateRoute>
+                <AdminRoute>
                   <PostsAdmin />
-                </PrivateRoute>
+                </AdminRoute>
               }
             />
             <Route
               path="/admin/posts/view"
               element={
-                <PrivateRoute>
+                <AdminRoute>
                   <PostsView />
-                </PrivateRoute>
+                </AdminRoute>
               }
             />
             <Route
               path="/admin/posts/delete"
               element={
-                <PrivateRoute>
+                <AdminRoute>
                   <PostsDelete />
-                </PrivateRoute>
+                </AdminRoute>
               }
             />
 
             <Route
               path="/admin/posts/users/ban"
               element={
-                <PrivateRoute>
+                <AdminRoute>
                   <UsersBan />
-                </PrivateRoute>
+                </AdminRoute>
               }
             />
 
