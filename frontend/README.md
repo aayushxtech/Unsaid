@@ -27,7 +27,6 @@ This project utilizes the following modern technologies:
 
 ### Development Tools
 - **Vite** (v5.1.4) - Next generation frontend tooling
-- **TypeScript** (v5.2.2) - JavaScript with syntax for types
 - **ESLint** (v8.57.0) - Tool for identifying and fixing code issues
 - **Prettier** (v3.2.5) - Code formatter
 - **@vitejs/plugin-react** (v4.2.1) - Official React plugin for Vite
