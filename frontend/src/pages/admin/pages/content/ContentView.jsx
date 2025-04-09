@@ -323,14 +323,6 @@ const ContentView = () => {
 
                       <div className="flex gap-2 ml-4">
                         <button
-                          onClick={() =>
-                            navigate(`/admin/content/edit/${content.id}`)
-                          }
-                          className="text-indigo-600 hover:text-indigo-800"
-                        >
-                          Edit
-                        </button>
-                        <button
                           onClick={() => handleDeleteContent(content.id)}
                           className="text-red-600 hover:text-red-800"
                         >

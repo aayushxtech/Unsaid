@@ -164,14 +164,6 @@ const SubTopicView = () => {
                       </div>
                       <div className="flex gap-2">
                         <button
-                          onClick={() =>
-                            navigate(`/admin/subtopics/edit/${subtopic.id}`)
-                          }
-                          className="text-indigo-600 hover:text-indigo-800"
-                        >
-                          Edit
-                        </button>
-                        <button
                           onClick={() => handleDeleteSubtopic(subtopic.id)}
                           className="text-red-600 hover:text-red-800"
                         >

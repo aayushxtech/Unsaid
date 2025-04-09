@@ -165,14 +165,6 @@ const TopicView = () => {
                       </div>
                       <div className="flex gap-2">
                         <button
-                          onClick={() =>
-                            navigate(`/admin/topics/edit/${topic.id}`)
-                          }
-                          className="text-indigo-600 hover:text-indigo-800"
-                        >
-                          Edit
-                        </button>
-                        <button
                           onClick={() => handleDeleteTopic(topic.id)}
                           className="text-red-600 hover:text-red-800"
                         >
