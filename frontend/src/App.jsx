@@ -42,6 +42,8 @@ import UsersBan from "./pages/admin/pages/posts/UsersBan";
 
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import PostsDelete from "./pages/admin/pages/posts/PostsDelete";
+import ErrorBoundary from "./components/ErrorBoundary";
+import QuizPage from "./pages/QuizPage";
 
 // Example of a protected route component
 const PrivateRoute = ({ children }) => {
@@ -78,182 +80,200 @@ const App = () => {
     <AuthProvider>
       <Router>
         <Navbar />
-        <Routes>
-          {/* public routes */}
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/how-it-works" element={<HowItWorks />} />
-          <Route path="/safety" element={<Safety />} />
-          <Route path="/faqs" element={<FAQs />} />
+        <ErrorBoundary>
+          <Routes>
+            {/* public routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
+            <Route path="/safety" element={<Safety />} />
+            <Route path="/faqs" element={<FAQs />} />
 
-          {/* auth routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+            {/* auth routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
-          {/* private routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <PrivateRoute>
-                <Dashboard />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/modules"
-            element={
-              <PrivateRoute>
-                <Modules />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/posts"
-            element={
-              <PrivateRoute>
-                <Posts />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/ask"
-            element={
-              <PrivateRoute>
-                <Ask />
-              </PrivateRoute>
-            }
-          />
+            {/* private routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <PrivateRoute>
+                  <Dashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/modules"
+              element={
+                <PrivateRoute>
+                  <Modules />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/posts"
+              element={
+                <PrivateRoute>
+                  <Posts />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/ask"
+              element={
+                <PrivateRoute>
+                  <Ask />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/quiz/:id"
+              element={
+                <PrivateRoute>
+                  <QuizPage />
+                </PrivateRoute>
+              }
+            />
 
-          {/* admin route */}
-          <Route
-            path="/admin"
-            element={
-              <PrivateRoute>
-                <Admin />
-              </PrivateRoute>
-            }
-          />
-          {/* admin content routes */}
-          <Route
-            path="/admin/content"
-            element={
-              <PrivateRoute>
-                <Content />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/admin/content/contents/add"
-            element={
-              <PrivateRoute>
-                <ContentAdd />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/admin/content/topics/add"
-            element={
-              <PrivateRoute>
-                <TopicAdd />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/admin/content/topics/view"
-            element={
-              <PrivateRoute>
-                <TopicView />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/admin/content/subtopics/add"
-            element={
-              <PrivateRoute>
-                <SubTopicAdd />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/admin/content/subtopics/view"
-            element={
-              <PrivateRoute>
-                <SubTopicView />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/admin/content/contents/view"
-            element={
-              <PrivateRoute>
-                <ContentView />
-              </PrivateRoute>
-            }
-          />
+            {/* admin route */}
+            <Route
+              path="/admin"
+              element={
+                <PrivateRoute>
+                  <Admin />
+                </PrivateRoute>
+              }
+            />
+            {/* admin content routes */}
+            <Route
+              path="/admin/content"
+              element={
+                <PrivateRoute>
+                  <Content />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/content/contents/add"
+              element={
+                <PrivateRoute>
+                  <ContentAdd />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/content/topics/add"
+              element={
+                <PrivateRoute>
+                  <TopicAdd />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/content/topics/view"
+              element={
+                <PrivateRoute>
+                  <TopicView />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/content/subtopics/add"
+              element={
+                <PrivateRoute>
+                  <SubTopicAdd />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/content/subtopics/view"
+              element={
+                <PrivateRoute>
+                  <SubTopicView />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/content/contents/view"
+              element={
+                <PrivateRoute>
+                  <ContentView />
+                </PrivateRoute>
+              }
+            />
 
-          {/* admin quiz routes */}
-          <Route
-            path="/admin/quizzes"
-            element={
-              <PrivateRoute>
-                <Quizzes />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/admin/quizzes/create"
-            element={
-              <PrivateRoute>
-                <QuizAdd />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/admin/quizzes/edit"
-            element={
-              <PrivateRoute>
-                <QuizEdit />
-              </PrivateRoute>
-            }
-          />
-          {/* admin posts routes */}
-          <Route
-            path="/admin/posts"
-            element={
-              <PrivateRoute>
-                <PostsAdmin />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/admin/posts/view"
-            element={
-              <PrivateRoute>
-                <PostsView />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/admin/posts/delete"
-            element={
-              <PrivateRoute>
-                <PostsDelete />
-              </PrivateRoute>
-            }
-          />
+            {/* admin quiz routes */}
+            <Route
+              path="/admin/quizzes"
+              element={
+                <PrivateRoute>
+                  <Quizzes />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/quizzes/create"
+              element={
+                <PrivateRoute>
+                  <QuizAdd />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/quizzes/edit"
+              element={
+                <PrivateRoute>
+                  <QuizEdit />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/quizzes/edit/:id"
+              element={
+                <PrivateRoute>
+                  <QuizEdit />
+                </PrivateRoute>
+              }
+            />
+            {/* admin posts routes */}
+            <Route
+              path="/admin/posts"
+              element={
+                <PrivateRoute>
+                  <PostsAdmin />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/posts/view"
+              element={
+                <PrivateRoute>
+                  <PostsView />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/posts/delete"
+              element={
+                <PrivateRoute>
+                  <PostsDelete />
+                </PrivateRoute>
+              }
+            />
 
-          <Route
-            path="/admin/posts/users/ban"
-            element={
-              <PrivateRoute>
-                <UsersBan />
-              </PrivateRoute>
-            }
-          />
+            <Route
+              path="/admin/posts/users/ban"
+              element={
+                <PrivateRoute>
+                  <UsersBan />
+                </PrivateRoute>
+              }
+            />
 
-          {/* Not Found */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+            {/* Not Found */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </ErrorBoundary>
       </Router>
     </AuthProvider>
   );

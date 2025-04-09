@@ -3,8 +3,10 @@ import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../supabaseClient";
 import getAgeGroup from "../lib/ageGroup";
 import calculateAge from "../lib/calculateAge";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
   const { user } = useAuth();
 
@@ -16,100 +18,124 @@ const Dashboard = () => {
   const [quizAttempts, setQuizAttempts] = useState([]);
   const [topics, setTopics] = useState([]);
   const [subtopics, setSubtopics] = useState([]);
-  const [dailyTip, setDailyTip] = useState(null);
+  const [quizQuestions, setQuizQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        setLoading(true);
+
+        // Fetch user profile
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+
+        if (profileError) throw profileError;
+        setProfile(profileData);
+
+        // Fetch content progress
+        const { data: progressData, error: progressError } = await supabase
+          .from("user_content_progress")
+          .select("*")
+          .eq("user_id", user.id);
+
+        if (progressError) throw progressError;
+        setContentProgress(progressData);
+
+        // Fetch contents
+        const { data: contentsData, error: contentsError } = await supabase
+          .from("contents")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (contentsError) throw contentsError;
+        setContents(contentsData);
+
+        // Fetch quizzes with their questions
+        const { data: quizzesData, error: quizzesError } = await supabase
+          .from("quizzes")
+          .select(
+            `
+            *,
+            quiz_questions (
+              id,
+              marks
+            )
+          `
+          )
+          .eq("is_published", true);
+
+        if (quizzesError) throw quizzesError;
+
+        // Calculate totals for each quiz
+        const quizzesWithTotals = quizzesData.map((quiz) => ({
+          ...quiz,
+          questions_count: quiz.quiz_questions?.length || 0,
+          total_marks:
+            quiz.quiz_questions?.reduce((sum, q) => sum + (q.marks || 1), 0) ||
+            0,
+        }));
+
+        setQuizzes(quizzesWithTotals);
+
+        // Fetch user's quiz attempts with scores
+        const { data: attemptsData, error: attemptsError } = await supabase
+          .from("user_quiz_attempts")
+          .select(
+            `
+            *,
+            user_quiz_answers (
+              is_correct,
+              question_id
+            )
+          `
+          )
+          .eq("user_id", user.id)
+          .order("attempt_time", { ascending: false });
+
+        if (attemptsError) throw attemptsError;
+
+        setQuizAttempts(attemptsData);
+
+        // Fetch topics
+        const { data: topicsData, error: topicsError } = await supabase
+          .from("topics")
+          .select("*")
+          .eq("is_published", true);
+
+        if (topicsError) throw topicsError;
+        setTopics(topicsData);
+
+        // Fetch subtopics
+        const { data: subtopicsData, error: subtopicsError } = await supabase
+          .from("subtopics")
+          .select("*")
+          .order("order_no");
+
+        if (subtopicsError) throw subtopicsError;
+        setSubtopics(subtopicsData);
+
+        // Fetch quiz questions
+        const { data: questionsData, error: questionsError } = await supabase
+          .from("questions")
+          .select("*");
+
+        if (questionsError) throw questionsError;
+        setQuizQuestions(questionsData || []);
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (user) {
       fetchUserData();
     }
   }, [user]);
-
-  const fetchUserData = async () => {
-    try {
-      setLoading(true);
-
-      // Fetch user profile
-      const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-
-      if (profileError) throw profileError;
-      setProfile(profileData);
-
-      // Fetch content progress
-      const { data: progressData, error: progressError } = await supabase
-        .from("user_content_progress")
-        .select("*")
-        .eq("user_id", user.id);
-
-      if (progressError) throw progressError;
-      setContentProgress(progressData);
-
-      // Fetch contents
-      const { data: contentsData, error: contentsError } = await supabase
-        .from("contents")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (contentsError) throw contentsError;
-      setContents(contentsData);
-
-      // Fetch quizzes
-      const { data: quizzesData, error: quizzesError } = await supabase
-        .from("quizzes")
-        .select("*")
-        .eq("is_published", true);
-
-      if (quizzesError) throw quizzesError;
-      setQuizzes(quizzesData);
-
-      // Fetch quiz attempts
-      const { data: attemptsData, error: attemptsError } = await supabase
-        .from("user_quiz_attempts")
-        .select("*")
-        .eq("user_id", user.id);
-
-      if (attemptsError) throw attemptsError;
-      setQuizAttempts(attemptsData);
-
-      // Fetch topics
-      const { data: topicsData, error: topicsError } = await supabase
-        .from("topics")
-        .select("*")
-        .eq("is_published", true);
-
-      if (topicsError) throw topicsError;
-      setTopics(topicsData);
-
-      // Fetch subtopics
-      const { data: subtopicsData, error: subtopicsError } = await supabase
-        .from("subtopics")
-        .select("*")
-        .order("order_no");
-
-      if (subtopicsError) throw subtopicsError;
-      setSubtopics(subtopicsData);
-
-      // Fetch daily tip
-      const { data: tipData, error: tipError } = await supabase
-        .from("daily_tips")
-        .select("*")
-        .eq("is_published", true)
-        .eq("display_date", new Date().toISOString().split("T")[0])
-        .single();
-
-      if (!tipError) {
-        setDailyTip(tipData);
-      }
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Calculate age and age group when profile is available
   const userAge = profile
@@ -261,20 +287,6 @@ const Dashboard = () => {
                   />
                 </div>
               </div>
-            </section>
-
-            {/* Daily Tip */}
-            <section className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl shadow-lg p-6 text-white transform transition-all hover:scale-105">
-              <div className="flex items-center">
-                <div className="bg-white bg-opacity-20 p-3 rounded-2xl backdrop-blur-sm">
-                  <span className="text-2xl">💡</span>
-                </div>
-                <h3 className="font-bold text-xl ml-3">Daily Tip</h3>
-              </div>
-              <p className="mt-4 text-lg font-medium pl-2">{dailyTip?.tip}</p>
-              <p className="text-white text-opacity-70 text-sm mt-2 pl-2">
-                Source: {dailyTip?.source}
-              </p>
             </section>
 
             {/* Recent Content */}
@@ -521,13 +533,14 @@ const Dashboard = () => {
             </h3>
 
             {quizzes.map((quiz) => {
-              // Find related content
-              const quizContent = contents.find(
-                (c) => c.id === quiz.content_id
+              // Find user's best attempt for this quiz
+              const attempts = quizAttempts.filter(
+                (a) => a.quiz_id === quiz.id
               );
-              // Filter questions for this quiz
-              const questions = quizQuestions.filter(
-                (q) => q.quiz_id === quiz.id
+              const bestAttempt = attempts.reduce(
+                (best, current) =>
+                  current.score > (best?.score || 0) ? current : best,
+                null
               );
 
               return (
@@ -544,7 +557,7 @@ const Dashboard = () => {
                         {quiz.title}
                       </h4>
                       <p className="text-gray-500 text-sm">
-                        {quizContent?.title || ""}
+                        {quiz.difficulty} Level
                       </p>
                     </div>
                   </div>
@@ -566,7 +579,7 @@ const Dashboard = () => {
                       <div>
                         <p className="text-xs text-gray-500">Questions</p>
                         <p className="font-medium">
-                          {questions.length} questions
+                          {quiz.questions_count} questions
                         </p>
                       </div>
                     </div>
@@ -582,16 +595,43 @@ const Dashboard = () => {
                       <div>
                         <p className="text-xs text-gray-500">Your Best Score</p>
                         <p className="font-medium">
-                          {quizAttempts.find((a) => a.quiz_id === quiz.id)
-                            ?.total_score || "Not attempted"}
+                          {bestAttempt ? (
+                            <span
+                              className={
+                                bestAttempt.score >= 70
+                                  ? "text-green-600"
+                                  : "text-orange-600"
+                              }
+                            >
+                              {bestAttempt.total_score}/{quiz.total_marks} (
+                              {bestAttempt.score}%)
+                            </span>
+                          ) : (
+                            "Not attempted"
+                          )}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <button className="w-full bg-purple-500 text-white py-3 rounded-xl font-medium hover:bg-purple-600 transition-colors">
-                    Start Quiz
-                  </button>
+                  <div className="flex gap-4">
+                    <button
+                      onClick={() => navigate(`/quiz/${quiz.id}`)}
+                      className="flex-1 bg-purple-500 text-white py-3 rounded-xl font-medium hover:bg-purple-600 transition-colors"
+                    >
+                      {attempts.length > 0 ? "Retake Quiz" : "Start Quiz"}
+                    </button>
+                    {bestAttempt && (
+                      <button
+                        onClick={() =>
+                          navigate(`/quiz-results/${bestAttempt.id}`)
+                        }
+                        className="flex-1 bg-indigo-100 text-indigo-700 py-3 rounded-xl font-medium hover:bg-indigo-200 transition-colors"
+                      >
+                        View Results
+                      </button>
+                    )}
+                  </div>
                 </div>
               );
             })}

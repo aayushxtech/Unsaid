@@ -250,10 +250,10 @@ const QuizAdd = () => {
 
       const quizId = quizData[0].id;
 
-      // Insert questions
+      // Insert questions to quiz_questions
       for (const question of quiz.questions) {
         const { data: questionData, error: questionError } = await supabase
-          .from("questions")
+          .from("quiz_questions")
           .insert([
             {
               quiz_id: quizId,
@@ -266,7 +266,7 @@ const QuizAdd = () => {
 
         const questionId = questionData[0].id;
 
-        // Insert options for this question
+        // Insert options to quiz_options for this question
         const optionsToInsert = question.options.map((option) => ({
           question_id: questionId,
           option_text: option.text,
@@ -274,7 +274,7 @@ const QuizAdd = () => {
         }));
 
         const { error: optionsError } = await supabase
-          .from("options")
+          .from("quiz_options")
           .insert(optionsToInsert);
 
         if (optionsError) throw optionsError;
