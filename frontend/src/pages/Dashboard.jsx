@@ -5,6 +5,35 @@ import getAgeGroup from "../lib/ageGroup";
 import calculateAge from "../lib/calculateAge";
 import { useNavigate } from "react-router-dom";
 
+const checkBannedStatus = (profile) => {
+  if (profile?.is_banned) {
+    throw new Error("Account suspended");
+  }
+};
+
+const BannedUserMessage = ({ profile }) => (
+  <div className="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg">
+    <div className="flex items-center">
+      <div className="flex-shrink-0">
+        <span className="text-red-500 text-2xl">⚠️</span>
+      </div>
+      <div className="ml-4">
+        <h3 className="text-xl font-bold text-red-800">Account Suspended</h3>
+        <p className="text-red-600 mt-2">
+          Your account has been suspended on{" "}
+          {new Date(profile.banned_at).toLocaleDateString()}
+        </p>
+        <p className="text-red-600 mt-1">
+          Reason: {profile.ban_reason || "No reason provided"}
+        </p>
+        <p className="text-red-600 mt-2">
+          Please contact support for more information.
+        </p>
+      </div>
+    </div>
+  </div>
+);
+
 const calculateAnalytics = (contentProgress, quizAttempts, contents) => {
   const now = new Date();
   const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -74,7 +103,6 @@ const calculateLearningStreak = (contentProgress) => {
 
   let streak = 1;
   let currentStreak = 1;
-  let currentDate = new Date();
 
   for (let i = dates.length - 1; i > 0; i--) {
     const diff =
@@ -121,7 +149,6 @@ const Dashboard = () => {
           .select("*")
           .eq("id", user.id)
           .single();
-
         if (profileError) throw profileError;
         setProfile(profileData);
 
@@ -263,6 +290,11 @@ const Dashboard = () => {
 
   // Render tab content
   const renderTabContent = () => {
+    // Check for banned status first
+    if (profile?.is_banned) {
+      return <BannedUserMessage profile={profile} />;
+    }
+
     switch (activeTab) {
       case "overview": {
         const analytics = calculateAnalytics(
@@ -273,6 +305,7 @@ const Dashboard = () => {
 
         return (
           <div className="space-y-6">
+            {profile.is_banned && <BannedUserMessage profile={profile} />}
             <section className="bg-white rounded-3xl shadow-lg p-6">
               <div className="flex items-center mb-6">
                 <div className="bg-indigo-100 p-3 rounded-2xl">
@@ -690,6 +723,16 @@ const Dashboard = () => {
                 null
               );
 
+              const handleQuizStart = () => {
+                try {
+                  checkBannedStatus(profile);
+                  navigate(`/quiz/${quiz.id}`);
+                } catch (error) {
+                  // Optional: Show a toast message or alert
+                  return;
+                }
+              };
+
               return (
                 <div
                   key={quiz.id}
@@ -763,8 +806,16 @@ const Dashboard = () => {
 
                   <div className="flex gap-4">
                     <button
-                      onClick={() => navigate(`/quiz/${quiz.id}`)}
-                      className="flex-1 bg-purple-500 text-white py-3 rounded-xl font-medium hover:bg-purple-600 transition-colors"
+                      onClick={handleQuizStart}
+                      disabled={profile?.is_banned}
+                      className={`
+                        flex-1 py-3 rounded-xl font-medium
+                        ${
+                          profile?.is_banned
+                            ? "bg-gray-300 cursor-not-allowed"
+                            : "bg-purple-500 text-white hover:bg-purple-600"
+                        } transition-colors
+                      `}
                     >
                       {attempts.length > 0 ? "Retake Quiz" : "Start Quiz"}
                     </button>
@@ -801,72 +852,63 @@ const Dashboard = () => {
             Your personal health journey dashboard
           </p>
         </div>
-
-        <div className="flex items-center space-x-2">
-          <button className="bg-indigo-100 p-2 rounded-full text-indigo-600 hover:bg-indigo-200 transition-colors">
-            <span className="text-xl">🔔</span>
-          </button>
-          <button className="bg-indigo-100 p-2 rounded-full text-indigo-600 hover:bg-indigo-200 transition-colors">
-            <span className="text-xl">⚙️</span>
-          </button>
-        </div>
       </header>
 
       {/* Tab Navigation */}
       <div className="bg-white rounded-2xl shadow-md p-2 flex overflow-x-auto">
-        <button
-          onClick={() => setActiveTab("overview")}
-          className={`px-4 py-2 rounded-xl font-medium flex-1 transition-colors ${
-            activeTab === "overview"
-              ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white"
-              : "text-gray-600 hover:bg-indigo-50"
-          }`}
-        >
-          Overview
-        </button>
-        <button
-          onClick={() => setActiveTab("progress")}
-          className={`px-4 py-2 rounded-xl font-medium flex-1 transition-colors ${
-            activeTab === "progress"
-              ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white"
-              : "text-gray-600 hover:bg-indigo-50"
-          }`}
-        >
-          Progress
-        </button>
-        <button
-          onClick={() => setActiveTab("content")}
-          className={`px-4 py-2 rounded-xl font-medium flex-1 transition-colors ${
-            activeTab === "content"
-              ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white"
-              : "text-gray-600 hover:bg-indigo-50"
-          }`}
-        >
-          Content
-        </button>
-        <button
-          onClick={() => setActiveTab("quizzes")}
-          className={`px-4 py-2 rounded-xl font-medium flex-1 transition-colors ${
-            activeTab === "quizzes"
-              ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white"
-              : "text-gray-600 hover:bg-indigo-50"
-          }`}
-        >
-          Quizzes
-        </button>
+        {["overview", "progress", "content", "quizzes"].map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            disabled={profile?.is_banned}
+            className={`
+              px-4 py-2 rounded-xl font-medium flex-1 transition-colors
+              ${profile?.is_banned ? "opacity-50 cursor-not-allowed" : ""}
+              ${
+                activeTab === tab
+                  ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white"
+                  : "text-gray-600 hover:bg-indigo-50"
+              }
+            `}
+          >
+            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+          </button>
+        ))}
       </div>
 
       {/* Tab Content */}
       <div className="mt-6">{renderTabContent()}</div>
 
       {/* Navigation */}
-      <div class="flex flex-col sm:flex-row gap-4 justify-between items-center mt-8">
-        <button class="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-2xl hover:shadow-lg hover:from-indigo-700 hover:to-purple-700 transition-all font-bold text-lg flex items-center justify-center gap-2">
-          <span class="text-xl">🚀</span> Explore Topics
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center mt-8">
+        <button
+          className={`
+            w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-lg 
+            flex items-center justify-center gap-2
+            ${
+              profile?.is_banned
+                ? "bg-gray-300 cursor-not-allowed"
+                : "bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:shadow-lg hover:from-indigo-700 hover:to-purple-700"
+            } transition-all
+          `}
+          disabled={profile?.is_banned}
+        >
+          <span className="text-xl">🚀</span> Explore Topics
         </button>
 
-        <button class="w-full sm:w-auto bg-white text-indigo-600 border-2 border-indigo-100 px-8 py-4 rounded-2xl hover:border-indigo-300 hover:shadow-md transition-all font-medium flex items-center justify-center gap-2">
-          View Quiz Results <span class="ml-1">→</span>
+        <button
+          className={`
+            w-full sm:w-auto px-8 py-4 rounded-2xl font-medium 
+            flex items-center justify-center gap-2
+            ${
+              profile?.is_banned
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-white text-indigo-600 border-2 border-indigo-100 hover:border-indigo-300 hover:shadow-md"
+            } transition-all
+          `}
+          disabled={profile?.is_banned}
+        >
+          View Quiz Results <span className="ml-1">→</span>
         </button>
       </div>
     </div>

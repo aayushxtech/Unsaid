@@ -24,6 +24,7 @@ import {
   School as SchoolIcon,
   MenuBook as MenuBookIcon,
   Description as DescriptionIcon,
+  ErrorOutline,
 } from "@mui/icons-material";
 import {
   FaFileAlt,
@@ -463,14 +464,25 @@ const Modules = () => {
       try {
         setLoading(true);
 
-        // Get user's date of birth from profiles
+        // Get user's profile including ban status
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .select("date_of_birth")
+          .select("date_of_birth, is_banned, banned_at, ban_reason")
           .eq("id", user.id)
           .single();
 
         if (profileError) throw profileError;
+
+        // Check if user is banned
+        if (profile?.is_banned) {
+          setError({
+            type: "banned",
+            message: profile.ban_reason || "Your account has been suspended.",
+            bannedAt: profile.banned_at,
+          });
+          setLoading(false);
+          return;
+        }
 
         if (profile?.date_of_birth) {
           const age = calculateAge(profile.date_of_birth);
@@ -578,19 +590,40 @@ const Modules = () => {
 
   if (error) {
     return (
-      <Box
-        sx={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          p: 3,
-        }}
-      >
-        <Alert severity="error" sx={{ maxWidth: 600 }}>
-          Error: {error}
-        </Alert>
-      </Box>
+      <Container maxWidth="md" sx={{ py: 8 }}>
+        <Paper
+          elevation={0}
+          sx={{
+            p: 4,
+            textAlign: "center",
+            borderRadius: 3,
+            bgcolor: "error.lighter",
+            border: "1px solid",
+            borderColor: "error.light",
+          }}
+        >
+          <ErrorOutline
+            sx={{
+              fontSize: 64,
+              color: "error.main",
+              mb: 2,
+            }}
+          />
+          <Typography variant="h5" color="error.main" gutterBottom>
+            Account Suspended
+          </Typography>
+          <Typography color="error.dark" paragraph>
+            {error.type === "banned"
+              ? error.message
+              : "An error occurred while loading content."}
+          </Typography>
+          {error.type === "banned" && error.bannedAt && (
+            <Typography variant="body2" color="error.dark">
+              Suspended on: {new Date(error.bannedAt).toLocaleDateString()}
+            </Typography>
+          )}
+        </Paper>
+      </Container>
     );
   }
 

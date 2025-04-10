@@ -10,8 +10,11 @@ import {
 import PostCard from "../components/PostCard";
 import CreatePostForm from "../components/CreatePostForm";
 import { supabase } from "../supabaseClient";
+import { useAuth } from "../contexts/AuthContext"; // Make sure your auth context path is correct
 
 const Posts = () => {
+  const { user } = useAuth();
+  const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openCreatePost, setOpenCreatePost] = useState(false);
@@ -110,11 +113,54 @@ const Posts = () => {
     fetchPosts();
   }, []);
 
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      if (!error && data) {
+        setProfile(data);
+      }
+    };
+
+    fetchProfile();
+  }, [user]);
+
   const handlePostCreated = async () => {
     setOpenCreatePost(false); // Close the create post dialog
     setLoading(true); // Show loading state
     await fetchPosts(); // Refresh the posts
   };
+
+  if (profile?.is_banned) {
+    return (
+      <Container maxWidth="md" sx={{ py: 8 }}>
+        <Box
+          sx={{
+            textAlign: "center",
+            p: 4,
+            borderRadius: 2,
+            bgcolor: "error.lighter",
+            border: "1px solid",
+            borderColor: "error.light",
+          }}
+        >
+          <Typography variant="h5" color="error.main" gutterBottom>
+            Account Suspended
+          </Typography>
+          <Typography color="error.dark">
+            Your account has been suspended and you cannot view posts at this
+            time. Please contact support for more information.
+          </Typography>
+        </Box>
+      </Container>
+    );
+  }
 
   if (loading) {
     return (
