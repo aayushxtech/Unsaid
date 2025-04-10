@@ -26,7 +26,7 @@ This project utilizes the following modern technologies:
 - **Supabase Auth Helpers** (v0.9.1) - Authentication utilities for React
 
 ### Development Tools
-- **Vite** (v5.1.4) - Next generation frontend tooling
+- **Vite** (v5.1.4) - Next generation frontend toolingk
 - **ESLint** (v8.57.0) - Tool for identifying and fixing code issues
 - **Prettier** (v3.2.5) - Code formatter
 - **@vitejs/plugin-react** (v4.2.1) - Official React plugin for Vite
