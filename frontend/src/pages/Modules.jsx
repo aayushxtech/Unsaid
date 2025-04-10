@@ -467,7 +467,7 @@ const Modules = () => {
         // Get user's profile including ban status
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .select("date_of_birth, is_banned, banned_at, ban_reason")
+          .select("date_of_birth, is_banned, banned_at, banned_reason")
           .eq("id", user.id)
           .single();
 
@@ -477,7 +477,8 @@ const Modules = () => {
         if (profile?.is_banned) {
           setError({
             type: "banned",
-            message: profile.ban_reason || "Your account has been suspended.",
+            message:
+              profile.banned_reason || "Your account has been suspended.",
             bannedAt: profile.banned_at,
           });
           setLoading(false);
@@ -588,7 +589,8 @@ const Modules = () => {
     );
   }
 
-  if (error) {
+  // Update the error display condition to only show for banned users
+  if (error?.type === "banned") {
     return (
       <Container maxWidth="md" sx={{ py: 8 }}>
         <Paper
@@ -613,16 +615,25 @@ const Modules = () => {
             Account Suspended
           </Typography>
           <Typography color="error.dark" paragraph>
-            {error.type === "banned"
-              ? error.message
-              : "An error occurred while loading content."}
+            {error.message}
           </Typography>
-          {error.type === "banned" && error.bannedAt && (
+          {error.bannedAt && (
             <Typography variant="body2" color="error.dark">
               Suspended on: {new Date(error.bannedAt).toLocaleDateString()}
             </Typography>
           )}
         </Paper>
+      </Container>
+    );
+  }
+
+  // For other types of errors, show a different message
+  if (error) {
+    return (
+      <Container maxWidth="md" sx={{ py: 8 }}>
+        <Alert severity="error" sx={{ maxWidth: 600, mx: "auto" }}>
+          {error.message || "An error occurred while loading content."}
+        </Alert>
       </Container>
     );
   }
