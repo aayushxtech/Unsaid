@@ -4,6 +4,39 @@ import { supabase } from "../supabaseClient";
 import getAgeGroup from "../lib/ageGroup";
 import calculateAge from "../lib/calculateAge";
 import { useNavigate } from "react-router-dom";
+import {
+  User,
+  Calendar,
+  Clock,
+  Award,
+  CheckCircle,
+  BookOpen,
+  FileText,
+  Video,
+  Image,
+  Activity,
+  Zap,
+  TrendingUp,
+  Percent,
+  Flame,
+  AlertTriangle,
+  Phone,
+  MapPin,
+  Mail,
+  Flag,
+  Heart,
+  Star,
+  Coffee,
+  HelpCircle,
+  PenTool,
+  BarChart2,
+  Database,
+  Settings,
+  Grid,
+  DollarSign,
+  Send,
+  Bell,
+} from "lucide-react";
 
 const checkBannedStatus = (profile) => {
   if (profile?.is_banned) {
@@ -12,10 +45,10 @@ const checkBannedStatus = (profile) => {
 };
 
 const BannedUserMessage = ({ profile }) => (
-  <div className="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg">
+  <div className="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg shadow-md">
     <div className="flex items-center">
       <div className="flex-shrink-0">
-        <span className="text-red-500 text-2xl">⚠️</span>
+        <AlertTriangle className="text-red-500 w-8 h-8" />
       </div>
       <div className="ml-4">
         <h3 className="text-xl font-bold text-red-800">Account Suspended</h3>
@@ -120,6 +153,23 @@ const calculateLearningStreak = (contentProgress) => {
   }
 
   return currentStreak;
+};
+
+const ContentTypeIcon = ({ type, size = 20 }) => {
+  switch (type) {
+    case "video":
+      return <Video size={size} className="text-red-500" />;
+    case "quiz":
+      return <FileText size={size} className="text-purple-500" />;
+    case "image":
+      return <Image size={size} className="text-green-500" />;
+    case "document":
+      return <FileText size={size} className="text-blue-500" />;
+    case "text":
+      return <BookOpen size={size} className="text-indigo-500" />;
+    default:
+      return <BookOpen size={size} className="text-gray-500" />;
+  }
 };
 
 const Dashboard = () => {
@@ -261,7 +311,7 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-100">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-indigo-600 font-medium">
@@ -274,8 +324,9 @@ const Dashboard = () => {
 
   if (!profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-100">
         <div className="text-center max-w-md mx-auto px-4">
+          <HelpCircle className="w-16 h-16 mx-auto mb-4 text-indigo-500" />
           <h2 className="text-2xl font-bold text-gray-800 mb-2">
             Profile Not Found
           </h2>
@@ -306,10 +357,10 @@ const Dashboard = () => {
         return (
           <div className="space-y-6">
             {profile.is_banned && <BannedUserMessage profile={profile} />}
-            <section className="bg-white rounded-3xl shadow-lg p-6">
+            <section className="bg-white rounded-3xl shadow-lg p-6 overflow-hidden">
               <div className="flex items-center mb-6">
                 <div className="bg-indigo-100 p-3 rounded-2xl">
-                  <span className="text-2xl">📊</span>
+                  <BarChart2 className="w-6 h-6 text-indigo-600" />
                 </div>
                 <h2 className="text-xl font-bold ml-3 text-indigo-800">
                   Learning Analytics
@@ -317,30 +368,30 @@ const Dashboard = () => {
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div className="bg-gradient-to-br from-orange-50 to-red-50 p-4 rounded-xl">
+                <div className="bg-gradient-to-br from-orange-50 to-red-50 p-4 rounded-xl shadow-sm">
                   <div className="flex items-center justify-between">
                     <p className="text-gray-600">Learning Streak</p>
-                    <span className="text-2xl">🔥</span>
+                    <Flame className="w-6 h-6 text-orange-500" />
                   </div>
                   <p className="text-3xl font-bold text-orange-600 mt-2">
                     {analytics.learningStreak} days
                   </p>
                 </div>
 
-                <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl">
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl shadow-sm">
                   <div className="flex items-center justify-between">
                     <p className="text-gray-600">This Week</p>
-                    <span className="text-2xl">📈</span>
+                    <TrendingUp className="w-6 h-6 text-emerald-500" />
                   </div>
                   <p className="text-3xl font-bold text-emerald-600 mt-2">
                     {analytics.weeklyProgress} topics
                   </p>
                 </div>
 
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl">
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl shadow-sm">
                   <div className="flex items-center justify-between">
                     <p className="text-gray-600">Progress</p>
-                    <span className="text-2xl">✅</span>
+                    <Percent className="w-6 h-6 text-indigo-500" />
                   </div>
                   <p className="text-3xl font-bold text-indigo-600 mt-2">
                     {Math.round(analytics.completionRate)}%
@@ -349,10 +400,10 @@ const Dashboard = () => {
               </div>
             </section>
 
-            <section className="bg-white rounded-3xl shadow-lg p-6 mb-6">
+            <section className="bg-white rounded-3xl shadow-lg p-6 mb-6 overflow-hidden">
               <div className="flex items-center mb-6">
                 <div className="bg-indigo-100 p-3 rounded-2xl">
-                  <span className="text-2xl">👤</span>
+                  <User className="w-6 h-6 text-indigo-600" />
                 </div>
                 <h2 className="text-xl font-bold ml-3 text-indigo-800">
                   Personal Details
@@ -361,8 +412,9 @@ const Dashboard = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Basic Information */}
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl">
-                  <h3 className="font-semibold text-indigo-800 mb-3">
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl shadow-sm">
+                  <h3 className="font-semibold text-indigo-800 mb-3 flex items-center">
+                    <User className="w-4 h-4 mr-2 text-indigo-500" />
                     Basic Information
                   </h3>
                   <div className="space-y-2">
@@ -388,8 +440,9 @@ const Dashboard = () => {
                 </div>
 
                 {/* Contact Information */}
-                <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-xl">
-                  <h3 className="font-semibold text-indigo-800 mb-3">
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-xl shadow-sm">
+                  <h3 className="font-semibold text-indigo-800 mb-3 flex items-center">
+                    <Mail className="w-4 h-4 mr-2 text-indigo-500" />
                     Contact Details
                   </h3>
                   <div className="space-y-2">
@@ -401,34 +454,51 @@ const Dashboard = () => {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Phone</span>
-                      <span className="font-medium text-indigo-700">
-                        {profile.phone || "Not provided"}
+                      <span className="font-medium text-indigo-700 flex items-center">
+                        {profile.phone ? (
+                          <>
+                            <Phone className="w-3 h-3 mr-1 text-indigo-400" />
+                            {profile.phone}
+                          </>
+                        ) : (
+                          "Not provided"
+                        )}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Location</span>
-                      <span className="font-medium text-indigo-700">
-                        {profile.location || "Not provided"}
+                      <span className="font-medium text-indigo-700 flex items-center">
+                        {profile.location ? (
+                          <>
+                            <MapPin className="w-3 h-3 mr-1 text-indigo-400" />
+                            {profile.location}
+                          </>
+                        ) : (
+                          "Not provided"
+                        )}
                       </span>
                     </div>
                   </div>
                 </div>
 
                 {/* Account Information */}
-                <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl">
-                  <h3 className="font-semibold text-indigo-800 mb-3">
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl shadow-sm">
+                  <h3 className="font-semibold text-indigo-800 mb-3 flex items-center">
+                    <Settings className="w-4 h-4 mr-2 text-indigo-500" />
                     Account Status
                   </h3>
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Member Since</span>
-                      <span className="font-medium text-indigo-700">
+                      <span className="font-medium text-indigo-700 flex items-center">
+                        <Calendar className="w-3 h-3 mr-1 text-indigo-400" />
                         {new Date(profile.created_at).toLocaleDateString()}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Last Login</span>
-                      <span className="font-medium text-indigo-700">
+                      <span className="font-medium text-indigo-700 flex items-center">
+                        <Clock className="w-3 h-3 mr-1 text-indigo-400" />
                         {new Date(user.last_sign_in_at).toLocaleString()}
                       </span>
                     </div>
@@ -436,8 +506,9 @@ const Dashboard = () => {
                 </div>
 
                 {/* Health Information */}
-                <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-4 rounded-xl">
-                  <h3 className="font-semibold text-indigo-800 mb-3">
+                <div className="bg-gradient-to-br from-yellow-50 to-amber-50 p-4 rounded-xl shadow-sm">
+                  <h3 className="font-semibold text-indigo-800 mb-3 flex items-center">
+                    <Heart className="w-4 h-4 mr-2 text-red-500" />
                     Health Information
                   </h3>
                   <div className="space-y-2">
@@ -464,10 +535,10 @@ const Dashboard = () => {
               </div>
             </section>
 
-            <section className="bg-white rounded-3xl shadow-lg p-6">
+            <section className="bg-white rounded-3xl shadow-lg p-6 overflow-hidden">
               <div className="flex items-center mb-6">
                 <div className="bg-indigo-100 p-3 rounded-2xl">
-                  <span className="text-2xl">🕒</span>
+                  <Activity className="w-6 h-6 text-indigo-600" />
                 </div>
                 <h3 className="text-xl font-bold ml-3 text-indigo-800">
                   Recent Activity
@@ -478,25 +549,20 @@ const Dashboard = () => {
                 {analytics.recentActivity.map((activity, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-xl"
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-indigo-50 transition-colors"
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="text-2xl">
-                        {activity.content?.content_type === "video"
-                          ? "🎥"
-                          : activity.content?.content_type === "quiz"
-                          ? "📝"
-                          : activity.content?.content_type === "image"
-                          ? "🖼️"
-                          : activity.content?.content_type === "document"
-                          ? "📄"
-                          : "📚"}
+                      <div className="bg-white p-2 rounded-lg shadow-sm">
+                        <ContentTypeIcon
+                          type={activity.content?.content_type}
+                        />
                       </div>
                       <div>
                         <p className="font-medium">
                           {activity.content?.title || "Deleted Content"}
                         </p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-500 flex items-center">
+                          <Clock className="w-3 h-3 mr-1" />
                           {new Date(
                             activity.last_interacted_at
                           ).toLocaleString()}
@@ -504,11 +570,13 @@ const Dashboard = () => {
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm">
+                      <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm flex items-center">
+                        <Clock className="w-3 h-3 mr-1" />
                         {activity.time_spent_minutes} min
                       </span>
                       {activity.is_completed && (
-                        <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">
+                        <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm flex items-center">
+                          <CheckCircle className="w-3 h-3 mr-1" />
                           Completed
                         </span>
                       )}
@@ -517,6 +585,7 @@ const Dashboard = () => {
                 ))}
                 {analytics.recentActivity.length === 0 && (
                   <div className="text-center py-8 text-gray-500">
+                    <Coffee className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                     No recent activity found. Start learning!
                   </div>
                 )}
@@ -529,11 +598,13 @@ const Dashboard = () => {
       case "progress":
         return (
           <div className="space-y-6">
-            <h3 className="text-xl font-bold text-indigo-800">
+            <h3 className="text-xl font-bold text-indigo-800 flex items-center">
+              <Activity className="w-6 h-6 mr-2 text-indigo-600" />
               Your Learning Progress
             </h3>
             <div className="bg-white rounded-3xl shadow-md p-6">
-              <h4 className="font-semibold text-lg mb-4 text-indigo-700">
+              <h4 className="font-semibold text-lg mb-4 text-indigo-700 flex items-center">
+                <BookOpen className="w-5 h-5 mr-2 text-indigo-500" />
                 Content Progress
               </h4>
               <div className="space-y-4">
@@ -546,34 +617,49 @@ const Dashboard = () => {
                   return (
                     <div
                       key={index}
-                      className="flex justify-between items-center border-b border-gray-100 pb-3 last:border-0"
+                      className="flex justify-between items-center border-b border-gray-100 pb-3 last:border-0 hover:bg-gray-50 p-2 rounded-lg transition-colors"
                     >
-                      <div>
-                        <p className="font-medium">
-                          {content?.title || "Unknown Content"}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {new Date(
-                            progress.last_interacted_at
-                          ).toLocaleDateString()}
-                        </p>
+                      <div className="flex items-center">
+                        <div className="mr-3 bg-white p-2 rounded-lg shadow-sm">
+                          <ContentTypeIcon type={content?.content_type} />
+                        </div>
+                        <div>
+                          <p className="font-medium">
+                            {content?.title || "Unknown Content"}
+                          </p>
+                          <p className="text-sm text-gray-500 flex items-center">
+                            <Calendar className="w-3 h-3 mr-1" />
+                            {new Date(
+                              progress.last_interacted_at
+                            ).toLocaleDateString()}
+                          </p>
+                        </div>
                       </div>
                       <div className="flex space-x-3">
-                        <span className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm">
+                        <span className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm flex items-center">
+                          <Clock className="w-3 h-3 mr-1" />
                           {progress.time_spent_minutes} min
                         </span>
-                        <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
-                          +{progress.points_earned} pts
+                        <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm flex items-center">
+                          <Zap className="w-3 h-3 mr-1" />
+                          {progress.points_earned} pts
                         </span>
                       </div>
                     </div>
                   );
                 })}
+                {contentProgress.length === 0 && (
+                  <div className="text-center py-8 text-gray-500">
+                    <BookOpen className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                    No content progress yet. Start exploring!
+                  </div>
+                )}
               </div>
             </div>
 
             <div className="bg-white rounded-3xl shadow-md p-6">
-              <h4 className="font-semibold text-lg mb-4 text-indigo-700">
+              <h4 className="font-semibold text-lg mb-4 text-indigo-700 flex items-center">
+                <FileText className="w-5 h-5 mr-2 text-indigo-500" />
                 Quiz Attempts
               </h4>
               <div className="space-y-4">
@@ -582,27 +668,47 @@ const Dashboard = () => {
                   const quiz = quizzes.find((q) => q.id === attempt.quiz_id);
 
                   return (
-                    <div key={index} className="bg-gray-50 rounded-xl p-4">
+                    <div
+                      key={index}
+                      className="bg-gray-50 rounded-xl p-4 hover:bg-indigo-50 transition-colors"
+                    >
                       <div className="flex justify-between items-center">
-                        <h5 className="font-medium">
-                          {quiz?.title || "Unknown Quiz"}
-                        </h5>
+                        <div className="flex items-center">
+                          <div className="mr-3 bg-white p-2 rounded-lg shadow-sm">
+                            <PenTool className="w-5 h-5 text-purple-500" />
+                          </div>
+                          <h5 className="font-medium">
+                            {quiz?.title || "Unknown Quiz"}
+                          </h5>
+                        </div>
                         <span
-                          className={`px-3 py-1 rounded-full text-sm ${
+                          className={`px-3 py-1 rounded-full text-sm flex items-center ${
                             attempt.is_completed
                               ? "bg-green-100 text-green-700"
                               : "bg-yellow-100 text-yellow-700"
                           }`}
                         >
-                          {attempt.is_completed ? "Completed" : "In Progress"}
+                          {attempt.is_completed ? (
+                            <>
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              Completed
+                            </>
+                          ) : (
+                            <>
+                              <Clock className="w-3 h-3 mr-1" />
+                              In Progress
+                            </>
+                          )}
                         </span>
                       </div>
 
                       <div className="mt-3 flex justify-between items-center text-sm">
-                        <span className="text-gray-500">
+                        <span className="text-gray-500 flex items-center">
+                          <Calendar className="w-3 h-3 mr-1" />
                           {new Date(attempt.attempt_time).toLocaleString()}
                         </span>
-                        <span className="font-bold">
+                        <span className="font-bold flex items-center">
+                          <Award className="w-4 h-4 mr-1 text-indigo-500" />
                           Score: {attempt.total_score}/
                           {quiz?.total_marks || 100}
                         </span>
@@ -623,6 +729,12 @@ const Dashboard = () => {
                     </div>
                   );
                 })}
+                {quizAttempts.length === 0 && (
+                  <div className="text-center py-8 text-gray-500">
+                    <FileText className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                    No quiz attempts yet. Try some quizzes!
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -631,285 +743,170 @@ const Dashboard = () => {
       case "content":
         return (
           <div className="space-y-6">
-            <h3 className="text-xl font-bold text-indigo-800">
-              Available Content
+            <h3 className="text-xl font-bold text-indigo-800 flex items-center">
+              <BookOpen className="w-6 h-6 mr-2 text-indigo-600" />
+              Content for {userAgeGroup}
             </h3>
 
-            {topics.map((topic) => (
-              <div
-                key={topic.id}
-                className="bg-white rounded-3xl shadow-md p-6"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="bg-indigo-100 p-3 rounded-2xl">
-                    <span className="text-2xl">📚</span>
+            {topics
+              .filter((topic) => topic.age_group === userAgeGroup) // Filter topics by age group
+              .map((topic) => (
+                <div
+                  key={topic.id}
+                  className="bg-white rounded-3xl shadow-md p-6 overflow-hidden"
+                >
+                  <div className="flex items-center mb-4">
+                    <div className="bg-indigo-100 p-3 rounded-2xl">
+                      <Grid className="w-5 h-5 text-indigo-600" />
+                    </div>
+                    <h4 className="text-lg font-bold ml-3 text-indigo-700">
+                      {topic.title}
+                    </h4>
                   </div>
-                  <h4 className="text-xl font-bold ml-3 text-indigo-800">
-                    {topic.title}
-                  </h4>
-                </div>
-                <p className="text-gray-600 mb-6">{topic.description}</p>
 
-                {/* Filter subtopics for this topic */}
-                <div className="space-y-4">
-                  {subtopics
-                    .filter((st) => st.topic_id === topic.id)
-                    .map((subtopic) => {
-                      // Find contents for this subtopic
-                      const subtopicContents = contents.filter(
-                        (c) => c.subtopic_id === subtopic.id
-                      );
+                  <p className="text-gray-600 mb-4">{topic.description}</p>
 
-                      return (
-                        <div
-                          key={subtopic.id}
-                          className="bg-gray-50 rounded-xl p-4 hover:bg-indigo-50 transition-colors"
-                        >
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <h5 className="font-medium">{subtopic.title}</h5>
-                              <p className="text-sm text-gray-500">
-                                {subtopicContents.length} content items
-                              </p>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              {subtopicContents.map((content) => (
-                                <span
-                                  key={content.id}
-                                  className={`px-3 py-1 rounded-full text-xs ${
-                                    content.content_type === "text"
-                                      ? "bg-blue-100 text-blue-700"
-                                      : content.content_type === "quiz"
-                                      ? "bg-purple-100 text-purple-700"
-                                      : content.content_type === "image"
-                                      ? "bg-green-100 text-green-700"
-                                      : content.content_type === "video"
-                                      ? "bg-red-100 text-red-700"
-                                      : "bg-gray-100 text-gray-700"
-                                  }`}
-                                >
-                                  {content.content_type
-                                    .charAt(0)
-                                    .toUpperCase() +
-                                    content.content_type.slice(1)}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {contents
+                      .filter((content) => content.topic_id === topic.id)
+                      .map((content) => {
+                        // Find progress for this content if any
+                        const progress = contentProgress.find(
+                          (p) => p.content_id === content.id
+                        );
+
+                        return (
+                          <div
+                            key={content.id}
+                            className="bg-gray-50 rounded-xl p-4 hover:bg-indigo-50 transition-colors cursor-pointer"
+                            onClick={() => navigate(`/content/${content.id}`)}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center">
+                                <div className="mr-3 bg-white p-2 rounded-lg shadow-sm">
+                                  <ContentTypeIcon
+                                    type={content.content_type}
+                                  />
+                                </div>
+                                <h5 className="font-medium">{content.title}</h5>
+                              </div>
+                              {progress?.is_completed && (
+                                <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs flex items-center">
+                                  <CheckCircle className="w-3 h-3 mr-1" />
+                                  Completed
                                 </span>
-                              ))}
+                              )}
+                            </div>
+
+                            <div className="mt-3 flex justify-between items-center text-sm">
+                              <span className="text-gray-500">
+                                {content.estimated_time || "10"} min
+                              </span>
+                              {progress && (
+                                <span className="font-medium flex items-center">
+                                  <Zap className="w-3 h-3 mr-1 text-indigo-500" />
+                                  {progress.points_earned || 0} pts
+                                </span>
+                              )}
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                  </div>
                 </div>
+              ))}
+            {topics.filter((topic) => topic.age_group === userAgeGroup)
+              .length === 0 && (
+              <div className="text-center py-8 bg-white rounded-3xl shadow-md">
+                <HelpCircle className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                <p className="text-gray-500">
+                  No content available for your age group yet.
+                </p>
               </div>
-            ))}
+            )}
           </div>
         );
 
-      case "quizzes":
+      case "settings":
         return (
           <div className="space-y-6">
-            <h3 className="text-xl font-bold text-indigo-800">
-              Available Quizzes
+            <h3 className="text-xl font-bold text-indigo-800 flex items-center">
+              <Settings className="w-6 h-6 mr-2 text-indigo-600" />
+              Account Settings
             </h3>
 
-            {quizzes.map((quiz) => {
-              // Find user's best attempt for this quiz
-              const attempts = quizAttempts.filter(
-                (a) => a.quiz_id === quiz.id
-              );
-              const bestAttempt = attempts.reduce(
-                (best, current) =>
-                  current.score > (best?.score || 0) ? current : best,
-                null
-              );
+            <div className="bg-white rounded-3xl shadow-md p-6">
+              <div className="max-w-md mx-auto">
+                <h4 className="font-semibold text-lg mb-4 text-indigo-700">
+                  Personal Information
+                </h4>
 
-              const handleQuizStart = () => {
-                try {
-                  checkBannedStatus(profile);
-                  navigate(`/quiz/${quiz.id}`);
-                } catch (error) {
-                  // Optional: Show a toast message or alert
-                  return;
-                }
-              };
+                <div className="space-y-4">
+                  <button
+                    className="w-full flex items-center justify-between bg-indigo-50 hover:bg-indigo-100 p-4 rounded-xl transition-colors"
+                    onClick={() => navigate("/profile/edit")}
+                  >
+                    <span className="flex items-center">
+                      <User className="w-5 h-5 mr-3 text-indigo-600" />
+                      Edit Profile
+                    </span>
+                    <span className="text-indigo-600">&rarr;</span>
+                  </button>
 
-              return (
-                <div
-                  key={quiz.id}
-                  className="bg-white rounded-3xl shadow-md p-6"
-                >
-                  <div className="flex items-center mb-4">
-                    <div className="bg-purple-100 p-3 rounded-2xl">
-                      <span className="text-2xl">🧠</span>
-                    </div>
-                    <div className="ml-3">
-                      <h4 className="text-xl font-bold text-indigo-800">
-                        {quiz.title}
-                      </h4>
-                      <p className="text-gray-500 text-sm">
-                        {quiz.difficulty} Level
-                      </p>
-                    </div>
-                  </div>
+                  <button
+                    className="w-full flex items-center justify-between bg-indigo-50 hover:bg-indigo-100 p-4 rounded-xl transition-colors"
+                    onClick={() => navigate("/password/change")}
+                  >
+                    <span className="flex items-center">
+                      <Settings className="w-5 h-5 mr-3 text-indigo-600" />
+                      Change Password
+                    </span>
+                    <span className="text-indigo-600">&rarr;</span>
+                  </button>
 
-                  <p className="text-gray-600 mb-4">{quiz.description}</p>
-
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="bg-gray-50 p-3 rounded-xl flex items-center">
-                      <span className="text-xl mr-2">⏱️</span>
-                      <div>
-                        <p className="text-xs text-gray-500">Time Limit</p>
-                        <p className="font-medium">
-                          {Math.floor(quiz.time_limit_seconds / 60)} minutes
-                        </p>
-                      </div>
-                    </div>
-                    <div className="bg-gray-50 p-3 rounded-xl flex items-center">
-                      <span className="text-xl mr-2">📝</span>
-                      <div>
-                        <p className="text-xs text-gray-500">Questions</p>
-                        <p className="font-medium">
-                          {quiz.questions_count} questions
-                        </p>
-                      </div>
-                    </div>
-                    <div className="bg-gray-50 p-3 rounded-xl flex items-center">
-                      <span className="text-xl mr-2">🎯</span>
-                      <div>
-                        <p className="text-xs text-gray-500">Total Marks</p>
-                        <p className="font-medium">{quiz.total_marks} points</p>
-                      </div>
-                    </div>
-                    <div className="bg-gray-50 p-3 rounded-xl flex items-center">
-                      <span className="text-xl mr-2">🏆</span>
-                      <div>
-                        <p className="text-xs text-gray-500">Your Best Score</p>
-                        <p className="font-medium">
-                          {bestAttempt ? (
-                            <span
-                              className={
-                                bestAttempt.score >= 70
-                                  ? "text-green-600"
-                                  : "text-orange-600"
-                              }
-                            >
-                              {bestAttempt.total_score}/{quiz.total_marks} (
-                              {bestAttempt.score}%)
-                            </span>
-                          ) : (
-                            "Not attempted"
-                          )}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-4">
-                    <button
-                      onClick={handleQuizStart}
-                      disabled={profile?.is_banned}
-                      className={`
-                        flex-1 py-3 rounded-xl font-medium
-                        ${
-                          profile?.is_banned
-                            ? "bg-gray-300 cursor-not-allowed"
-                            : "bg-purple-500 text-white hover:bg-purple-600"
-                        } transition-colors
-                      `}
-                    >
-                      {attempts.length > 0 ? "Retake Quiz" : "Start Quiz"}
-                    </button>
-                    {bestAttempt && (
-                      <button
-                        onClick={() =>
-                          navigate(`/quiz-results/${bestAttempt.id}`)
-                        }
-                        className="flex-1 bg-indigo-100 text-indigo-700 py-3 rounded-xl font-medium hover:bg-indigo-200 transition-colors"
-                      >
-                        View Results
-                      </button>
-                    )}
-                  </div>
+                  <button
+                    className="w-full flex items-center justify-between bg-indigo-50 hover:bg-indigo-100 p-4 rounded-xl transition-colors"
+                    onClick={() => navigate("/notifications/settings")}
+                  >
+                    <span className="flex items-center">
+                      <Bell className="w-5 h-5 mr-3 text-indigo-600" />
+                      Notification Settings
+                    </span>
+                    <span className="text-indigo-600">&rarr;</span>
+                  </button>
                 </div>
-              );
-            })}
+              </div>
+            </div>
           </div>
         );
 
       default:
-        return null;
+        return <div>Select a tab to view content</div>;
     }
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-8 space-y-8 bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
-      <header className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 pb-2 border-b border-indigo-100">
-        <div>
-          <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">
-            👋 Hello, {profile.first_name}!
-          </h1>
-          <p className="text-indigo-400 mt-1 font-medium">
-            Your personal health journey dashboard
-          </p>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 py-6 px-4 md:px-6">
+      <div className="max-w-6xl mx-auto">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">My Dashboard</h2>
 
-      {/* Tab Navigation */}
-      <div className="bg-white rounded-2xl shadow-md p-2 flex overflow-x-auto">
-        {["overview", "progress", "content", "quizzes"].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            disabled={profile?.is_banned}
-            className={`
-              px-4 py-2 rounded-xl font-medium flex-1 transition-colors
-              ${profile?.is_banned ? "opacity-50 cursor-not-allowed" : ""}
-              ${
+        <div className="flex flex-wrap gap-2 mb-6 border-b border-gray-200 pb-4">
+          {["overview", "progress", "content", "settings"].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2 rounded-lg transition-colors ${
                 activeTab === tab
-                  ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white"
-                  : "text-gray-600 hover:bg-indigo-50"
-              }
-            `}
-          >
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
-          </button>
-        ))}
-      </div>
+                  ? "bg-indigo-600 text-white"
+                  : "bg-white text-gray-600 hover:bg-indigo-100"
+              }`}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
+        </div>
 
-      {/* Tab Content */}
-      <div className="mt-6">{renderTabContent()}</div>
-
-      {/* Navigation */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center mt-8">
-        <button
-          className={`
-            w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-lg 
-            flex items-center justify-center gap-2
-            ${
-              profile?.is_banned
-                ? "bg-gray-300 cursor-not-allowed"
-                : "bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:shadow-lg hover:from-indigo-700 hover:to-purple-700"
-            } transition-all
-          `}
-          disabled={profile?.is_banned}
-        >
-          <span className="text-xl">🚀</span> Explore Topics
-        </button>
-
-        <button
-          className={`
-            w-full sm:w-auto px-8 py-4 rounded-2xl font-medium 
-            flex items-center justify-center gap-2
-            ${
-              profile?.is_banned
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : "bg-white text-indigo-600 border-2 border-indigo-100 hover:border-indigo-300 hover:shadow-md"
-            } transition-all
-          `}
-          disabled={profile?.is_banned}
-        >
-          View Quiz Results <span className="ml-1">→</span>
-        </button>
+        {renderTabContent()}
       </div>
     </div>
   );
