@@ -600,25 +600,25 @@ const FlashCard = ({ card, onFlip, onAnswer, showingAnswer }) => {
 
   return (
     <div className="relative w-full h-[400px]">
-      <div 
+      <div
         className="absolute inset-0 cursor-pointer perspective-1000"
         onClick={handleFlip}
       >
         <div
           className={`relative w-full h-full transition-transform duration-300 ${
-            flipped ? 'rotate-y-180' : ''
+            flipped ? "rotate-y-180" : ""
           }`}
-          style={{ 
-            transformStyle: 'preserve-3d',
-            transformOrigin: 'center center'
+          style={{
+            transformStyle: "preserve-3d",
+            transformOrigin: "center center",
           }}
         >
           {/* Front of card */}
           <div
             className="absolute inset-0 w-full h-full backface-hidden rounded-3xl p-6 flex flex-col justify-center items-center"
-            style={{ 
+            style={{
               background: "linear-gradient(135deg, #c084fc, #818cf8)",
-              backfaceVisibility: "hidden"
+              backfaceVisibility: "hidden",
             }}
           >
             <div className="py-3 px-5 mb-4 rounded-full bg-white/30 backdrop-blur-sm">
@@ -639,7 +639,7 @@ const FlashCard = ({ card, onFlip, onAnswer, showingAnswer }) => {
                   src={card.image}
                   alt={card.question}
                   className={`w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover relative z-10 transition-opacity duration-300 ${
-                    imageLoading ? 'opacity-0' : 'opacity-100'
+                    imageLoading ? "opacity-0" : "opacity-100"
                   }`}
                   onLoad={() => setImageLoading(false)}
                   onError={(e) => {
@@ -659,10 +659,10 @@ const FlashCard = ({ card, onFlip, onAnswer, showingAnswer }) => {
           {/* Back of card */}
           <div
             className="absolute inset-0 w-full h-full backface-hidden rounded-3xl p-6 flex flex-col justify-center items-center"
-            style={{ 
+            style={{
               background: "linear-gradient(135deg, #fde68a, #fbbf24)",
               backfaceVisibility: "hidden",
-              transform: "rotateY(180deg)"
+              transform: "rotateY(180deg)",
             }}
           >
             <div className="py-3 px-5 mb-4 rounded-full bg-white/30 backdrop-blur-sm">
@@ -1094,7 +1094,9 @@ const Game2 = () => {
       alert("Please enter a valid age between 3 and 12");
       return;
     }
-  }, [gameMode, currentLevel]);
+
+    setAgeEntered(true);
+  };
 
   const handleStartGame = () => {
     setGameStarted(true);
