@@ -140,18 +140,18 @@ const Navbar = () => {
               <>
                 <li>
                   <a
-                    href="/dashboard"
-                    className="text-gray-600 hover:text-gray-900 transition duration-200 font-medium"
-                  >
-                    Dashboard
-                  </a>
-                </li>
-                <li>
-                  <a
                     href="/modules"
                     className="text-gray-600 hover:text-gray-900 transition duration-200 font-medium"
                   >
                     My Modules
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="/dashboard"
+                    className="text-gray-600 hover:text-gray-900 transition duration-200 font-medium"
+                  >
+                    Dashboard
                   </a>
                 </li>
                 <li>
