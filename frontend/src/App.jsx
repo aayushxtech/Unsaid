@@ -11,6 +11,7 @@ import Navbar from "./components/Navbar";
 
 //Temporary
 import Game1 from "./games/Game1";
+import Game2 from "./games/Game2";
 
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -48,6 +49,7 @@ import PostsDelete from "./pages/admin/pages/posts/PostsDelete";
 import ErrorBoundary from "./components/ErrorBoundary";
 import QuizPage from "./pages/QuizPage";
 import AdminRoute from "./components/AdminRoute";
+import Game3 from "./games/Game3";
 
 const PrivateRoute = ({ children }) => {
   const { user, loading, sessionChecked } = useAuth();
@@ -282,6 +284,22 @@ const App = () => {
               element={
                 <PrivateRoute>
                   <Game1 />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/game2"
+              element={
+                <PrivateRoute>
+                  <Game2 />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/game3"
+              element={
+                <PrivateRoute>
+                  <Game3 />
                 </PrivateRoute>
               }
             />

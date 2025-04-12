@@ -20,7 +20,7 @@ import {
   X,
 } from "lucide-react";
 
-export default function Game1() {
+const Game1 = () => {
   const [currentChapter, setCurrentChapter] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
   const [choices, setChoices] = useState({});
@@ -1272,15 +1272,15 @@ export default function Game1() {
         frustrated: "/Aarav.jpg",
         curious: "/Aarav.jpg",
         neutral: "/Aarav.jpg",
-        uncomfortable: "/Aarav.jpg", // Add this for chapter 2
-        confident: "/Aarav.jpg", // Add this for outcomes
-        regretful: "/Aarav.jpg", // Add this for outcomes
+        uncomfortable: "/Aarav.jpg",
+        confident: "/Aarav.jpg",
+        regretful: "/Aarav.jpg",
       },
     },
     narrator: {
       name: "Narrator",
       states: {
-        neutral: "/narrator-icon.jpg", // You'll need to create or find a narrator icon
+        neutral: "/narrator-icon.jpg",
       },
     },
   };
@@ -1592,4 +1592,5 @@ export default function Game1() {
       )}
     </div>
   );
-}
+};
+export default Game1;
