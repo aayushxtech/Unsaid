@@ -30,19 +30,11 @@ const Game3 = () => {
   const [completedCharacters, setCompletedCharacters] = useState([]);
 
   const characters = [
-<<<<<<< HEAD
     { id: "riya", name: "Riya", states: { idle: "/riya-idle.jpg" } },
     { id: "aarav", name: "Aarav", states: { idle: "/aarav-idle.jpg" } },
     { id: "zoya", name: "Zoya", states: { idle: "/zoya-idle.jpg" } },
     { id: "kabir", name: "Kabir", states: { idle: "/kabir-idle.jpg" } },
     { id: "meera", name: "Meera", states: { idle: "/meera-idle.jpg" } }
-=======
-    { id: "riya", name: "Riya", states: { idle: "/avatars/riya-idle.png" } },
-    { id: "aarav", name: "Aarav", states: { idle: "/avatars/aarav-idle.png" } },
-    { id: "zoya", name: "Zoya", states: { idle: "/avatars/zoya-idle.png" } },
-    { id: "kabir", name: "Kabir", states: { idle: "/avatars/kabir-idle.png" } },
-    { id: "meera", name: "Meera", states: { idle: "/avatars/meera-idle.png" } },
->>>>>>> ba467058a7f92483401ff7665db11dbc35fad2e7
   ];
 
   const chapters = [
@@ -920,42 +912,42 @@ const Game3 = () => {
             <div className="min-h-[300px] bg-purple-50 rounded-lg p-6 mb-6">
               {chapters.find((chapter) => chapter.id === selectedCharacter)
                 ?.quiz[dialogIndex] && (
-                <motion.div
-                  initial={{ opacity: 0, x: -50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <h3 className="font-semibold text-purple-800 mb-4">
-                    {
-                      chapters.find(
-                        (chapter) => chapter.id === selectedCharacter
-                      )?.quiz[dialogIndex].question
-                    }
-                  </h3>
-                  <div className="grid grid-cols-1 gap-4">
-                    {chapters
-                      .find((chapter) => chapter.id === selectedCharacter)
-                      ?.quiz[dialogIndex].options.map((option, index) => (
-                        <motion.button
-                          key={index}
-                          onClick={() => {
-                            setChoices((prev) => ({
-                              ...prev,
-                              [selectedCharacter]: option.id,
-                            }));
-                            setShowOutcome(true);
-                          }}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="flex items-center space-x-2 w-full p-4 rounded-lg bg-purple-100 hover:bg-purple-200 transition-colors"
-                        >
-                          {option.icon}
-                          <span>{option.text}</span>
-                        </motion.button>
-                      ))}
-                  </div>
-                </motion.div>
-              )}
+                  <motion.div
+                    initial={{ opacity: 0, x: -50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <h3 className="font-semibold text-purple-800 mb-4">
+                      {
+                        chapters.find(
+                          (chapter) => chapter.id === selectedCharacter
+                        )?.quiz[dialogIndex].question
+                      }
+                    </h3>
+                    <div className="grid grid-cols-1 gap-4">
+                      {chapters
+                        .find((chapter) => chapter.id === selectedCharacter)
+                        ?.quiz[dialogIndex].options.map((option, index) => (
+                          <motion.button
+                            key={index}
+                            onClick={() => {
+                              setChoices((prev) => ({
+                                ...prev,
+                                [selectedCharacter]: option.id,
+                              }));
+                              setShowOutcome(true);
+                            }}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="flex items-center space-x-2 w-full p-4 rounded-lg bg-purple-100 hover:bg-purple-200 transition-colors"
+                          >
+                            {option.icon}
+                            <span>{option.text}</span>
+                          </motion.button>
+                        ))}
+                    </div>
+                  </motion.div>
+                )}
             </div>
 
             {/* Outcome Section */}
@@ -984,7 +976,7 @@ const Game3 = () => {
                       chapters.find(
                         (chapter) => chapter.id === selectedCharacter
                       )?.quiz.length -
-                        1
+                      1
                     ) {
                       setDialogIndex((prev) => prev + 1);
                     } else {
