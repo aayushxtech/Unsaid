@@ -1,4 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { supabase } from "../supabaseClient";
+import calculateAge from "../lib/calculateAge";
+import getAgeGroup from "../lib/ageGroup";
 import {
   Book,
   Navigation,
@@ -21,6 +26,11 @@ import {
 } from "lucide-react";
 
 const Game1 = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [authorized, setAuthorized] = useState(false);
+
   const [currentChapter, setCurrentChapter] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
   const [choices, setChoices] = useState({});
@@ -28,6 +38,57 @@ const Game1 = () => {
   const [gameComplete, setGameComplete] = useState(false);
   const [dialogIndex, setDialogIndex] = useState(0);
   const [characterAnimState, setCharacterAnimState] = useState("idle");
+
+  useEffect(() => {
+    const checkAgeAuthorization = async () => {
+      try {
+        if (!user) {
+          navigate("/login");
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("date_of_birth")
+          .eq("id", user.id)
+          .single();
+
+        if (error) throw error;
+
+        if (data?.date_of_birth) {
+          const age = calculateAge(data.date_of_birth);
+          const ageGroup = getAgeGroup(age);
+
+          if (ageGroup !== "12-19") {
+            navigate("/games");
+            return;
+          }
+
+          setAuthorized(true);
+        } else {
+          navigate("/profile");
+        }
+      } catch (error) {
+        console.error("Error checking authorization:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAgeAuthorization();
+  }, [user, navigate]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
+      </div>
+    );
+  }
+
+  if (!authorized) {
+    return null; // Will redirect in useEffect
+  }
 
   const chapters = [
     {

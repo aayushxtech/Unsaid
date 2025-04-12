@@ -1,4 +1,9 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { supabase } from "../supabaseClient";
+import calculateAge from "../lib/calculateAge";
+import getAgeGroup from "../lib/ageGroup";
 import {
   Award,
   User,
@@ -595,25 +600,25 @@ const FlashCard = ({ card, onFlip, onAnswer, showingAnswer }) => {
 
   return (
     <div className="relative w-full h-[400px]">
-      <div 
+      <div
         className="absolute inset-0 cursor-pointer perspective-1000"
         onClick={handleFlip}
       >
         <div
           className={`relative w-full h-full transition-transform duration-300 ${
-            flipped ? 'rotate-y-180' : ''
+            flipped ? "rotate-y-180" : ""
           }`}
-          style={{ 
-            transformStyle: 'preserve-3d',
-            transformOrigin: 'center center'
+          style={{
+            transformStyle: "preserve-3d",
+            transformOrigin: "center center",
           }}
         >
           {/* Front of card */}
           <div
             className="absolute inset-0 w-full h-full backface-hidden rounded-3xl p-6 flex flex-col justify-center items-center"
-            style={{ 
+            style={{
               background: "linear-gradient(135deg, #c084fc, #818cf8)",
-              backfaceVisibility: "hidden"
+              backfaceVisibility: "hidden",
             }}
           >
             <div className="py-3 px-5 mb-4 rounded-full bg-white/30 backdrop-blur-sm">
@@ -634,7 +639,7 @@ const FlashCard = ({ card, onFlip, onAnswer, showingAnswer }) => {
                   src={card.image}
                   alt={card.question}
                   className={`w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover relative z-10 transition-opacity duration-300 ${
-                    imageLoading ? 'opacity-0' : 'opacity-100'
+                    imageLoading ? "opacity-0" : "opacity-100"
                   }`}
                   onLoad={() => setImageLoading(false)}
                   onError={(e) => {
@@ -654,10 +659,10 @@ const FlashCard = ({ card, onFlip, onAnswer, showingAnswer }) => {
           {/* Back of card */}
           <div
             className="absolute inset-0 w-full h-full backface-hidden rounded-3xl p-6 flex flex-col justify-center items-center"
-            style={{ 
+            style={{
               background: "linear-gradient(135deg, #fde68a, #fbbf24)",
               backfaceVisibility: "hidden",
-              transform: "rotateY(180deg)"
+              transform: "rotateY(180deg)",
             }}
           >
             <div className="py-3 px-5 mb-4 rounded-full bg-white/30 backdrop-blur-sm">
@@ -703,7 +708,15 @@ const FlashCard = ({ card, onFlip, onAnswer, showingAnswer }) => {
 
 // Main Game Component
 const Game2 = () => {
-  const [gameStarted, setGameStarted] = useState(true);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [authorized, setAuthorized] = useState(false);
+
+  // Existing state variables
+  const [userAge, setUserAge] = useState("");
+  const [ageEntered, setAgeEntered] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
   const [showParentMode, setShowParentMode] = useState(false);
   const [currentLevel, setCurrentLevel] = useState(1);
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -1019,15 +1032,71 @@ const Game2 = () => {
     },
   ];
 
+  const currentLevelData = levels[currentLevel - 1];
+
   useEffect(() => {
-    if (gameMode === "flashcards" && currentLevel) {
-      setFlashcardStats({
-        mastered: 0,
-        learning: levels[currentLevel - 1].flashcards.length,
-        total: levels[currentLevel - 1].flashcards.length,
-      });
+    const checkAgeAuthorization = async () => {
+      try {
+        if (!user) {
+          navigate("/login");
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("date_of_birth")
+          .eq("id", user.id)
+          .single();
+
+        if (error) throw error;
+
+        if (data?.date_of_birth) {
+          const age = calculateAge(data.date_of_birth);
+          const ageGroup = getAgeGroup(age);
+
+          if (ageGroup !== "3-12") {
+            navigate("/games");
+            return;
+          }
+
+          // Auto set the age for the game
+          setUserAge(age.toString());
+          setAgeEntered(true);
+          setAuthorized(true);
+        } else {
+          navigate("/profile");
+        }
+      } catch (error) {
+        console.error("Error checking authorization:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAgeAuthorization();
+  }, [user, navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-purple-50 flex flex-col items-center justify-center p-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
+      </div>
+    );
+  }
+
+  if (!authorized) {
+    return null; // Will redirect in useEffect
+  }
+
+  const handleAgeSubmit = () => {
+    const age = parseInt(userAge);
+    if (isNaN(age) || age < 3 || age > 12) {
+      alert("Please enter a valid age between 3 and 12");
+      return;
     }
-  }, [gameMode, currentLevel]);
+
+    setAgeEntered(true);
+  };
 
   const handleStartGame = () => {
     setGameStarted(true);
