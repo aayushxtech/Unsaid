@@ -35,6 +35,11 @@ import {
   FaVolumeUp,
   FaGamepad,
 } from "react-icons/fa";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
+import ZoomInIcon from "@mui/icons-material/ZoomIn";
 
 const getSignedUrl = async (path) => {
   try {
@@ -72,6 +77,7 @@ const downloadContent = async (url, filename) => {
 const ContentRenderer = ({ content }) => {
   const theme = useTheme();
   const [mediaError, setMediaError] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const handleMediaError = async (e) => {
     console.error(
@@ -103,6 +109,73 @@ const ContentRenderer = ({ content }) => {
     const path = url?.split("/").pop();
     return path || `${content.content_type}-${Date.now()}`;
   };
+
+  const handlePreviewOpen = () => setPreviewOpen(true);
+  const handlePreviewClose = () => setPreviewOpen(false);
+
+  const PreviewDialog = () => (
+    <Dialog
+      open={previewOpen}
+      onClose={handlePreviewClose}
+      maxWidth="lg"
+      fullWidth
+    >
+      <DialogContent sx={{ position: "relative", p: 0, bgcolor: "black" }}>
+        <IconButton
+          onClick={handlePreviewClose}
+          sx={{
+            position: "absolute",
+            right: 8,
+            top: 8,
+            color: "white",
+            bgcolor: "rgba(0, 0, 0, 0.5)",
+            "&:hover": {
+              bgcolor: "rgba(0, 0, 0, 0.7)",
+            },
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+        {content.content_type === "image" && (
+          <img
+            src={content.media_url}
+            alt={content.body || "Content"}
+            style={{
+              width: "100%",
+              height: "auto",
+              maxHeight: "90vh",
+              objectFit: "contain",
+            }}
+          />
+        )}
+        {content.content_type === "video" && (
+          <video
+            controls
+            style={{
+              width: "100%",
+              height: "auto",
+              maxHeight: "90vh",
+            }}
+            src={content.media_url}
+          >
+            <source src={content.media_url} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        )}
+        {content.content_type === "document" && (
+          <iframe
+            src={content.media_url}
+            style={{
+              width: "100%",
+              height: "90vh",
+              border: "none",
+            }}
+            title="Document Preview"
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+  );
 
   switch (content.content_type) {
     case "text":
@@ -150,18 +223,7 @@ const ContentRenderer = ({ content }) => {
         </Box>
       ) : (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              mt: 1,
-              mb: 1,
-              borderRadius: 2,
-              overflow: "hidden",
-              boxShadow: 1,
-              position: "relative",
-            }}
-          >
+          <Box sx={{ position: "relative" }}>
             <img
               src={content.media_url}
               alt={content.body || "Content"}
@@ -169,29 +231,30 @@ const ContentRenderer = ({ content }) => {
               onError={handleMediaError}
               loading="lazy"
             />
-            <Button
-              variant="contained"
-              color="primary"
-              size="small"
+            <Box
               sx={{
                 position: "absolute",
-                bottom: 8,
+                top: 8,
                 right: 8,
-                backgroundColor: "rgba(0, 0, 0, 0.6)",
-                "&:hover": {
-                  backgroundColor: "rgba(0, 0, 0, 0.8)",
-                },
+                display: "flex",
+                gap: 1,
               }}
-              onClick={() =>
-                downloadContent(
-                  content.media_url,
-                  getFileName(content.media_url)
-                )
-              }
             >
-              Download
-            </Button>
+              <IconButton
+                onClick={handlePreviewOpen}
+                sx={{
+                  bgcolor: "rgba(0, 0, 0, 0.5)",
+                  color: "white",
+                  "&:hover": {
+                    bgcolor: "rgba(0, 0, 0, 0.7)",
+                  },
+                }}
+              >
+                <ZoomInIcon />
+              </IconButton>
+            </Box>
           </Box>
+          <PreviewDialog />
         </Box>
       );
 
@@ -211,25 +274,12 @@ const ContentRenderer = ({ content }) => {
         </Box>
       ) : (
         <Box>
-          <Box
-            sx={{
-              position: "relative",
-              width: "100%",
-              pt: "56.25%", // 16:9 aspect ratio
-              borderRadius: 2,
-              overflow: "hidden",
-              boxShadow: 1,
-            }}
-          >
+          <Box sx={{ position: "relative" }}>
             <video
               controls
               style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
                 width: "100%",
-                height: "100%",
-                objectFit: "cover",
+                height: "auto",
               }}
               src={content.media_url}
               onError={handleMediaError}
@@ -238,6 +288,28 @@ const ContentRenderer = ({ content }) => {
               <source src={content.media_url} type="video/mp4" />
               Your browser does not support the video tag.
             </video>
+            <Box
+              sx={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+                display: "flex",
+                gap: 1,
+              }}
+            >
+              <IconButton
+                onClick={handlePreviewOpen}
+                sx={{
+                  bgcolor: "rgba(0, 0, 0, 0.5)",
+                  color: "white",
+                  "&:hover": {
+                    bgcolor: "rgba(0, 0, 0, 0.7)",
+                  },
+                }}
+              >
+                <ZoomInIcon />
+              </IconButton>
+            </Box>
           </Box>
           <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1 }}>
             <Button
@@ -254,6 +326,7 @@ const ContentRenderer = ({ content }) => {
               Download Video
             </Button>
           </Box>
+          <PreviewDialog />
         </Box>
       );
 
@@ -326,50 +399,42 @@ const ContentRenderer = ({ content }) => {
           <Typography color="text.secondary">Document not available</Typography>
         </Box>
       ) : (
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            p: 2,
-            bgcolor: "grey.50",
-            borderRadius: 2,
-            boxShadow: 1,
-          }}
-        >
-          <Box sx={{ mr: 2 }}>{getFileIcon(fileExt)}</Box>
-          <Box sx={{ flexGrow: 1 }}>
-            <Typography variant="subtitle1">
-              {content.body || "Document"}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {fileExt?.toUpperCase()} Document
-            </Typography>
-          </Box>
-          <Box sx={{ display: "flex", gap: 1 }}>
-            <Button
-              variant="contained"
-              color="primary"
-              size="small"
-              href={content.media_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              download
-            >
-              Download
-            </Button>
-            {fileExt === "pdf" && (
-              <Button
-                variant="outlined"
+        <Box>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              p: 2,
+              bgcolor: "grey.50",
+              borderRadius: 2,
+              boxShadow: 1,
+            }}
+          >
+            <Box sx={{ mr: 2 }}>{getFileIcon(fileExt)}</Box>
+            <Box sx={{ flexGrow: 1 }}>
+              <Typography variant="subtitle1">
+                {content.body || "Document"}
+              </Typography>
+            </Box>
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <IconButton
+                onClick={handlePreviewOpen}
                 color="primary"
                 size="small"
-                href={content.media_url}
-                target="_blank"
-                rel="noopener noreferrer"
               >
-                View
+                <ZoomInIcon />
+              </IconButton>
+              <Button
+                variant="contained"
+                size="small"
+                href={content.media_url}
+                download
+              >
+                Download
               </Button>
-            )}
+            </Box>
           </Box>
+          <PreviewDialog />
         </Box>
       );
     }
