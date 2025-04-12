@@ -10,7 +10,9 @@ import {
 import PostCard from "../components/PostCard";
 import CreatePostForm from "../components/CreatePostForm";
 import { supabase } from "../supabaseClient";
-import { useAuth } from "../contexts/AuthContext"; // Make sure your auth context path is correct
+import { useAuth } from "../contexts/AuthContext";
+import calculateAge from "../lib/calculateAge";
+import getAgeGroup from "../lib/ageGroup";
 
 const Posts = () => {
   const { user } = useAuth();
@@ -18,6 +20,35 @@ const Posts = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openCreatePost, setOpenCreatePost] = useState(false);
+  const [userAgeGroup, setUserAgeGroup] = useState(null);
+
+  // Fetch user profile and set age group
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+
+        if (error) throw error;
+
+        if (data) {
+          setProfile(data);
+          const age = calculateAge(data.date_of_birth);
+          const ageGroup = getAgeGroup(age);
+          setUserAgeGroup(ageGroup);
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    };
+
+    fetchProfile();
+  }, [user]);
 
   const fetchPosts = async () => {
     try {
@@ -43,7 +74,7 @@ const Posts = () => {
       if (userIds.length > 0) {
         const { data, error: profilesError } = await supabase
           .from("profiles")
-          .select("id, first_name, last_name, avatar_url")
+          .select("id, first_name, last_name, avatar_url, date_of_birth")
           .in("id", userIds);
 
         if (!profilesError) {
@@ -74,6 +105,9 @@ const Posts = () => {
             : "Unknown User",
           userAvatar: post.is_anonymous ? null : profile?.avatar_url,
           timePosted: formatTimeAgo(post.created_at),
+          ageGroup: profile
+            ? getAgeGroup(calculateAge(profile.date_of_birth))
+            : null,
         };
       });
 
@@ -113,30 +147,22 @@ const Posts = () => {
     fetchPosts();
   }, []);
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-
-      if (!error && data) {
-        setProfile(data);
-      }
-    };
-
-    fetchProfile();
-  }, [user]);
-
   const handlePostCreated = async () => {
     setOpenCreatePost(false); // Close the create post dialog
     setLoading(true); // Show loading state
     await fetchPosts(); // Refresh the posts
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <Container sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+        <CircularProgress />
+      </Container>
+    );
+  }
+
+  // Check banned status
   if (profile?.is_banned) {
     return (
       <Container maxWidth="md" sx={{ py: 8 }}>
@@ -162,10 +188,28 @@ const Posts = () => {
     );
   }
 
-  if (loading) {
+  // Age restriction check - moved up and using userAgeGroup state
+  if (userAgeGroup === "3-12") {
     return (
-      <Container sx={{ display: "flex", justifyContent: "center", py: 8 }}>
-        <CircularProgress />
+      <Container maxWidth="md" sx={{ py: 8 }}>
+        <Box
+          sx={{
+            textAlign: "center",
+            p: 4,
+            borderRadius: 2,
+            bgcolor: "warning.lighter",
+            border: "1px solid",
+            borderColor: "warning.light",
+          }}
+        >
+          <Typography variant="h5" color="warning.main" gutterBottom>
+            Age Restriction
+          </Typography>
+          <Typography color="warning.dark">
+            You are not allowed to view posts in this age group. Please contact
+            support for more information.
+          </Typography>
+        </Box>
       </Container>
     );
   }
