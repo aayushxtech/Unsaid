@@ -170,6 +170,14 @@ const Navbar = () => {
                     Posts
                   </a>
                 </li>
+                <li>
+                  <a
+                    href="/games"
+                    className="text-gray-600 hover:text-gray-900 transition duration-200 font-medium"
+                  >
+                    Games
+                  </a>
+                </li>
               </>
             )}
           </ul>
@@ -265,6 +273,12 @@ const Navbar = () => {
                   className="block py-2 text-gray-600 hover:text-gray-900 font-medium"
                 >
                   Posts
+                </a>
+                <a
+                  href="/games"
+                  className="block py-2 text-gray-600 hover:text-gray-900 font-medium"
+                >
+                  Games
                 </a>
               </>
             )}
