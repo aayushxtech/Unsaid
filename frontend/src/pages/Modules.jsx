@@ -30,8 +30,6 @@ import {
   FaFileAlt,
   FaFilePdf,
   FaFileWord,
-  FaImage,
-  FaVideo,
   FaVolumeUp,
   FaGamepad,
 } from "react-icons/fa";
@@ -45,7 +43,7 @@ const getSignedUrl = async (path) => {
   try {
     const { data, error } = await supabase.storage
       .from("content-bucket")
-      .createSignedUrl(path, 3600); // URL valid for 1 hour
+      .createSignedUrl(path, 3600);
 
     if (error) throw error;
     return data.signedUrl;
@@ -55,7 +53,6 @@ const getSignedUrl = async (path) => {
   }
 };
 
-// Add this utility function at the top of the file
 const downloadContent = async (url, filename) => {
   try {
     const response = await fetch(url);

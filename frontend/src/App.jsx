@@ -9,6 +9,9 @@ import { useEffect, useState } from "react";
 
 import Navbar from "./components/Navbar";
 
+//Temporary
+import Game1 from "./games/Game1";
+
 import Home from "./pages/Home";
 import About from "./pages/About";
 import HowItWorks from "./pages/HowItWorks";
@@ -46,7 +49,6 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import QuizPage from "./pages/QuizPage";
 import AdminRoute from "./components/AdminRoute";
 
-// Example of a protected route component
 const PrivateRoute = ({ children }) => {
   const { user, loading, sessionChecked } = useAuth();
   const navigate = useNavigate();
@@ -273,6 +275,16 @@ const App = () => {
 
             {/* Not Found */}
             <Route path="*" element={<NotFound />} />
+
+            {/* Temporary Game Route */}
+            <Route
+              path="/game1"
+              element={
+                <PrivateRoute>
+                  <Game1 />
+                </PrivateRoute>
+              }
+            />
           </Routes>
         </ErrorBoundary>
       </Router>
