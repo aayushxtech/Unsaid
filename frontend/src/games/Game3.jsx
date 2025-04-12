@@ -13,11 +13,11 @@ const Game3 = () => {
   const [completedCharacters, setCompletedCharacters] = useState([]);
 
   const characters = [
-    { id: "riya", name: "Riya", states: { idle: "/avatars/riya-idle.png" } },
-    { id: "aarav", name: "Aarav", states: { idle: "/avatars/aarav-idle.png" } },
-    { id: "zoya", name: "Zoya", states: { idle: "/avatars/zoya-idle.png" } },
-    { id: "kabir", name: "Kabir", states: { idle: "/avatars/kabir-idle.png" } },
-    { id: "meera", name: "Meera", states: { idle: "/avatars/meera-idle.png" } }
+    { id: "riya", name: "Riya", states: { idle: "/riya-idle.jpg" } },
+    { id: "aarav", name: "Aarav", states: { idle: "/aarav-idle.jpg" } },
+    { id: "zoya", name: "Zoya", states: { idle: "/zoya-idle.jpg" } },
+    { id: "kabir", name: "Kabir", states: { idle: "/kabir-idle.jpg" } },
+    { id: "meera", name: "Meera", states: { idle: "/meera-idle.jpg" } }
   ];
 
   const chapters = [
