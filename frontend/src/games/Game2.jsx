@@ -1,4 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { supabase } from "../supabaseClient";
+import calculateAge from "../lib/calculateAge";
+import getAgeGroup from "../lib/ageGroup";
 import {
   Award,
   User,
@@ -11,6 +16,12 @@ import {
 } from "lucide-react";
 
 const Game2 = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [authorized, setAuthorized] = useState(false);
+
+  // Existing state variables
   const [userAge, setUserAge] = useState("");
   const [ageEntered, setAgeEntered] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
@@ -55,6 +66,60 @@ const Game2 = () => {
   ];
 
   const currentLevelData = levels[currentLevel - 1];
+
+  useEffect(() => {
+    const checkAgeAuthorization = async () => {
+      try {
+        if (!user) {
+          navigate("/login");
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("date_of_birth")
+          .eq("id", user.id)
+          .single();
+
+        if (error) throw error;
+
+        if (data?.date_of_birth) {
+          const age = calculateAge(data.date_of_birth);
+          const ageGroup = getAgeGroup(age);
+
+          if (ageGroup !== "3-12") {
+            navigate("/games");
+            return;
+          }
+
+          // Auto set the age for the game
+          setUserAge(age.toString());
+          setAgeEntered(true);
+          setAuthorized(true);
+        } else {
+          navigate("/profile");
+        }
+      } catch (error) {
+        console.error("Error checking authorization:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAgeAuthorization();
+  }, [user, navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-purple-50 flex flex-col items-center justify-center p-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
+      </div>
+    );
+  }
+
+  if (!authorized) {
+    return null; // Will redirect in useEffect
+  }
 
   const handleAgeSubmit = () => {
     const age = parseInt(userAge);
