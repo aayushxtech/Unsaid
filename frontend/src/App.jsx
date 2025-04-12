@@ -12,6 +12,7 @@ import Navbar from "./components/Navbar";
 //Temporary
 import Game1 from "./games/Game1";
 import Game2 from "./games/Game2";
+import Game3 from "./games/Game3";
 
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -25,6 +26,7 @@ import Ask from "./pages/Ask";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+import Games from "./pages/Games";
 
 import Admin from "./pages/admin/Admin";
 // Admin Content Imports
@@ -49,7 +51,6 @@ import PostsDelete from "./pages/admin/pages/posts/PostsDelete";
 import ErrorBoundary from "./components/ErrorBoundary";
 import QuizPage from "./pages/QuizPage";
 import AdminRoute from "./components/AdminRoute";
-import Game3 from "./games/Game3";
 
 const PrivateRoute = ({ children }) => {
   const { user, loading, sessionChecked } = useAuth();
@@ -136,6 +137,14 @@ const App = () => {
               element={
                 <PrivateRoute>
                   <QuizPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/games"
+              element={
+                <PrivateRoute>
+                  <Games />
                 </PrivateRoute>
               }
             />
@@ -280,7 +289,7 @@ const App = () => {
 
             {/* Temporary Game Route */}
             <Route
-              path="/game1"
+              path="/games/game1"
               element={
                 <PrivateRoute>
                   <Game1 />
@@ -288,7 +297,7 @@ const App = () => {
               }
             />
             <Route
-              path="/game2"
+              path="/games/game2"
               element={
                 <PrivateRoute>
                   <Game2 />
@@ -296,7 +305,7 @@ const App = () => {
               }
             />
             <Route
-              path="/game3"
+              path="/games/game3"
               element={
                 <PrivateRoute>
                   <Game3 />
