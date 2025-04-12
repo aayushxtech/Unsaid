@@ -7,6 +7,7 @@ import AssessmentIcon from "@mui/icons-material/Assessment";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople';
 import Chatbot from "../components/Chatbot"; // Import the Chatbot component
+import Meme from "../components/Meme"; // Import the Meme component
 
 const Ask = () => {
   const theme = useTheme();
@@ -32,7 +33,8 @@ const Ask = () => {
       icon: <FactCheckIcon fontSize="large" />,
       color: "#42a5f5",
       gradient: "linear-gradient(135deg, #72C6EF 0%, #004E8F 100%)",
-      animation: "wobble"
+      animation: "wobble",
+      component: "meme"
     },
     {
       title: "Myth Busters",
@@ -76,6 +78,11 @@ const Ask = () => {
   // If chatbot is active, render the Chatbot component
   if (activeComponent === "chatbot") {
     return <Chatbot onBack={() => setActiveComponent(null)} />;
+  }
+  
+  // If meme detective is active, render the Meme component
+  if (activeComponent === "meme") {
+    return <Meme onBack={() => setActiveComponent(null)} />;
   }
 
   // Otherwise render the main menu with cards
