@@ -33,7 +33,7 @@ const Register = () => {
       const today = new Date();
 
       if (selectedDate > today) {
-        setError("Date of birth cannot be in the future");
+        setError("Oops! Your birthday can't be in the future");
         return;
       }
 
@@ -72,17 +72,19 @@ const Register = () => {
 
   const validateForm = () => {
     if (formData.password.length < 8) {
-      setPasswordError("Password must be at least 8 characters long");
+      setPasswordError(
+        "Your secret password needs to be at least 8 characters long"
+      );
       return false;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setPasswordError("Passwords do not match");
+      setPasswordError("Oops! Your passwords don't match");
       return false;
     }
 
     if (!formData.dateOfBirth) {
-      setError("Date of birth is required");
+      setError("Please tell us your birthday");
       return false;
     }
 
@@ -90,7 +92,7 @@ const Register = () => {
     const age = calculateAge(birthDate);
 
     if (age < 13 && !formData.parentalConsent) {
-      setError("Parental consent is required for users under 13");
+      setError("Please ask a grown-up for permission first");
       return false;
     }
 
@@ -155,12 +157,10 @@ const Register = () => {
 
       if (profileError) {
         console.warn("Profile creation/update error:", profileError);
-        // Log more details for debugging
         console.log(
           "Attempted to create/update profile for user:",
           data.user.id
         );
-        // Don't throw, continue with registration
       }
 
       // 4. Store minimal user data in localStorage
@@ -175,15 +175,15 @@ const Register = () => {
 
       // 5. Show success message and navigate
       alert(
-        "Registration successful! Please check your email to verify your account."
+        "Hooray! Your account is created! Please check your email to verify your account."
       );
       navigate("/login");
     } catch (err) {
       console.error("Registration error:", err);
       setError(
         err.message.includes("already registered")
-          ? "This email is already registered. Please try logging in."
-          : "Registration failed. Please try again."
+          ? "This email is already being used. Maybe try logging in instead?"
+          : "Oops! Something went wrong. Can you try again?"
       );
     } finally {
       setLoading(false);
@@ -191,29 +191,47 @@ const Register = () => {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen flex items-center justify-center p-2">
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden w-full max-w-md mx-auto">
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 py-4 px-6">
-          <h2 className="text-xl font-bold text-white text-center">
-            Create Your Account
+    <div className="bg-blue-50 min-h-screen flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-xl overflow-hidden w-full max-w-md mx-auto border-4 border-yellow-400">
+        <div className="bg-gradient-to-r from-blue-400 to-purple-400 py-6 px-6 relative">
+          <div className="absolute top-0 left-0 w-full h-full opacity-20">
+            {[...Array(15)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full bg-white"
+                style={{
+                  width: `${Math.floor(Math.random() * 10) + 5}px`,
+                  height: `${Math.floor(Math.random() * 10) + 5}px`,
+                  top: `${Math.floor(Math.random() * 100)}%`,
+                  left: `${Math.floor(Math.random() * 100)}%`,
+                }}
+              />
+            ))}
+          </div>
+          <h2 className="text-2xl font-bold text-white text-center">
+            Join Our Adventure!
           </h2>
+          <p className="text-center text-white mt-1">
+            Let's create your explorer profile
+          </p>
         </div>
 
-        <div className="p-6">
+        <div className="p-8">
           {error && (
-            <div className="bg-red-50 text-red-500 p-3 rounded-md mb-4 text-sm border border-red-200">
-              {error}
+            <div className="bg-red-50 text-red-500 p-4 rounded-xl mb-6 text-sm border-2 border-red-200 flex items-center">
+              <span className="text-xl mr-2">😕</span>
+              <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label
                   htmlFor="firstName"
-                  className="block text-sm font-medium text-gray-700"
+                  className="text-base font-medium text-gray-700 flex items-center"
                 >
-                  First Name
+                  <span className="mr-2">👤</span> First Name
                 </label>
                 <input
                   type="text"
@@ -221,18 +239,18 @@ const Register = () => {
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
-                  placeholder="First name"
+                  placeholder="Your first name"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  className="w-full px-4 py-3 border-2 border-blue-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-base"
                 />
               </div>
 
               <div className="space-y-2">
                 <label
                   htmlFor="lastName"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-base font-medium text-gray-700 flex items-center"
                 >
-                  Last Name
+                  <span className="mr-2">👤</span> Last Name
                 </label>
                 <input
                   type="text"
@@ -240,9 +258,9 @@ const Register = () => {
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
-                  placeholder="Last name"
+                  placeholder="Your last name"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  className="w-full px-4 py-3 border-2 border-blue-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-base"
                 />
               </div>
             </div>
@@ -250,9 +268,9 @@ const Register = () => {
             <div className="space-y-2">
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-base font-medium text-gray-700 flex items-center"
               >
-                Email
+                <span className="mr-2">✉️</span> Email
               </label>
               <input
                 type="email"
@@ -260,18 +278,18 @@ const Register = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="Enter your email"
+                placeholder="Your email address"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                className="w-full px-4 py-3 border-2 border-blue-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-base"
               />
             </div>
 
             <div className="space-y-2">
               <label
                 htmlFor="dateOfBirth"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-base font-medium text-gray-700 flex items-center"
               >
-                Date of Birth
+                <span className="mr-2">🎂</span> Your Birthday
               </label>
               <input
                 type="date"
@@ -281,16 +299,16 @@ const Register = () => {
                 onChange={handleChange}
                 max={maxDate}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                className="w-full px-4 py-3 border-2 border-blue-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-base"
               />
-              <p className="text-xs text-gray-500">
-                Providing your actual date of birth helps us provide appropriate
-                content.
+              <p className="text-xs text-gray-500 ml-6">
+                We need to know your real birthday to make sure you get the
+                right content!
               </p>
             </div>
 
             {requiresGuardian && (
-              <div className="p-4 border border-blue-200 bg-blue-50 rounded-md">
+              <div className="p-4 border-2 border-blue-200 bg-blue-50 rounded-xl">
                 <div className="flex items-start space-x-2">
                   <input
                     id="parentalConsent"
@@ -299,19 +317,18 @@ const Register = () => {
                     checked={formData.parentalConsent}
                     onChange={handleChange}
                     required={requiresGuardian}
-                    className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mt-1"
+                    className="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mt-1"
                   />
                   <div>
                     <label
                       htmlFor="parentalConsent"
-                      className="block text-sm font-medium text-blue-700"
+                      className=" text-base font-medium text-blue-700 flex items-center"
                     >
-                      Parental Consent Required
+                      <span className="mr-2">👨‍👩‍👧‍👦</span> Parent Permission
                     </label>
-                    <p className="text-xs text-gray-600 mt-1">
-                      I confirm that I have my parent or guardian's permission
-                      to use this platform, and they are aware of and consent to
-                      my registration and use of UNSAID.
+                    <p className="text-sm text-gray-600 mt-1">
+                      I have asked an adult for permission to join, and they
+                      said it's okay!
                     </p>
                   </div>
                 </div>
@@ -321,9 +338,9 @@ const Register = () => {
             <div className="space-y-2">
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-base font-medium text-gray-700 flex items-center"
               >
-                Password
+                <span className="mr-2">🔑</span> Secret Password
               </label>
               <input
                 type="password"
@@ -331,18 +348,18 @@ const Register = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                placeholder="Create a password (min. 8 characters)"
+                placeholder="Create a secret password (8+ characters)"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                className="w-full px-4 py-3 border-2 border-blue-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-base"
               />
             </div>
 
             <div className="space-y-2">
               <label
                 htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-base font-medium text-gray-700 flex items-center"
               >
-                Confirm Password
+                <span className="mr-2">🔐</span> Confirm Secret Password
               </label>
               <input
                 type="password"
@@ -350,39 +367,41 @@ const Register = () => {
                 name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                placeholder="Confirm your password"
+                placeholder="Type your password again"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                className="w-full px-4 py-3 border-2 border-blue-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-base"
               />
               {passwordError && (
-                <p className="text-xs text-red-500">{passwordError}</p>
+                <p className="text-sm text-red-500 flex items-center">
+                  <span className="text-xl mr-2">😕</span> {passwordError}
+                </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-start">
+              <div className="flex items-start bg-yellow-50 p-4 rounded-xl border-2 border-yellow-200">
                 <input
                   id="terms"
                   name="terms"
                   type="checkbox"
                   required
-                  className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mt-1"
+                  className="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mt-1"
                 />
                 <label
                   htmlFor="terms"
-                  className="ml-2 block text-sm text-gray-600"
+                  className="ml-2 block text-sm text-gray-700"
                 >
-                  I agree to the{" "}
+                  I promise to follow the{" "}
                   <a
                     href="/terms"
-                    className="text-blue-600 hover:text-blue-500"
+                    className="text-blue-600 hover:text-blue-500 font-medium"
                   >
-                    Terms of Service
+                    Explorer Rules
                   </a>{" "}
-                  and{" "}
+                  and I understand the{" "}
                   <a
                     href="/privacy"
-                    className="text-blue-600 hover:text-blue-500"
+                    className="text-blue-600 hover:text-blue-500 font-medium"
                   >
                     Privacy Policy
                   </a>
@@ -393,18 +412,46 @@ const Register = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-500 text-white font-medium py-2 px-4 rounded-md transition duration-200 shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-yellow-400 hover:bg-yellow-500 text-blue-800 font-bold py-3 px-6 rounded-xl transition duration-200 shadow-md hover:shadow-lg transform hover:scale-102 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 disabled:opacity-50 text-lg mt-4"
             >
-              {loading ? "Creating Account..." : "Create Account"}
+              {loading ? (
+                <span className="flex items-center justify-center">
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-800"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Creating your profile...
+                </span>
+              ) : (
+                <span className="flex items-center justify-center">
+                  <span className="mr-2">🚀</span> Start My Adventure!
+                </span>
+              )}
             </button>
 
-            <div className="text-center text-sm text-gray-600 mt-4">
-              Already have an account?{" "}
+            <div className="text-center text-gray-600 mt-4">
+              Already an explorer?{" "}
               <a
                 href="/login"
-                className="text-blue-600 hover:text-blue-500 font-medium"
+                className="text-blue-500 hover:text-blue-400 font-medium"
               >
-                Login
+                Login here!
               </a>
             </div>
           </form>

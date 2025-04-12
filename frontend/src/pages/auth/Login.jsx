@@ -24,7 +24,6 @@ const Login = ({ onClose }) => {
     setError("");
 
     try {
-      // Step 1: Authenticate with email and password
       const { data, error } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
@@ -33,7 +32,6 @@ const Login = ({ onClose }) => {
       if (error) throw error;
 
       if (data?.user) {
-        // Step 2: Check if the user is banned
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
           .select("is_banned, banned_reason")
@@ -42,56 +40,75 @@ const Login = ({ onClose }) => {
 
         if (profileError) {
           console.error("Error checking user ban status:", profileError);
-          throw new Error("Could not verify account status. Please try again.");
+          throw new Error(
+            "Oops! We couldn't check your account. Please try again."
+          );
         }
 
-        // If the user is banned, sign them out immediately and show error
         if (profileData?.is_banned) {
-          // Sign the user out
           await supabase.auth.signOut();
 
           const banReason = profileData.banned_reason
             ? `Reason: ${profileData.banned_reason}`
-            : "Please contact support for more information.";
+            : "Please ask a grown-up to contact support.";
 
-          throw new Error(`Your account has been suspended. ${banReason}`);
+          throw new Error(`Your account is taking a time-out. ${banReason}`);
         }
 
-        // User is not banned, proceed with login
         onClose?.();
-        // Navigate to the original intended route or dashboard
         navigate(from, { replace: true });
       }
     } catch (err) {
-      setError(err.message || "Login failed. Please check your credentials.");
+      setError(
+        err.message ||
+          "Login didn't work. Double-check your info and try again!"
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen flex items-center justify-center p-2">
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden w-full max-w-md mx-auto">
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 py-4 px-6">
-          <h2 className="text-xl font-bold text-white text-center">
-            Login to Your Account
+    <div className="bg-blue-50 min-h-screen flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-xl overflow-hidden w-full max-w-md mx-auto border-4 border-yellow-400">
+        <div className="bg-gradient-to-r from-blue-400 to-purple-400 py-6 px-6 relative">
+          <div className="absolute top-0 left-0 w-full h-full opacity-20">
+            {[...Array(15)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full bg-white"
+                style={{
+                  width: `${Math.floor(Math.random() * 10) + 5}px`,
+                  height: `${Math.floor(Math.random() * 10) + 5}px`,
+                  top: `${Math.floor(Math.random() * 100)}%`,
+                  left: `${Math.floor(Math.random() * 100)}%`,
+                }}
+              />
+            ))}
+          </div>
+          <h2 className="text-2xl font-bold text-white text-center">
+            Welcome Back, Friend!
           </h2>
+          <p className="text-center text-white mt-1">
+            Let's go on an adventure!
+          </p>
         </div>
 
-        <div className="p-6">
+        <div className="p-8">
           {error && (
-            <div className="bg-red-50 text-red-500 p-3 rounded-md mb-4 text-sm border border-red-200">
-              {error}
+            <div className="bg-red-50 text-red-500 p-4 rounded-xl mb-6 text-sm border-2 border-red-200 flex items-center">
+              <span className="text-xl mr-2">😕</span>
+              <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-base font-medium text-gray-700 mb-1 flex items-center"
               >
-                Email
+                <span className="mr-2">✉️</span> Email
               </label>
               <input
                 type="email"
@@ -99,18 +116,18 @@ const Login = ({ onClose }) => {
                 id="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="Enter your email"
+                placeholder="Type your email here"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                className="w-full px-4 py-3 border-2 border-blue-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-base"
               />
             </div>
 
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-base font-medium text-gray-700 mb-1 flex items-center"
               >
-                Password
+                <span className="mr-2">🔑</span> Password
               </label>
               <input
                 type="password"
@@ -118,19 +135,19 @@ const Login = ({ onClose }) => {
                 id="password"
                 value={formData.password}
                 onChange={handleChange}
-                placeholder="Enter your password"
+                placeholder="Type your secret password"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                className="w-full px-4 py-3 border-2 border-blue-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-base"
               />
             </div>
 
-            <div className="flex items-center justify-between text-sm mt-2">
+            <div className="flex items-center justify-between text-base mt-4">
               <div className="flex items-center">
                 <input
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  className="h-5 w-5 text-blue-500 border-gray-300 rounded focus:ring-blue-400"
                 />
                 <label htmlFor="remember-me" className="ml-2 text-gray-600">
                   Remember me
@@ -138,7 +155,7 @@ const Login = ({ onClose }) => {
               </div>
               <a
                 href="/forgot-password"
-                className="text-blue-600 hover:text-blue-500"
+                className="text-blue-500 hover:text-blue-400"
               >
                 Forgot password?
               </a>
@@ -147,11 +164,51 @@ const Login = ({ onClose }) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-500 text-white font-medium py-2 px-4 rounded-md transition duration-200 shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+              className="w-full bg-yellow-400 hover:bg-yellow-500 text-blue-800 font-bold py-3 px-6 rounded-xl transition duration-200 shadow-md hover:shadow-lg transform hover:scale-102 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 disabled:opacity-50 text-lg mt-4"
             >
-              {loading ? "Logging in..." : "Login"}
+              {loading ? (
+                <span className="flex items-center justify-center">
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-800"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Magic happening...
+                </span>
+              ) : (
+                <span className="flex items-center justify-center">
+                  <span className="mr-2">🚀</span> Let's Go!
+                </span>
+              )}
             </button>
           </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-gray-600">
+              Don't have an account yet?{" "}
+              <a
+                href="/register"
+                className="text-blue-500 font-medium hover:underline"
+              >
+                Join the fun!
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </div>

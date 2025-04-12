@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import { useAuth } from "../contexts/AuthContext";
@@ -806,7 +807,6 @@ const LearningAdventureMap = () => {
                               content.media_url &&
                               content.content_type !== "text"
                             ) {
-                              // Extract path from media_url if it's a storage URL
                               const path =
                                 content.media_url.split("content-bucket/")[1];
                               if (path) {
