@@ -8,6 +8,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople';
 import Chatbot from "../components/Chatbot"; // Import the Chatbot component
 import Meme from "../components/Meme"; // Import the Meme component
+import ProgressTracker from "../components/analyzer"; // Import the ProgressTracker component
 
 const Ask = () => {
   const theme = useTheme();
@@ -50,7 +51,8 @@ const Ask = () => {
       icon: <AssessmentIcon fontSize="large" />,
       color: "#ab47bc",
       gradient: "linear-gradient(135deg, #FFB7D5 0%, #AA26DA 100%)",
-      animation: "shake"
+      animation: "shake",
+      component: "progress-tracker" // Add component name for Progress Tracker
     }
   ];
 
@@ -84,6 +86,11 @@ const Ask = () => {
   if (activeComponent === "meme") {
     return <Meme onBack={() => setActiveComponent(null)} />;
   }
+  
+  // If progress tracker is active, render the ProgressTracker component
+  if (activeComponent === "progress-tracker") {
+    return <ProgressTracker onBack={() => setActiveComponent(null)} />;
+  }
 
   // Otherwise render the main menu with cards
   return (
@@ -114,7 +121,7 @@ const Ask = () => {
             right: 0,
             bottom: 0,
             opacity: 0.05,
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M9 0h2v20H9V0zm25.134.84l1.732 1-10 17.32-1.732-1 10-17.32zm-20 20l1.732 1-10 17.32-1.732-1 10-17.32zM58.16 4.134l1 1.732-17.32 10-1-1.732 17.32-10zm-40 40l1 1.732-17.32 10-1-1.732 17.32-10zM80 9v2H60V9h20zM20 69v2H0v-2h20zm79.32-55l-1 1.732-17.32-10L82 4l17.32 10zm-80 80l-1 1.732-17.32-10L2 84l17.32 10zm96.546-75.84l-1.732 1-10-17.32 1.732-1 10 17.32zm-100 100l-1.732 1-10-17.32 1.732-1 10 17.32zM38.16 24.134l1 1.732-17.32 10-1-1.732 17.32-10zM60 29v2H40v-2h20zm19.32 5l-1 1.732-17.32-10L62 24l17.32 10zm16.546 4.16l-1.732 1-10-17.32 1.732-1 10 17.32zM111 40h-2V20h2v20zm3.134.84l1.732 1-10 17.32-1.732-1 10-17.32zM40 49v2H20v-2h20zm19.32 5l-1 1.732-17.32-10L42 44l17.32 10zm-40 40l-1 1.732-17.32-10L2 84l17.32 10zm75.546-80.84l-1.732 1-10-17.32 1.732-1 10 17.32zm-100 100l-1.732 1-10-17.32 1.732-1 10 17.32zM98.16 24.134l1 1.732-17.32 10-1-1.732 17.32-10zm-80 80l1 1.732-17.32 10-1-1.732 17.32-10zM80 49v2H60v-2h20zm19.32 5l-1 1.732-17.32-10L82 44l17.32 10zm-40 40l-1 1.732-17.32-10L62 84l17.32 10zm75.546-80.84l-1.732 1-10-17.32 1.732-1 10 17.32zm-100 100l-1.732 1-10-17.32 1.732-1 10 17.32z' fill='%239C92AC' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E")`,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M9 0h2v20H9V0zm25.134.84l1.732 1-10 17.32-1.732-1 10-17.32zm-20 20l1.732 1-10 17.32-1.732-1 10-17.32zM58.16 4.134l1 1.732-17.32 10-1-1.732 17.32-10zm-40 40l1 1.732-17.32 10-1-1.732 17.32-10zM80 9v2H60V9h20zM20 69v2H0v-2h20zm79.32-55l-1 1.732-17.32-10L82 4l17.32 10zm-80 80l-1 1.732-17.32-10L2 84l17.32 10zm96.546-75.84l-1.732 1-10-17.32 1.732-1 10 17.32zm-100 100l-1.732 1-10-17.32 1.732-1 10 17.32zM38.16 24.134l1 1.732-17.32 10-1-1.732 17.32-10zM60 29v2H40v-2h20zm19.32 5l-1 1.732-17.32-10L62 24l17.32 10zm16.546 4.16l-1.732 1-10-17.32 1.732-1 10 17.32zM111 40h-2V20h2v20zm3.134.84l1.732 1-10 17.32-1.732-1 10-17.32zM40 49v2H20v-2h20zm19.32 5l-1 1.732-17.32-10L42 44l17.32 10zm-40 40l-1 1.732-17.32-10L2 84l17.32 10zm75.546-80.84l-1.732 1-10-17.32 1.732-1 10 17.32zm-100 100l-1.732 1-10-17.32 1.732-1 10 17.32z' fill='%239C92AC' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E")`,
           }}
         />
 
