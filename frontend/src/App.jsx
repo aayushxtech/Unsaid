@@ -58,6 +58,7 @@ import QuizPage from "./pages/QuizPage";
 import AdminRoute from "./components/AdminRoute";
 import Game4 from "./games/Game4";
 import Game6 from "./games/Game6";
+import Game7 from "./games/Game7";
 
 const PrivateRoute = ({ children }) => {
   const { user, loading, sessionChecked } = useAuth();
@@ -340,6 +341,14 @@ const App = () => {
               element={
                 <PrivateRoute>
                   <Game6 />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/games/game7"
+              element={
+                <PrivateRoute>
+                  <Game7 />
                 </PrivateRoute>
               }
             />

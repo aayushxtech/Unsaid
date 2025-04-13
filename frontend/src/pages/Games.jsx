@@ -28,40 +28,40 @@ import {
   Heart,
 } from "lucide-react";
 import { motion, AnimatePresence, color } from "framer-motion";
-import { keyframes } from '@emotion/react';
+import { keyframes } from "@emotion/react";
 
 // Falling star animation
 const FallingStar = ({ delay, duration, size, left, top }) => {
   return (
     <motion.div
-      initial={{ 
+      initial={{
         opacity: 0,
         x: left,
         y: top,
-        scale: 0
+        scale: 0,
       }}
-      animate={{ 
+      animate={{
         opacity: [0, 1, 0.8, 0],
         x: [left, left + 100, left + 200],
         y: [top, top + 150, top + 300],
-        scale: [0, 1, 0.8, 0.2]
+        scale: [0, 1, 0.8, 0.2],
       }}
       transition={{
         duration: duration,
         delay: delay,
         repeat: Infinity,
-        repeatDelay: Math.random() * 5 + 5
+        repeatDelay: Math.random() * 5 + 5,
       }}
       style={{
-        position: 'absolute',
+        position: "absolute",
         width: size,
         height: size,
         background: `radial-gradient(circle at 30% 30%, white, rgba(255, 255, 255, 0.8) 40%, rgba(255, 215, 0, 0.6) 60%, rgba(255,140,0,0))`,
-        borderRadius: '50%',
-        filter: 'blur(1px)',
-        boxShadow: '0 0 10px 2px rgba(255, 255, 255, 0.8)',
+        borderRadius: "50%",
+        filter: "blur(1px)",
+        boxShadow: "0 0 10px 2px rgba(255, 255, 255, 0.8)",
         zIndex: 0,
-        pointerEvents: 'none'
+        pointerEvents: "none",
       }}
     >
       <motion.div
@@ -74,10 +74,11 @@ const FallingStar = ({ delay, duration, size, left, top }) => {
           repeat: Infinity,
         }}
         style={{
-          width: '100%',
-          height: '100%',
-          background: 'linear-gradient(45deg, rgba(255,255,255,0.8), transparent)',
-          borderRadius: '50%'
+          width: "100%",
+          height: "100%",
+          background:
+            "linear-gradient(45deg, rgba(255,255,255,0.8), transparent)",
+          borderRadius: "50%",
         }}
       />
     </motion.div>
@@ -88,35 +89,36 @@ const FallingStar = ({ delay, duration, size, left, top }) => {
 const Meteor = ({ delay }) => {
   return (
     <motion.div
-      initial={{ 
+      initial={{
         x: Math.random() * window.innerWidth,
         y: -100,
         opacity: 0,
-        scale: 0.5
+        scale: 0.5,
       }}
-      animate={{ 
-        x: (Math.random() * window.innerWidth) - 500,
+      animate={{
+        x: Math.random() * window.innerWidth - 500,
         y: window.innerHeight + 100,
         opacity: [0, 1, 1, 0],
-        scale: 1
+        scale: 1,
       }}
       transition={{
         duration: Math.random() * 2 + 1.5,
         delay: delay,
         repeat: Infinity,
-        repeatDelay: Math.random() * 15 + 10
+        repeatDelay: Math.random() * 15 + 10,
       }}
       style={{
-        position: 'absolute',
-        width: '3px',
-        height: '150px',
-        background: 'linear-gradient(to top, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, rgba(240,240,255,0.9) 100%)',
-        borderRadius: '50px',
-        transform: 'rotate(35deg)',
-        transformOrigin: 'center bottom',
-        boxShadow: '0 0 20px 5px rgba(255, 255, 255, 0.4)',
+        position: "absolute",
+        width: "3px",
+        height: "150px",
+        background:
+          "linear-gradient(to top, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, rgba(240,240,255,0.9) 100%)",
+        borderRadius: "50px",
+        transform: "rotate(35deg)",
+        transformOrigin: "center bottom",
+        boxShadow: "0 0 20px 5px rgba(255, 255, 255, 0.4)",
         zIndex: 0,
-        pointerEvents: 'none'
+        pointerEvents: "none",
       }}
     />
   );
@@ -128,24 +130,24 @@ const Aurora = ({ color, top }) => {
     <motion.div
       animate={{
         opacity: [0.3, 0.7, 0.3],
-        y: [0, -20, 0]
+        y: [0, -20, 0],
       }}
       transition={{
         duration: 10 + Math.random() * 10,
         repeat: Infinity,
-        repeatType: 'reverse',
-        ease: "easeInOut"
+        repeatType: "reverse",
+        ease: "easeInOut",
       }}
       style={{
-        position: 'absolute',
-        width: '100%',
-        height: '200px',
+        position: "absolute",
+        width: "100%",
+        height: "200px",
         top: `${top}%`,
         background: `linear-gradient(90deg, transparent 0%, ${color} 50%, transparent 100%)`,
-        filter: 'blur(40px)',
+        filter: "blur(40px)",
         opacity: 0.5,
         zIndex: 0,
-        pointerEvents: 'none'
+        pointerEvents: "none",
       }}
     />
   );
@@ -154,33 +156,57 @@ const Aurora = ({ color, top }) => {
 // Add illuminated dust particles
 const IlluminatedDust = () => {
   return (
-    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0 }}>
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        overflow: "hidden",
+        pointerEvents: "none",
+        zIndex: 0,
+      }}
+    >
       {[...Array(30)].map((_, i) => (
         <motion.div
           key={i}
           initial={{
-            x: Math.random() * 100 + '%',
-            y: Math.random() * 100 + '%',
+            x: Math.random() * 100 + "%",
+            y: Math.random() * 100 + "%",
             opacity: Math.random() * 0.5,
-            scale: Math.random() * 0.5
+            scale: Math.random() * 0.5,
           }}
           animate={{
-            x: [Math.random() * 100 + '%', Math.random() * 100 + '%'],
-            y: [Math.random() * 100 + '%', Math.random() * 100 + '%'],
-            opacity: [Math.random() * 0.3, Math.random() * 0.7, Math.random() * 0.3],
+            x: [Math.random() * 100 + "%", Math.random() * 100 + "%"],
+            y: [Math.random() * 100 + "%", Math.random() * 100 + "%"],
+            opacity: [
+              Math.random() * 0.3,
+              Math.random() * 0.7,
+              Math.random() * 0.3,
+            ],
           }}
           transition={{
-            x: { duration: 60 + Math.random() * 40, repeat: Infinity, repeatType: 'reverse' },
-            y: { duration: 80 + Math.random() * 40, repeat: Infinity, repeatType: 'reverse' },
-            opacity: { duration: 3 + Math.random() * 2, repeat: Infinity, repeatType: 'reverse' }
+            x: {
+              duration: 60 + Math.random() * 40,
+              repeat: Infinity,
+              repeatType: "reverse",
+            },
+            y: {
+              duration: 80 + Math.random() * 40,
+              repeat: Infinity,
+              repeatType: "reverse",
+            },
+            opacity: {
+              duration: 3 + Math.random() * 2,
+              repeat: Infinity,
+              repeatType: "reverse",
+            },
           }}
           style={{
-            position: 'absolute',
-            width: Math.random() * 3 + 1 + 'px',
-            height: Math.random() * 3 + 1 + 'px',
-            borderRadius: '50%', 
-            background: 'white',
-            boxShadow: '0 0 3px white'
+            position: "absolute",
+            width: Math.random() * 3 + 1 + "px",
+            height: Math.random() * 3 + 1 + "px",
+            borderRadius: "50%",
+            background: "white",
+            boxShadow: "0 0 3px white",
           }}
         />
       ))}
@@ -767,6 +793,17 @@ const Games = () => {
       color: "#FF6B6B", // Red
       emoji: "🦸‍♀️",
     },
+    {
+      id: "game7",
+      title: "Gender Identity Quest",
+      description:
+        "Guess the gender identity based on clues and sounds. Fun for ages 12-19.",
+      image: "/game7-thumbnail.jpg",
+      path: "/games/game7",
+      ageGroup: "12-19",
+      color: "#FF6B6B", // Red
+      emoji: "🦸‍♀️",
+    },
   ];
 
   // Child-friendly loading animation
@@ -924,14 +961,13 @@ const Games = () => {
     >
       {/* Only show character follower for kids */}
       {showCharacter && <FollowingCharacter />}
-
       {/* Add starry night effect */}
       <Box
         sx={{
-          position: 'absolute',
+          position: "absolute",
           inset: 0,
           zIndex: 0,
-          overflow: 'hidden',
+          overflow: "hidden",
           opacity: 0.6,
         }}
       >
@@ -939,14 +975,16 @@ const Games = () => {
           <Box
             key={i}
             sx={{
-              position: 'absolute',
+              position: "absolute",
               width: Math.random() * 3 + 1,
               height: Math.random() * 3 + 1,
-              backgroundColor: 'white',
-              borderRadius: '50%',
+              backgroundColor: "white",
+              borderRadius: "50%",
               top: `${Math.random() * 100}%`,
               left: `${Math.random() * 100}%`,
-              animation: `twinkle ${Math.random() * 3 + 2}s infinite ${Math.random() * 2}s`,
+              animation: `twinkle ${Math.random() * 3 + 2}s infinite ${
+                Math.random() * 2
+              }s`,
             }}
           />
         ))}
@@ -959,7 +997,6 @@ const Games = () => {
           `}
         </style>
       </Box>
-
       {/* Update animated background bubbles with more contrast */}
       <AnimatedBubble
         size={userAgeGroup === "3-12" ? "180px" : "150px"}
@@ -1009,7 +1046,6 @@ const Games = () => {
         left={50}
         top={40}
       />
-
       {/* Make falling stars brighter for dark background */}
       {[...Array(8)].map((_, i) => (
         <FallingStar
@@ -1021,15 +1057,12 @@ const Games = () => {
           top={Math.random() * -50}
         />
       ))}
-
       {/* Update Aurora effects for dark theme */}
       <Aurora color="rgba(139, 92, 246, 0.4)" top={10} /> {/* Purple */}
       <Aurora color="rgba(16, 185, 129, 0.4)" top={30} /> {/* Green */}
       <Aurora color="rgba(245, 158, 11, 0.4)" top={50} /> {/* Orange */}
-
       {/* Illuminated dust particles */}
       <IlluminatedDust />
-
       <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
         <motion.div
           initial={{ opacity: 0, y: -20 }}
