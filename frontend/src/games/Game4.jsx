@@ -516,7 +516,8 @@ const Game4 = ({ onBack }) => {
 
   // Add these state variables for animation
   const [avatarAnimation, setAvatarAnimation] = useState('idle');
-  const [previousEmotion, setPreviousEmotion] = useState('neutral');
+  // This line is removed to fix the duplicate declaration
+  // const [previousEmotion, setPreviousEmotion] = useState('neutral');
   const [showReaction, setShowReaction] = useState(false);
   const [reactionEmoji, setReactionEmoji] = useState('');
 
