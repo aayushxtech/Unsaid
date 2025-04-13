@@ -572,8 +572,19 @@ const Games = () => {
       image: "/game3-thumbnail.jpg",
       path: "/games/game3",
       ageGroup: "20-45",
-      color: "#F59E0B", // Amber
-      emoji: "🧠",
+      // Amber
+      emoji: "🧭",
+    },
+    {
+      id: "game4",
+      title: "Teen Life Navigator",
+      description:
+        "Navigate social situations, friendships, and personal challenges with this interactive decision-making game for teens aged 12-19.",
+      image: "/game4-thumbnail.jpg",
+      path: "/games/game4",
+      ageGroup: "12-19",
+      color: "#FBBF24", // Yellow
+      emoji: "🧭",
     },
   ];
 
