@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Shuffle, RefreshCw, Info, Heart, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -12,18 +12,22 @@ const styles = {
     flex flex-col items-center justify-center
     bg-white rounded-xl
     border-2 border-indigo-300
-    shadow-md
+    shadow-lg
     backface-hidden
-    p-3
+    p-4
     transform rotate-y-180
+    hover:shadow-xl
+    transition-shadow
   `,
   cardBack: `
     absolute inset-0
     flex items-center justify-center
-    bg-gradient-to-br from-indigo-600 to-indigo-700
+    bg-gradient-to-br from-indigo-600 to-purple-600
     rounded-xl border-2 border-indigo-700
-    shadow-md
+    shadow-lg
     backface-hidden
+    hover:shadow-xl
+    transition-shadow
   `,
 };
 
@@ -190,9 +194,10 @@ const shuffleCards = (cards) => {
 export default function Game5() {
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  // All state hooks declared first
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
-
   const [cards, setCards] = useState([]);
   const [flippedCards, setFlippedCards] = useState([]);
   const [matchedPairs, setMatchedPairs] = useState(0);
@@ -200,7 +205,37 @@ export default function Game5() {
   const [gameOver, setGameOver] = useState(false);
   const [showInstructions, setShowInstructions] = useState(true);
 
-  // Add age verification
+  // Game reset function
+  const resetGame = useCallback(() => {
+    const newCards = shuffleCards(createGameCards());
+    setCards(newCards);
+    setFlippedCards([]);
+    setMatchedPairs(0);
+    setMoves(0);
+    setGameOver(false);
+    setShowInstructions(false);
+  }, []);
+
+  // Card click handler
+  const handleCardClick = useCallback(
+    (index) => {
+      if (
+        cards[index].isFlipped ||
+        cards[index].isMatched ||
+        flippedCards.length >= 2
+      ) {
+        return;
+      }
+
+      const updatedCards = [...cards];
+      updatedCards[index].isFlipped = true;
+      setCards(updatedCards);
+      setFlippedCards((prev) => [...prev, index]);
+    },
+    [cards, flippedCards.length]
+  );
+
+  // Authorization effect
   useEffect(() => {
     const checkAgeAuthorization = async () => {
       try {
@@ -240,43 +275,28 @@ export default function Game5() {
     checkAgeAuthorization();
   }, [user, navigate]);
 
-  // Show loading state
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-indigo-50">
-        <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
-  // Prevent rendering if not authorized
-  if (!authorized) {
-    return null; // Will redirect in useEffect
-  }
-
-  // Initialize game
+  // Game initialization effect
   useEffect(() => {
-    resetGame();
-  }, []);
+    if (authorized) {
+      resetGame();
+    }
+  }, [authorized, resetGame]);
 
-  // Check for matches
+  // Match checking effect
   useEffect(() => {
     if (flippedCards.length === 2) {
       const [first, second] = flippedCards;
       const updatedCards = [...cards];
 
-      // Increment moves immediately when two cards are flipped
       setMoves((prevMoves) => prevMoves + 1);
 
       if (cards[first].pairId === cards[second].pairId) {
-        // Found a match
         updatedCards[first].isMatched = true;
         updatedCards[second].isMatched = true;
         setCards(updatedCards);
         setMatchedPairs((prevPairs) => prevPairs + 1);
         setFlippedCards([]);
       } else {
-        // No match, flip back after delay
         setTimeout(() => {
           updatedCards[first].isFlipped = false;
           updatedCards[second].isFlipped = false;
@@ -287,34 +307,7 @@ export default function Game5() {
     }
   }, [flippedCards, cards]);
 
-  // Handle card click
-  const handleCardClick = (index) => {
-    if (
-      cards[index].isFlipped ||
-      cards[index].isMatched ||
-      flippedCards.length >= 2
-    ) {
-      return;
-    }
-
-    const updatedCards = [...cards];
-    updatedCards[index].isFlipped = true;
-    setCards(updatedCards);
-    setFlippedCards((prev) => [...prev, index]);
-  };
-
-  // Reset game
-  const resetGame = () => {
-    const newCards = shuffleCards(createGameCards());
-    setCards(newCards);
-    setFlippedCards([]);
-    setMatchedPairs(0);
-    setMoves(0);
-    setGameOver(false);
-    setShowInstructions(false);
-  };
-
-  // Check for game over
+  // Game over effect
   useEffect(() => {
     if (matchedPairs === 12) {
       setTimeout(() => {
@@ -323,38 +316,52 @@ export default function Game5() {
     }
   }, [matchedPairs]);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-indigo-50">
+        <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!authorized) {
+    return null;
+  }
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-indigo-50 p-4">
-      <div className="max-w-4xl w-full bg-white rounded-lg shadow-xl p-6">
-        {/* Game Header */}
-        <div className="flex flex-col md:flex-row justify-between items-center mb-6">
-          <div className="flex items-center mb-4 md:mb-0">
-            <Heart className="text-red-500 mr-2" />
-            <h1 className="text-3xl font-bold text-indigo-700">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 p-4 sm:p-6">
+      <div className="max-w-5xl w-full bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+        {/* Enhanced Game Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-red-100 rounded-full">
+              <Heart className="text-red-500 w-6 h-6 sm:w-8 sm:h-8" />
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-700 to-purple-700 bg-clip-text text-transparent">
               Protection Match
             </h1>
           </div>
 
-          <div className="flex space-x-4">
-            <div className="text-center px-3 py-1 bg-indigo-100 rounded-lg">
-              <p className="text-sm text-indigo-800">Moves</p>
-              <p className="font-bold text-lg">{moves}</p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <div className="text-center px-4 py-2 bg-indigo-100 rounded-xl">
+              <p className="text-sm text-indigo-800 font-medium">Moves</p>
+              <p className="font-bold text-xl text-indigo-700">{moves}</p>
             </div>
-            <div className="text-center px-3 py-1 bg-indigo-100 rounded-lg">
-              <p className="text-sm text-indigo-800">Pairs</p>
-              <p className="font-bold text-lg">{matchedPairs}/12</p>
+            <div className="text-center px-4 py-2 bg-purple-100 rounded-xl">
+              <p className="text-sm text-purple-800 font-medium">Pairs</p>
+              <p className="font-bold text-xl text-purple-700">{matchedPairs}/12</p>
             </div>
             <button
               onClick={resetGame}
-              className="flex items-center bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-lg transition"
+              className="flex items-center bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-4 py-2 rounded-xl transition-all transform hover:scale-105"
             >
-              <RefreshCw size={16} className="mr-1" /> Reset
+              <RefreshCw size={18} className="mr-2" /> Reset
             </button>
             <button
               onClick={() => setShowInstructions(true)}
-              className="flex items-center bg-indigo-200 hover:bg-indigo-300 text-indigo-800 px-3 py-1 rounded-lg transition"
+              className="flex items-center bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-800 px-4 py-2 rounded-xl transition-all transform hover:scale-105"
             >
-              <Info size={16} className="mr-1" /> Info
+              <Info size={18} className="mr-2" /> Info
             </button>
           </div>
         </div>
@@ -427,8 +434,8 @@ export default function Game5() {
           </div>
         )}
 
-        {/* Game Board */}
-        <div className="grid grid-cols-4 md:grid-cols-6 gap-3 md:gap-4">
+        {/* Improved Game Board */}
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 sm:gap-4">
           {cards.map((card, index) => (
             <div
               key={index}
@@ -436,8 +443,8 @@ export default function Game5() {
               className={`
                 aspect-[3/4] relative
                 transform-gpu perspective-1000
-                ${!card.isMatched && "hover:scale-105"}
-                transition-transform duration-300
+                ${!card.isMatched && "hover:scale-102"}
+                transition-all duration-300 ease-in-out
                 ${card.isMatched ? "cursor-default" : "cursor-pointer"}
               `}
             >
@@ -450,40 +457,38 @@ export default function Game5() {
                   ${card.isMatched ? "ring-2 ring-green-500 ring-offset-2" : ""}
                 `}
               >
-                {/* Front of Card */}
                 <div className={styles.cardFront}>
                   {card.type === "method" ? (
                     <>
-                      <div className="transform-gpu scale-125 mb-2">
-                        {card.icon()}
-                      </div>
-                      <div className="text-center text-xs font-medium text-indigo-900">
+                      <div className="transform-gpu scale-110 mb-3">{card.icon()}</div>
+                      <div className="text-center text-sm font-medium text-indigo-900">
                         {card.name}
                       </div>
                     </>
                   ) : (
-                    <div className="text-xs leading-tight text-gray-700">
+                    <div className="text-sm leading-tight text-gray-700 px-2">
                       {card.details}
                     </div>
                   )}
                 </div>
 
-                {/* Back of Card */}
                 <div className={styles.cardBack}>
-                  <Shield className="text-white/90 w-8 h-8" />
+                  <Shield className="text-white/90 w-8 h-8 transform hover:scale-110 transition-transform" />
                 </div>
               </div>
             </div>
           ))}
         </div>
-      </div>
 
-      <div className="mt-6 text-center text-sm text-gray-600">
-        <p>Protection Match - An educational contraception awareness game</p>
-        <p className="mt-1">
-          Always consult healthcare professionals for personalized contraceptive
-          advice
-        </p>
+        {/* Enhanced Footer */}
+        <div className="mt-8 text-center">
+          <p className="text-sm font-medium text-indigo-800">
+            Protection Match - An educational contraception awareness game
+          </p>
+          <p className="mt-2 text-xs text-purple-600">
+            Always consult healthcare professionals for personalized contraceptive advice
+          </p>
+        </div>
       </div>
     </div>
   );
