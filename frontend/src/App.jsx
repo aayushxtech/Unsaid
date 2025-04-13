@@ -13,6 +13,7 @@ import Navbar from "./components/Navbar";
 import Game1 from "./games/Game1";
 import Game2 from "./games/Game2";
 import Game3 from "./games/Game3";
+import Game4 from "./games/Game4";  
 
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -309,6 +310,14 @@ const App = () => {
               element={
                 <PrivateRoute>
                   <Game3 />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/games/game4"
+              element={
+                <PrivateRoute>
+                  <Game4 />
                 </PrivateRoute>
               }
             />
