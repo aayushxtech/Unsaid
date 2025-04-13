@@ -14,7 +14,7 @@ import { Heart, Sun, Music, Award, Sparkles, CloudRain } from "lucide-react";
 // Add confetti effect component
 const Confetti = ({ isActive }) => {
   const [confetti, setConfetti] = useState([]);
-  
+
   useEffect(() => {
     if (isActive) {
       const newConfetti = [];
@@ -24,20 +24,27 @@ const Confetti = ({ isActive }) => {
           x: Math.random() * 100,
           y: -20 - Math.random() * 10,
           size: Math.random() * 8 + 5,
-          color: ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500', 'bg-pink-500'][Math.floor(Math.random() * 6)]
+          color: [
+            "bg-red-500",
+            "bg-blue-500",
+            "bg-green-500",
+            "bg-yellow-500",
+            "bg-purple-500",
+            "bg-pink-500",
+          ][Math.floor(Math.random() * 6)],
         });
       }
       setConfetti(newConfetti);
-      
+
       // Clear confetti after animation
       const timer = setTimeout(() => {
         setConfetti([]);
       }, 3000);
-      
+
       return () => clearTimeout(timer);
     }
   }, [isActive]);
-  
+
   return (
     <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
       {confetti.map((item) => (
@@ -61,44 +68,49 @@ const Confetti = ({ isActive }) => {
 const WeatherBackground = ({ weather }) => {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {weather === 'sunny' && (
+      {weather === "sunny" && (
         <div className="absolute top-10 right-10 text-yellow-500 animate-pulse">
           <Sun size={100} className="opacity-40" />
         </div>
       )}
-      
-      {weather === 'rainy' && (
-        Array(20).fill().map((_, i) => (
-          <div 
-            key={i}
-            className="absolute bg-blue-300 rounded-full opacity-30 animate-raindrops"
-            style={{
-              width: '2px',
-              height: '20px',
-              left: `${Math.random() * 100}%`,
-              top: `-20px`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${Math.random() * 1 + 1}s`
-            }}
-          />
-        ))
-      )}
-      
-      {weather === 'sparkly' && (
-        Array(15).fill().map((_, i) => (
-          <div 
-            key={i}
-            className="absolute animate-twinkle"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`
-            }}
-          >
-            <Sparkles className="text-yellow-400" size={Math.random() * 20 + 10} />
-          </div>
-        ))
-      )}
+
+      {weather === "rainy" &&
+        Array(20)
+          .fill()
+          .map((_, i) => (
+            <div
+              key={i}
+              className="absolute bg-blue-300 rounded-full opacity-30 animate-raindrops"
+              style={{
+                width: "2px",
+                height: "20px",
+                left: `${Math.random() * 100}%`,
+                top: `-20px`,
+                animationDelay: `${Math.random() * 3}s`,
+                animationDuration: `${Math.random() * 1 + 1}s`,
+              }}
+            />
+          ))}
+
+      {weather === "sparkly" &&
+        Array(15)
+          .fill()
+          .map((_, i) => (
+            <div
+              key={i}
+              className="absolute animate-twinkle"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 5}s`,
+              }}
+            >
+              <Sparkles
+                className="text-yellow-400"
+                size={Math.random() * 20 + 10}
+              />
+            </div>
+          ))}
     </div>
   );
 };
@@ -106,23 +118,23 @@ const WeatherBackground = ({ weather }) => {
 // Interactive character mascot
 const Mascot = ({ mood, onClick }) => {
   const [position, setPosition] = useState({ x: 10, y: 10 });
-  const [animation, setAnimation] = useState('');
-  
+  const [animation, setAnimation] = useState("");
+
   useEffect(() => {
     // Random movement every few seconds
     const interval = setInterval(() => {
       setPosition({
         x: Math.random() * 80 + 10,
-        y: Math.random() * 30 + 10
+        y: Math.random() * 30 + 10,
       });
-      setAnimation('transition-all duration-1000 ease-in-out');
+      setAnimation("transition-all duration-1000 ease-in-out");
     }, 5000);
-    
+
     return () => clearInterval(interval);
   }, []);
-  
+
   return (
-    <div 
+    <div
       className={`absolute cursor-pointer z-10 ${animation}`}
       style={{ left: `${position.x}%`, top: `${position.y}%` }}
       onClick={onClick}
@@ -132,9 +144,9 @@ const Mascot = ({ mood, onClick }) => {
           Click me!
         </div>
         <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center text-white text-2xl group hover:scale-110 transition-transform duration-300">
-          {mood === 'happy' && '😊'}
-          {mood === 'excited' && '🤩'}
-          {mood === 'curious' && '🧐'}
+          {mood === "happy" && "😊"}
+          {mood === "excited" && "🤩"}
+          {mood === "curious" && "🧐"}
         </div>
       </div>
     </div>
@@ -147,33 +159,44 @@ const KidsQuiz = ({ isVisible, onClose }) => {
   const [score, setScore] = useState(0);
   const [showScore, setShowScore] = useState(false);
   const [celebration, setCelebration] = useState(false);
-  
+
   const questions = [
     {
       question: "Which part of your body helps you think?",
       options: ["Stomach", "Brain", "Knees", "Elbows"],
       answer: "Brain",
-      explanation: "Your brain helps you think, learn, and control your body!"
+      explanation: "Your brain helps you think, learn, and control your body!",
     },
     {
       question: "What should you do if a stranger asks you to go somewhere?",
-      options: ["Go with them", "Tell a trusted adult", "Keep it a secret", "Give them your address"],
+      options: [
+        "Go with them",
+        "Tell a trusted adult",
+        "Keep it a secret",
+        "Give them your address",
+      ],
       answer: "Tell a trusted adult",
-      explanation: "Always tell a trusted adult if a stranger approaches you!"
+      explanation: "Always tell a trusted adult if a stranger approaches you!",
     },
     {
       question: "It's okay to share _____ online.",
-      options: ["Your full name", "Your address", "Your favorite color", "Pictures of your house"],
+      options: [
+        "Your full name",
+        "Your address",
+        "Your favorite color",
+        "Pictures of your house",
+      ],
       answer: "Your favorite color",
-      explanation: "Some things are safe to share, like favorite colors or foods!"
-    }
+      explanation:
+        "Some things are safe to share, like favorite colors or foods!",
+    },
   ];
-  
+
   const handleAnswer = (selectedOption) => {
     if (selectedOption === questions[currentQuestion].answer) {
       setScore(score + 1);
     }
-    
+
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
@@ -181,58 +204,69 @@ const KidsQuiz = ({ isVisible, onClose }) => {
       setCelebration(true);
     }
   };
-  
+
   const resetQuiz = () => {
     setCurrentQuestion(0);
     setScore(0);
     setShowScore(false);
   };
-  
+
   if (!isVisible) return null;
-  
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
       <Confetti isActive={celebration} />
       <div className="bg-white rounded-3xl p-6 max-w-md w-full relative overflow-hidden">
         <div className="absolute -top-10 -left-10 w-40 h-40 bg-yellow-200 rounded-full opacity-30" />
         <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-blue-200 rounded-full opacity-30" />
-        
-        <button 
+
+        <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
         >
           ✕
         </button>
-        
+
         <div className="relative z-10">
           {showScore ? (
             <div className="text-center">
-              <h3 className="text-2xl font-bold mb-4 text-purple-600">Quiz Complete!</h3>
+              <h3 className="text-2xl font-bold mb-4 text-purple-600">
+                Quiz Complete!
+              </h3>
               <div className="mb-6">
-                <span className="text-5xl font-bold text-yellow-500">{score}</span>
-                <span className="text-xl text-gray-600">/{questions.length}</span>
+                <span className="text-5xl font-bold text-yellow-500">
+                  {score}
+                </span>
+                <span className="text-xl text-gray-600">
+                  /{questions.length}
+                </span>
               </div>
-              
+
               <div className="flex justify-center mb-6">
                 {[...Array(score)].map((_, i) => (
-                  <StarIcon key={i} className="text-yellow-400 text-3xl mx-1 animate-bounce" />
+                  <StarIcon
+                    key={i}
+                    className="text-yellow-400 text-3xl mx-1 animate-bounce"
+                  />
                 ))}
               </div>
-              
-              <p className="text-gray-600 mb-6">Great job learning about safety!</p>
-              
+
+              <p className="text-gray-600 mb-6">
+                Great job learning about safety!
+              </p>
+
               <div className="flex space-x-4 justify-center">
-                <Button 
+                <Button
                   onClick={resetQuiz}
-                  variant="contained" 
-                  color="primary" 
+                  variant="contained"
+                  color="primary"
                   className="rounded-full"
                 >
                   Try Again
                 </Button>
-                <Button 
+                <Button
                   onClick={onClose}
-                  variant="outlined" 
+                  variant="outlined"
                   color="primary"
                   className="rounded-full"
                 >
@@ -243,14 +277,18 @@ const KidsQuiz = ({ isVisible, onClose }) => {
           ) : (
             <div>
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-purple-600">Safety Quiz</h3>
+                <h3 className="text-xl font-bold text-purple-600">
+                  Safety Quiz
+                </h3>
                 <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">
                   Question {currentQuestion + 1}/{questions.length}
                 </span>
               </div>
-              
+
               <div className="mb-8">
-                <h4 className="text-lg font-medium mb-4">{questions[currentQuestion].question}</h4>
+                <h4 className="text-lg font-medium mb-4">
+                  {questions[currentQuestion].question}
+                </h4>
                 <div className="space-y-3">
                   {questions[currentQuestion].options.map((option, index) => (
                     <button
@@ -275,19 +313,19 @@ const KidsQuiz = ({ isVisible, onClose }) => {
 const EnhancedHome = () => {
   const [hoveredCard, setHoveredCard] = useState(null);
   const [showKidsQuiz, setShowKidsQuiz] = useState(false);
-  const [mascotMood, setMascotMood] = useState('curious');
-  const [weather, setWeather] = useState('sunny');
-  const [selectedTheme, setSelectedTheme] = useState('default');
+  const [mascotMood, setMascotMood] = useState("curious");
+  const [weather, setWeather] = useState("sunny");
+  const [selectedTheme, setSelectedTheme] = useState("default");
   const [showConfetti, setShowConfetti] = useState(false);
   const [backgroundSound, setBackgroundSound] = useState(false);
 
   // Generate random mascot interactions
   useEffect(() => {
-    const moods = ['happy', 'excited', 'curious'];
+    const moods = ["happy", "excited", "curious"];
     const interval = setInterval(() => {
       setMascotMood(moods[Math.floor(Math.random() * moods.length)]);
     }, 8000);
-    
+
     return () => clearInterval(interval);
   }, []);
 
@@ -295,9 +333,9 @@ const EnhancedHome = () => {
   const handleMascotClick = () => {
     setShowConfetti(true);
     setTimeout(() => setShowConfetti(false), 3000);
-    
+
     // Cycle through weather types
-    const weatherTypes = ['sunny', 'rainy', 'sparkly'];
+    const weatherTypes = ["sunny", "rainy", "sparkly"];
     const currentIndex = weatherTypes.indexOf(weather);
     setWeather(weatherTypes[(currentIndex + 1) % weatherTypes.length]);
   };
@@ -318,9 +356,13 @@ const EnhancedHome = () => {
       icon: <ChildCareIcon sx={{ fontSize: 60, color: "#9333EA" }} />,
       color: "linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%)",
       emoji: "⭐",
-      features: ["Interactive Games ✨", "Fun Stories 🌟", "Cool Animations ⭐"],
+      features: [
+        "Interactive Games ✨",
+        "Fun Stories 🌟",
+        "Cool Animations ⭐",
+      ],
       theme: "playful",
-      action: () => setShowKidsQuiz(true)
+      action: () => setShowKidsQuiz(true),
     },
     {
       title: "Teens (12-19)",
@@ -330,17 +372,18 @@ const EnhancedHome = () => {
       emoji: "✨",
       features: ["Real Stories", "Anonymous Q&A", "Guided Learning"],
       theme: "modern",
-      action: () => alert("Teen section coming soon!")
+      action: () => alert("Teen section coming soon!"),
     },
     {
       title: "Adults (20+)",
-      description: "Comprehensive guidance on intimacy, communication, and wellness",
+      description:
+        "Comprehensive guidance on intimacy, communication, and wellness",
       icon: <PersonIcon sx={{ fontSize: 60, color: "#4CAF50" }} />,
       color: "linear-gradient(135deg, #E8F5E9 0%, #A5D6A7 100%)",
       emoji: "💫",
       features: ["Detailed Resources", "Expert Advice", "Community Support"],
       theme: "professional",
-      action: () => alert("Adult section coming soon!")
+      action: () => alert("Adult section coming soon!"),
     },
   ];
 
@@ -473,42 +516,48 @@ const EnhancedHome = () => {
   return (
     <>
       <style>{customAnimations}</style>
-      
+
       {/* Theme selector */}
       <div className="fixed top-4 right-4 z-30 flex gap-2">
         {Object.keys(themes).map((theme) => (
           <button
             key={theme}
             className={`w-8 h-8 rounded-full shadow-md transition-transform ${
-              selectedTheme === theme ? 'scale-125 ring-2 ring-white' : ''
-            } ${theme === 'default' ? 'bg-gradient-to-r from-blue-400 to-purple-400' : 
-               theme === 'rainbow' ? 'bg-gradient-to-r from-red-400 via-yellow-400 to-blue-400' :
-               theme === 'ocean' ? 'bg-gradient-to-r from-cyan-400 to-blue-400' :
-               theme === 'forest' ? 'bg-gradient-to-r from-green-400 to-emerald-400' :
-               'bg-gradient-to-r from-orange-400 to-pink-400'}`}
+              selectedTheme === theme ? "scale-125 ring-2 ring-white" : ""
+            } ${
+              theme === "default"
+                ? "bg-gradient-to-r from-blue-400 to-purple-400"
+                : theme === "rainbow"
+                ? "bg-gradient-to-r from-red-400 via-yellow-400 to-blue-400"
+                : theme === "ocean"
+                ? "bg-gradient-to-r from-cyan-400 to-blue-400"
+                : theme === "forest"
+                ? "bg-gradient-to-r from-green-400 to-emerald-400"
+                : "bg-gradient-to-r from-orange-400 to-pink-400"
+            }`}
             onClick={() => setSelectedTheme(theme)}
           />
         ))}
-        
+
         <button
           className={`w-8 h-8 rounded-full shadow-md flex items-center justify-center ${
-            backgroundSound ? 'bg-green-400' : 'bg-gray-200'
+            backgroundSound ? "bg-green-400" : "bg-gray-200"
           }`}
           onClick={() => setBackgroundSound(!backgroundSound)}
         >
-          <Music size={16} color={backgroundSound ? 'white' : 'gray'} />
+          <Music size={16} color={backgroundSound ? "white" : "gray"} />
         </button>
       </div>
-      
+
       {/* Interactive mascot */}
       <Mascot mood={mascotMood} onClick={handleMascotClick} />
-      
+
       {/* Weather background */}
       <WeatherBackground weather={weather} />
-      
+
       {/* Confetti effect */}
       <Confetti isActive={showConfetti} />
-      
+
       {/* Hero section */}
       <section
         id="Hero"
@@ -516,7 +565,7 @@ const EnhancedHome = () => {
       >
         {/* Animated stars background */}
         <div className="absolute inset-0 star-bg" />
-        
+
         {/* Decorative floating stars */}
         {[...Array(12)].map((_, i) => (
           <div
@@ -545,7 +594,7 @@ const EnhancedHome = () => {
               animationDelay: `${Math.random() * 3}s`,
             }}
           >
-            {['⭐', '✨', '🌟'][Math.floor(Math.random() * 3)]}
+            {["⭐", "✨", "🌟"][Math.floor(Math.random() * 3)]}
           </div>
         ))}
 
@@ -579,15 +628,15 @@ const EnhancedHome = () => {
             knowledge—at your own pace.
           </div>
           <div id="cta-btn" className="mt-8">
-            <Button 
+            <Button
               className="purple-glow !text-white !font-medium !py-3 !px-8 !text-lg !rounded-lg !transition !duration-300 !normal-case"
               sx={{
-                background: 'linear-gradient(45deg, #9333EA, #A855F7)',
-                '&:hover': {
-                  background: 'linear-gradient(45deg, #7E22CE, #9333EA)',
-                  transform: 'translateY(-3px)',
-                  boxShadow: '0 12px 20px rgba(147, 51, 234, 0.4)',
-                }
+                background: "linear-gradient(45deg, #9333EA, #A855F7)",
+                "&:hover": {
+                  background: "linear-gradient(45deg, #7E22CE, #9333EA)",
+                  transform: "translateY(-3px)",
+                  boxShadow: "0 12px 20px rgba(147, 51, 234, 0.4)",
+                },
               }}
             >
               Get Started
@@ -600,10 +649,10 @@ const EnhancedHome = () => {
       {/* Age Groups section with enhanced interactivity */}
       <section className="py-16 bg-gray-50 relative">
         <div className="absolute inset-0 overflow-hidden">
-          {selectedTheme === 'rainbow' && (
+          {selectedTheme === "rainbow" && (
             <div className="absolute w-full h-full bg-gradient-to-r from-red-50 via-yellow-50 to-blue-50 opacity-40" />
           )}
-          {selectedTheme === 'forest' && (
+          {selectedTheme === "forest" &&
             [...Array(10)].map((_, i) => (
               <div
                 key={i}
@@ -616,10 +665,9 @@ const EnhancedHome = () => {
                   opacity: 0.3,
                 }}
               />
-            ))
-          )}
+            ))}
         </div>
-        
+
         <Container maxWidth="lg" className="relative z-10">
           <div className="mb-12 text-center">
             <Typography
@@ -635,9 +683,13 @@ const EnhancedHome = () => {
             >
               Caters to Various Age Groups
             </Typography>
-            <Typography variant="subtitle1" className="text-gray-600 max-w-2xl mx-auto">
-              Everyone deserves appropriate, relevant, and engaging education. Choose your age group for a 
-              tailored experience designed specifically for you.
+            <Typography
+              variant="subtitle1"
+              className="text-gray-600 max-w-2xl mx-auto"
+            >
+              Everyone deserves appropriate, relevant, and engaging education.
+              Choose your age group for a tailored experience designed
+              specifically for you.
             </Typography>
           </div>
 
@@ -678,19 +730,20 @@ const EnhancedHome = () => {
                         <div className="absolute top-2 right-2 text-2xl sparkle-emoji">
                           {group.emoji}
                         </div>
-                        <div 
+                        <div
                           className="absolute inset-0 bg-gradient-to-t from-transparent"
                           style={{
-                            background: group.theme === "playful" 
-                              ? "linear-gradient(to top, rgba(255,107,107,0.05), transparent)"
-                              : group.theme === "modern"
-                              ? "linear-gradient(to top, rgba(107,138,255,0.05), transparent)"
-                              : "linear-gradient(to top, rgba(76,175,80,0.05), transparent)"
+                            background:
+                              group.theme === "playful"
+                                ? "linear-gradient(to top, rgba(255,107,107,0.05), transparent)"
+                                : group.theme === "modern"
+                                ? "linear-gradient(to top, rgba(107,138,255,0.05), transparent)"
+                                : "linear-gradient(to top, rgba(76,175,80,0.05), transparent)",
                           }}
                         />
                       </div>
                     )}
-                    
+
                     <Box
                       sx={{
                         background: group.color,
@@ -702,7 +755,11 @@ const EnhancedHome = () => {
                         overflow: "hidden",
                       }}
                     >
-                      <div className={hoveredCard === index ? "animate-bounce" : ""}>
+                      <div
+                        className={
+                          hoveredCard === index ? "animate-bounce" : ""
+                        }
+                      >
                         {group.icon}
                       </div>
                       <Typography
@@ -742,35 +799,42 @@ const EnhancedHome = () => {
                               alignItems: "center",
                               mb: 1,
                               opacity: hoveredCard === index ? 1 : 0.8,
-                              transform: hoveredCard === index ? "translateX(8px)" : "translateX(0)",
+                              transform:
+                                hoveredCard === index
+                                  ? "translateX(8px)"
+                                  : "translateX(0)",
                               transition: "all 0.3s ease",
                               transitionDelay: `${i * 0.1}s`,
                             }}
                           >
-                            <div className="text-xl mr-2">
-                              {group.emoji}
-                            </div>
+                            <div className="text-xl mr-2">{group.emoji}</div>
                             <Typography sx={{ ml: 2, color: "#374151" }}>
                               {feature}
                             </Typography>
                           </Box>
                         ))}
                       </Box>
-                      
+
                       {hoveredCard === index && (
                         <Button
                           fullWidth
                           variant="contained"
                           sx={{
                             mt: 3,
-                            backgroundColor: 
-                              group.theme === "playful" ? "#FF6B6B" :
-                              group.theme === "modern" ? "#6B8AFF" : "#4CAF50",
+                            backgroundColor:
+                              group.theme === "playful"
+                                ? "#FF6B6B"
+                                : group.theme === "modern"
+                                ? "#6B8AFF"
+                                : "#4CAF50",
                             "&:hover": {
-                              backgroundColor: 
-                                group.theme === "playful" ? "#FF5252" :
-                                group.theme === "modern" ? "#5277FF" : "#43A047",
-                            }
+                              backgroundColor:
+                                group.theme === "playful"
+                                  ? "#FF5252"
+                                  : group.theme === "modern"
+                                  ? "#5277FF"
+                                  : "#43A047",
+                            },
                           }}
                           className="interactive-button"
                         >
@@ -785,9 +849,12 @@ const EnhancedHome = () => {
           </Grid>
         </Container>
       </section>
-      
+
       {/* Interactive quiz for kids */}
-      <KidsQuiz isVisible={showKidsQuiz} onClose={() => setShowKidsQuiz(false)} />
+      <KidsQuiz
+        isVisible={showKidsQuiz}
+        onClose={() => setShowKidsQuiz(false)}
+      />
     </>
   );
 };
