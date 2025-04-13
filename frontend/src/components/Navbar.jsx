@@ -171,7 +171,7 @@ const Navbar = () => {
                     href="/posts"
                     className="text-purple-600 hover:text-purple-800 transition duration-200 font-medium text-lg rounded-full px-3 py-1 hover:bg-purple-100"
                   >
-                    Share & Learn
+                    Forum
                   </a>
                 </li>
                 <li>
