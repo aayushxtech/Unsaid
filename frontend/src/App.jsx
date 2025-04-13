@@ -56,6 +56,9 @@ import PostsDelete from "./pages/admin/pages/posts/PostsDelete";
 import ErrorBoundary from "./components/ErrorBoundary";
 import QuizPage from "./pages/QuizPage";
 import AdminRoute from "./components/AdminRoute";
+import Game4 from "./games/Game4";
+import Game6 from "./games/Game6";
+import Game7 from "./games/Game7";
 
 const PrivateRoute = ({ children }) => {
   const { user, loading, sessionChecked } = useAuth();
@@ -318,10 +321,34 @@ const App = () => {
               }
             />
             <Route
+              path="/games/game4"
+              element={
+                <PrivateRoute>
+                  <Game4 />
+                </PrivateRoute>
+              }
+            />
+            <Route
               path="/games/game5"
               element={
                 <PrivateRoute>
                   <Game5 />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/games/game6"
+              element={
+                <PrivateRoute>
+                  <Game6 />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/games/game7"
+              element={
+                <PrivateRoute>
+                  <Game7 />
                 </PrivateRoute>
               }
             />
