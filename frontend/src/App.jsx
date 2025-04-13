@@ -57,6 +57,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import QuizPage from "./pages/QuizPage";
 import AdminRoute from "./components/AdminRoute";
 import Game4 from "./games/Game4";
+import Game6 from "./games/Game6";
 
 const PrivateRoute = ({ children }) => {
   const { user, loading, sessionChecked } = useAuth();
@@ -331,6 +332,14 @@ const App = () => {
               element={
                 <PrivateRoute>
                   <Game5 />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/games/game6"
+              element={
+                <PrivateRoute>
+                  <Game6 />
                 </PrivateRoute>
               }
             />

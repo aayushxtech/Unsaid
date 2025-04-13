@@ -597,6 +597,17 @@ const Games = () => {
       color: "#FBBF24", // Yellow
       emoji: "🧭",
     },
+    {
+      id: "game6",
+      title: "Body Parts Mystery Box",
+      description:
+        "Guess the body part in the mystery box based on clues and sounds. Fun for ages 3-12.",
+      image: "/game6-thumbnail.jpg",
+      path: "/games/game6",
+      ageGroup: "3-12",
+      color: "#FF6B6B", // Red
+      emoji: "🦸‍♀️",
+    },
   ];
 
   // Child-friendly loading animation
