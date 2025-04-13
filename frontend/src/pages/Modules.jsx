@@ -35,17 +35,15 @@ import {
   FaFileWord,
   FaVolumeUp,
   FaGamepad,
-  FaRocket,
   FaStar,
-  FaPuzzlePiece,
+  FaCheck,
+  FaHome,
   FaTree,
   FaMountain,
-  FaWater,
-  FaCampground,
-  FaCompass,
+  FaLock,
   FaMapMarkedAlt,
-  FaMapSigns,
-  FaFlag,
+  FaTrophy,
+  FaFlagCheckered,
 } from "react-icons/fa";
 
 // Keep the same helper functions from the original code
@@ -80,7 +78,7 @@ const downloadContent = async (url, filename) => {
   }
 };
 
-// Keep the ContentRenderer component from the original code
+// ContentRenderer component remains unchanged
 const ContentRenderer = ({ content }) => {
   const theme = useTheme();
   const [mediaError, setMediaError] = useState(false);
@@ -627,115 +625,63 @@ const ContentRenderer = ({ content }) => {
   }
 };
 
-// New map component
-const MapNode = ({ topic, index, onClick, isActive, completed }) => {
-  const theme = useTheme();
-
-  // Map markers/points based on index
-  const getMapIcon = (index) => {
-    const icons = [
-      <FaCampground size={24} />,
-      <FaMountain size={24} />,
-      <FaTree size={24} />,
-      <FaWater size={24} />,
-    ];
-    return icons[index % icons.length];
-  };
-
-  // Colors for different nodes
-  const getNodeColor = (index) => {
-    const colors = [
-      "#4caf50", // Green
-      "#2196f3", // Blue
-      "#ff9800", // Orange
-      "#9c27b0", // Purple
-      "#e91e63", // Pink
-    ];
-    return colors[index % colors.length];
-  };
-
-  return (
-    <Tooltip title={topic.title} arrow placement="top">
-      <Box
-        onClick={() => onClick(topic.id)}
-        sx={{
-          position: "relative",
-          width: 80,
-          height: 80,
-          cursor: "pointer",
-          transition: "all 0.3s ease",
-          transform: isActive ? "scale(1.15)" : "scale(1)",
-          zIndex: isActive ? 10 : 1,
-        }}
-      >
-        <Avatar
-          sx={{
-            width: 80,
-            height: 80,
-            bgcolor: getNodeColor(index),
-            boxShadow: isActive
-              ? `0 0 0 4px ${
-                  theme.palette.background.paper
-                }, 0 0 0 8px ${getNodeColor(index)}, 0 5px 20px rgba(0,0,0,0.5)`
-              : `0 4px 12px rgba(0,0,0,0.2)`,
-            border: completed ? "3px solid gold" : "none",
-            transition: "all 0.3s ease",
-            "&:hover": {
-              transform: "translateY(-5px)",
-              boxShadow: `0 0 0 2px ${
-                theme.palette.background.paper
-              }, 0 0 0 4px ${getNodeColor(index)}, 0 8px 16px rgba(0,0,0,0.3)`,
-            },
-          }}
-        >
-          {getMapIcon(index)}
-        </Avatar>
-        {completed && (
-          <Box
-            sx={{
-              position: "absolute",
-              top: -8,
-              right: -8,
-              bgcolor: "gold",
-              borderRadius: "50%",
-              width: 24,
-              height: 24,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
-            }}
-          >
-            <FaStar size={14} color="#fff" />
-          </Box>
-        )}
-      </Box>
-    </Tooltip>
-  );
-};
-
 // Main component
-const LearningAdventureMap = () => {
+const AdventureMapUI = () => {
   const { user } = useAuth();
   const theme = useTheme();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [userAgeGroup, setUserAgeGroup] = useState(null);
   const [topics, setTopics] = useState([]);
-  const [selectedTopic, setSelectedTopic] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState(null);
   const [selectedSubtopic, setSelectedSubtopic] = useState(null);
   const [contentDialogOpen, setContentDialogOpen] = useState(false);
-  const [completedTopics, setCompletedTopics] = useState([]);
+  const [completedLocations, setCompletedLocations] = useState([]);
+  const [userProfile, setUserProfile] = useState(null);
+
+  // Pre-defined adventure locations
+  const adventureLocations = [
+    {
+      id: "village",
+      title: "The Village",
+      difficulty: "Easy",
+      icon: <FaHome size={24} />,
+      color: "#3498db",
+      completed: true,
+      description: "Start your journey in the friendly village. Perfect for beginners!",
+      subtopics: []
+    },
+    {
+      id: "forest",
+      title: "The Forest",
+      difficulty: "Medium",
+      icon: <FaTree size={24} />,
+      color: "#e67e22",
+      completed: true,
+      description: "Explore the mysterious forest and discover new knowledge.",
+      subtopics: []
+    },
+    {
+      id: "peak",
+      title: "The Peak",
+      difficulty: "Hard",
+      icon: <FaMountain size={24} />,
+      color: "#9b59b6",
+      completed: false,
+      description: "Reach the summit and become a master of this subject!",
+      subtopics: []
+    }
+  ];
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
         setLoading(true);
 
-        // Get user's profile including ban status
+        // Get user's profile - removed username from query
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .select("date_of_birth, is_banned, banned_at, banned_reason")
+          .select("id, avatar_url, date_of_birth, is_banned, banned_at, banned_reason")
           .eq("id", user.id)
           .single();
 
@@ -745,96 +691,92 @@ const LearningAdventureMap = () => {
         if (profile?.is_banned) {
           setError({
             type: "banned",
-            message:
-              profile.banned_reason || "Your account has been suspended.",
+            message: profile.banned_reason || "Your account has been suspended.",
             bannedAt: profile.banned_at,
           });
           setLoading(false);
           return;
         }
 
+        setUserProfile(profile);
+
         if (profile?.date_of_birth) {
           const age = calculateAge(profile.date_of_birth);
           const ageGroup = getAgeGroup(age);
           setUserAgeGroup(ageGroup);
 
-          // Fetch topics for user's age group with proper ordering
+          // Fetch topics for user's age group
           if (ageGroup) {
             const { data: topicsData, error: topicsError } = await supabase
               .from("topics")
-              .select(
-                `
-              id,
-              title,
-              description,
-              age_group,
-              is_published,
-              created_at,
-              subtopics (
+              .select(`
                 id,
                 title,
-                order_no,
-                contents (
+                description,
+                age_group,
+                is_published,
+                created_at,
+                subtopics (
                   id,
-                  content_type,
-                  body,
-                  media_url,
-                  order_no
+                  title,
+                  order_no,
+                  contents (
+                    id,
+                    content_type,
+                    body,
+                    media_url,
+                    order_no
+                  )
                 )
-              )
-            `
-              )
+              `)
               .eq("age_group", ageGroup)
               .eq("is_published", true)
               .order("created_at", { ascending: true });
 
             if (topicsError) throw topicsError;
 
-            // Process the topics data to get signed URLs for media content
-            const processedTopicsData = await Promise.all(
-              topicsData?.map(async (topic) => ({
-                ...topic,
-                subtopics: await Promise.all(
-                  (topic.subtopics || [])
-                    .sort((a, b) => a.order_no - b.order_no)
-                    .map(async (subtopic) => ({
-                      ...subtopic,
-                      contents: await Promise.all(
-                        (subtopic.contents || [])
-                          .sort((a, b) => a.order_no - b.order_no)
-                          .map(async (content) => {
-                            if (
-                              content.media_url &&
-                              content.content_type !== "text"
-                            ) {
-                              const path =
-                                content.media_url.split("content-bucket/")[1];
-                              if (path) {
-                                const signedUrl = await getSignedUrl(path);
-                                return {
-                                  ...content,
-                                  media_url: signedUrl || content.media_url,
-                                };
+            // Process topics data and distribute to adventure locations
+            if (topicsData?.length > 0) {
+              const processedData = await Promise.all(
+                topicsData.map(async (topic) => ({
+                  ...topic,
+                  subtopics: await Promise.all(
+                    (topic.subtopics || [])
+                      .sort((a, b) => a.order_no - b.order_no)
+                      .map(async (subtopic) => ({
+                        ...subtopic,
+                        contents: await Promise.all(
+                          (subtopic.contents || [])
+                            .sort((a, b) => a.order_no - b.order_no)
+                            .map(async (content) => {
+                              if (content.media_url && content.content_type !== "text") {
+                                const path = content.media_url.split("content-bucket/")[1];
+                                if (path) {
+                                  const signedUrl = await getSignedUrl(path);
+                                  return { ...content, media_url: signedUrl || content.media_url };
+                                }
                               }
-                            }
-                            return content;
-                          })
-                      ),
-                    }))
-                ),
-              }))
-            );
-
-            setTopics(processedTopicsData || []);
-
-            // Generate some sample completed topics
-            if (processedTopicsData?.length > 0) {
-              // For demo purposes, mark some topics as completed
-              const sampleCompleted = [];
-              if (processedTopicsData.length > 2) {
-                sampleCompleted.push(processedTopicsData[0].id);
-              }
-              setCompletedTopics(sampleCompleted);
+                              return content;
+                            })
+                        ),
+                      }))
+                  ),
+                }))
+              );
+              
+              // Distribute topics to adventure locations
+              const updatedLocations = [...adventureLocations];
+              processedData.forEach((topic, index) => {
+                const locationIndex = index % updatedLocations.length;
+                updatedLocations[locationIndex].subtopics.push(topic);
+              });
+              
+              setTopics(updatedLocations);
+              
+              // For demonstration, mark some locations as completed
+              setCompletedLocations(["village", "forest"]);
+            } else {
+              setTopics(adventureLocations);
             }
           }
         }
@@ -851,18 +793,20 @@ const LearningAdventureMap = () => {
     }
   }, [user]);
 
-  // Handle topic selection
-  const handleSelectTopic = (topicId) => {
-    const topic = topics.find((t) => t.id === topicId);
-    setSelectedTopic(topic);
-    setContentDialogOpen(true);
+  const handleSelectLocation = (locationId) => {
+    const location = topics.find((t) => t.id === locationId);
+    if (location) {
+      setSelectedLocation(location);
+      setContentDialogOpen(true);
+    }
   };
 
-  // Handle subtopic selection
   const handleSelectSubtopic = (subtopicId) => {
-    if (selectedTopic) {
-      const subtopic = selectedTopic.subtopics.find((s) => s.id === subtopicId);
-      setSelectedSubtopic(subtopic);
+    if (selectedLocation) {
+      const foundSubtopic = selectedLocation.subtopics.flatMap(topic => 
+        topic.subtopics.find(s => s.id === subtopicId)
+      ).filter(Boolean)[0];
+      setSelectedSubtopic(foundSubtopic);
     }
   };
 
@@ -871,314 +815,200 @@ const LearningAdventureMap = () => {
     setSelectedSubtopic(null);
   };
 
-  // Colors for map paths
-  const getTopicColor = (index) => {
-    const colors = [
-      "#4caf50", // Green
-      "#2196f3", // Blue
-      "#ff9800", // Orange
-      "#9c27b0", // Purple
-      "#e91e63", // Pink
-    ];
-    return colors[index % colors.length];
-  };
-
-  // Map Layout Settings
-  const generateMapCoordinates = (count) => {
-    const coordinates = [];
-
-    // Create a winding path
-    if (count <= 0) return coordinates;
-
-    // Start point
-    coordinates.push({ x: 100, y: 400 });
-
-    if (count === 1) return coordinates;
-
-    // First bend
-    coordinates.push({ x: 250, y: 300 });
-
-    if (count === 2) return coordinates;
-
-    // Second bend
-    coordinates.push({ x: 400, y: 400 });
-
-    if (count === 3) return coordinates;
-
-    // Third bend
-    coordinates.push({ x: 550, y: 250 });
-
-    if (count === 4) return coordinates;
-
-    // Fourth bend
-    coordinates.push({ x: 700, y: 350 });
-
-    // Add more points if needed
-    for (let i = 5; i < count; i++) {
-      coordinates.push({
-        x: 100 + ((i * 120) % 800),
-        y: 200 + Math.sin(i * 0.8) * 150,
-      });
-    }
-
-    return coordinates;
-  };
-
-  // ... Previous code remains the same ...
-
+  // Rendering the adventure map UI
   if (loading) {
     return (
       <Box
         sx={{
           minHeight: "100vh",
           display: "flex",
-          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          bgcolor: "#e8f5e9",
-          backgroundImage:
-            'url(\'data:image/svg+xml,%3Csvg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M8 16c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8zm0-2c3.314 0 6-2.686 6-6s-2.686-6-6-6-6 2.686-6 6 2.686 6 6 6zm33.414-6l5.95-5.95L45.95.636 40 6.586 34.05.636 32.636 2.05 38.586 8l-5.95 5.95 1.414 1.414L40 9.414l5.95 5.95 1.414-1.414L41.414 8zM40 48c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8zm0-2c3.314 0 6-2.686 6-6s-2.686-6-6-6-6 2.686-6 6 2.686 6 6 6zM9.414 40l5.95-5.95-1.414-1.414L8 38.586l-5.95-5.95L.636 34.05 6.586 40l-5.95 5.95 1.414 1.414L8 41.414l5.95 5.95 1.414-1.414L9.414 40z" fill="%234caf50" fill-opacity="0.1" fill-rule="evenodd"/%3E%3C/svg%3E\')',
+          bgcolor: "#f5f5f5",
         }}
       >
-        <Typography variant="h4" color="primary" gutterBottom>
-          Loading Your Adventure Map
-        </Typography>
-        <CircularProgress color="primary" size={60} thickness={4} />
+        <CircularProgress />
       </Box>
     );
   }
 
   if (error) {
     return (
-      <Container maxWidth="md" sx={{ py: 8 }}>
+      <Container maxWidth="md" sx={{ py: 6 }}>
         <Alert
           severity="error"
-          icon={<ErrorOutline fontSize="large" />}
-          sx={{ p: 3, borderRadius: 4, mb: 4 }}
+          sx={{ borderRadius: 2 }}
         >
-          <Typography variant="h5" gutterBottom>
-            {error.type === "banned" ? "Account Suspended" : "Error"}
-          </Typography>
-          <Typography variant="body1">{error.message || error}</Typography>
-          {error.type === "banned" && error.bannedAt && (
-            <Typography variant="caption" display="block" sx={{ mt: 1 }}>
-              Account suspended on:{" "}
-              {new Date(error.bannedAt).toLocaleDateString()}
-            </Typography>
-          )}
+          <Typography variant="h6">{error.type === "banned" ? "Account Suspended" : "Error"}</Typography>
+          <Typography>{error.message || error}</Typography>
         </Alert>
       </Container>
     );
   }
 
-  if (!userAgeGroup || topics.length === 0) {
+  const LocationButton = ({ location }) => {
+    const isCompleted = completedLocations.includes(location.id);
+    const isLocked = location.id === "peak" && !completedLocations.includes("forest");
+    
     return (
-      <Container maxWidth="md" sx={{ py: 8 }}>
-        <Paper
-          elevation={3}
+      <Box>
+        <Box sx={{ textAlign: 'center', mb: 1 }}>
+          <Typography variant="h6">{location.title}</Typography>
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>{location.difficulty}</Typography>
+        </Box>
+        <Box
+          onClick={() => !isLocked && handleSelectLocation(location.id)}
           sx={{
-            p: 4,
-            borderRadius: 4,
-            textAlign: "center",
-            bgcolor: "#f5f5f5",
+            position: 'relative',
+            width: 120,
+            height: 120,
+            borderRadius: '50%',
+            backgroundColor: isLocked ? '#e0e0e0' : location.color,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: isLocked ? 'not-allowed' : 'pointer',
+            opacity: isLocked ? 0.7 : 1,
+            transition: 'transform 0.3s, box-shadow 0.3s',
+            '&:hover': {
+              transform: isLocked ? 'none' : 'translateY(-5px)',
+              boxShadow: isLocked ? 'none' : '0 10px 20px rgba(0,0,0,0.2)'
+            },
+            border: isLocked ? '4px dashed #bdbdbd' : '4px solid white',
+            boxShadow: '0 5px 15px rgba(0,0,0,0.1)'
           }}
         >
-          <MenuBookIcon color="primary" sx={{ fontSize: 60, mb: 2 }} />
-          <Typography variant="h4" gutterBottom>
-            No Adventures Available
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            We're preparing exciting learning adventures for you! Check back
-            soon.
-          </Typography>
-        </Paper>
-      </Container>
+          <Box sx={{ color: 'white', fontSize: '2rem' }}>
+            {isLocked ? <FaLock size={40} /> : location.icon}
+          </Box>
+          
+          {isCompleted && (
+            <Box
+              sx={{
+                position: 'absolute',
+                top: -10,
+                right: -10,
+                width: 40,
+                height: 40,
+                borderRadius: '50%',
+                backgroundColor: '#2ecc71',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: '3px solid white',
+              }}
+            >
+              <FaCheck color="white" size={20} />
+            </Box>
+          )}
+        </Box>
+      </Box>
     );
-  }
+  };
 
-  // Content Dialog for selected topic
+  // Content Dialog for selected location
   const ContentDialog = () => (
     <Dialog
       open={contentDialogOpen}
       onClose={handleCloseContentDialog}
-      maxWidth="md"
+      maxWidth="lg"
       fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: 4,
-          boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
-          border: "3px solid",
-          borderColor: selectedTopic
-            ? getTopicColor(topics.indexOf(selectedTopic))
-            : "primary.main",
-          overflow: "hidden",
-        },
-      }}
     >
       <DialogTitle
         sx={{
-          bgcolor: selectedTopic
-            ? getTopicColor(topics.indexOf(selectedTopic))
-            : "primary.main",
-          color: "white",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          p: 2,
+          bgcolor: selectedLocation?.color || 'primary.main',
+          color: 'white'
         }}
       >
-        <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-          {selectedTopic?.title || "Topic"}
-        </Typography>
-        <IconButton onClick={handleCloseContentDialog} sx={{ color: "white" }}>
-          <CloseIcon />
-        </IconButton>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h5">{selectedLocation?.title || 'Location'}</Typography>
+          <IconButton color="inherit" onClick={handleCloseContentDialog}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
       </DialogTitle>
       <DialogContent sx={{ p: 0 }}>
-        <Box
-          sx={{
-            display: "flex",
-            height: "70vh",
-            overflow: "hidden",
-          }}
-        >
-          {/* Subtopics sidebar */}
-          <Box
-            sx={{
-              width: 250,
-              bgcolor: "#f5f5f5",
-              borderRight: "1px solid",
-              borderColor: "divider",
-              overflow: "auto",
-            }}
-          >
-            <Typography
-              variant="subtitle1"
-              sx={{
-                p: 2,
-                fontWeight: "bold",
-                bgcolor: "rgba(0,0,0,0.05)",
-              }}
-            >
-              Learning Path
+        <Box sx={{ display: 'flex', height: '70vh' }}>
+          {/* Sidebar */}
+          <Box sx={{ width: 250, borderRight: '1px solid #e0e0e0', p: 2, overflow: 'auto' }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 2 }}>
+              Adventure Tasks
             </Typography>
-            {selectedTopic?.subtopics.map((subtopic, index) => (
-              <Box
-                key={subtopic.id}
-                onClick={() => handleSelectSubtopic(subtopic.id)}
-                sx={{
-                  p: 2,
-                  cursor: "pointer",
-                  borderBottom: "1px solid",
-                  borderColor: "divider",
-                  bgcolor:
-                    selectedSubtopic?.id === subtopic.id
-                      ? "rgba(0,0,0,0.08)"
-                      : "transparent",
-                  "&:hover": {
-                    bgcolor: "rgba(0,0,0,0.05)",
-                  },
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                <Avatar
-                  sx={{
-                    width: 36,
-                    height: 36,
-                    mr: 2,
-                    bgcolor: selectedTopic
-                      ? getTopicColor(topics.indexOf(selectedTopic))
-                      : "primary.main",
-                  }}
-                >
-                  {index + 1}
-                </Avatar>
-                <Typography variant="body1">{subtopic.title}</Typography>
-                {selectedSubtopic?.id === subtopic.id && (
-                  <ChevronRightIcon sx={{ ml: "auto" }} />
-                )}
+            {selectedLocation?.subtopics.map((topic) => (
+              <Box key={topic.id} sx={{ mb: 2 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
+                  {topic.title}
+                </Typography>
+                {topic.subtopics.map((subtopic, idx) => (
+                  <Box
+                    key={subtopic.id}
+                    onClick={() => handleSelectSubtopic(subtopic.id)}
+                    sx={{
+                      p: 1.5,
+                      mb: 0.5,
+                      borderRadius: 1,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      bgcolor: selectedSubtopic?.id === subtopic.id ? 'rgba(0,0,0,0.05)' : 'transparent',
+                      '&:hover': {
+                        bgcolor: 'rgba(0,0,0,0.05)'
+                      }
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: 24,
+                        height: 24,
+                        borderRadius: '50%',
+                        bgcolor: selectedLocation.color,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'white',
+                        mr: 1.5,
+                        fontSize: '0.8rem'
+                      }}
+                    >
+                      {idx + 1}
+                    </Box>
+                    <Typography variant="body2">{subtopic.title}</Typography>
+                  </Box>
+                ))}
               </Box>
             ))}
+            {selectedLocation?.subtopics.length === 0 && (
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                No quests available for this location yet.
+              </Typography>
+            )}
           </Box>
 
-          {/* Content display area */}
-          <Box
-            sx={{
-              flexGrow: 1,
-              p: 3,
-              overflow: "auto",
-              bgcolor: "white",
-            }}
-          >
+          {/* Content area */}
+          <Box sx={{ flexGrow: 1, p: 3, overflow: 'auto' }}>
             {selectedSubtopic ? (
-              <>
-                <Typography
-                  variant="h6"
-                  component="div" // Changed from default h6 element to div
-                  gutterBottom
-                  sx={{
-                    pb: 2,
-                    borderBottom: "2px solid",
-                    borderColor: selectedTopic
-                      ? getTopicColor(topics.indexOf(selectedTopic))
-                      : "primary.main",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  <FaMapSigns
-                    size={24}
-                    color={
-                      selectedTopic
-                        ? getTopicColor(topics.indexOf(selectedTopic))
-                        : "#1976d2"
-                    }
-                    style={{ marginRight: 12 }}
-                  />
+              <Box>
+                <Typography variant="h6" gutterBottom>
                   {selectedSubtopic.title}
                 </Typography>
-
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 3,
-                    mt: 2,
-                  }}
-                >
+                <Box sx={{ mt: 3, display: 'flex', flexDirection: 'column', gap: 3 }}>
                   {selectedSubtopic.contents?.length > 0 ? (
                     selectedSubtopic.contents.map((content) => (
                       <ContentRenderer key={content.id} content={content} />
                     ))
                   ) : (
-                    <Typography
-                      color="text.secondary"
-                      sx={{ py: 4, textAlign: "center" }}
-                    >
-                      No content available yet for this section.
-                    </Typography>
+                    <Typography color="text.secondary">No content available yet.</Typography>
                   )}
                 </Box>
-              </>
+              </Box>
             ) : (
-              <Box
-                sx={{
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <FaCompass size={80} color="#bdbdbd" />
-                <Typography
-                  variant="h6"
-                  color="text.secondary"
-                  sx={{ mt: 3, textAlign: "center" }}
-                >
-                  Select a section from the learning path to start your
-                  adventure!
+              <Box sx={{ textAlign: 'center', mt: 8 }}>
+                <FaMapMarkedAlt size={60} color="#bdbdbd" />
+                <Typography variant="h6" sx={{ mt: 2, color: 'text.secondary' }}>
+                  Select a quest from the sidebar to begin your adventure!
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  Complete all quests to earn badges and unlock new locations.
                 </Typography>
               </Box>
             )}
@@ -1188,191 +1018,1247 @@ const LearningAdventureMap = () => {
     </Dialog>
   );
 
-  // Generate coordinates for map nodes
-  const coordinates = generateMapCoordinates(topics.length);
-
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ py: 4 }}>
-        <Paper
-          elevation={3}
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          bgcolor: '#4c4c4c',
+          color: 'white',
+          borderRadius: 4,
+          overflow: 'hidden',
+          boxShadow: 'inset 0 0 0 4px rgba(255,255,255,0.05), 0 10px 30px rgba(0,0,0,0.2)',
+          height: { xs: 'auto', md: '80vh' }
+        }}
+      >
+        {/* Left sidebar - User profile */}
+        <Box
           sx={{
-            p: 4,
-            borderRadius: 4,
-            bgcolor: "#e8f5e9",
-            backgroundImage:
-              'url(\'data:image/svg+xml,%3Csvg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M8 16c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8zm0-2c3.314 0 6-2.686 6-6s-2.686-6-6-6-6 2.686-6 6 2.686 6 6 6zm33.414-6l5.95-5.95L45.95.636 40 6.586 34.05.636 32.636 2.05 38.586 8l-5.95 5.95 1.414 1.414L40 9.414l5.95 5.95 1.414-1.414L41.414 8zM40 48c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8zm0-2c3.314 0 6-2.686 6-6s-2.686-6-6-6-6 2.686-6 6 2.686 6 6 6zM9.414 40l5.95-5.95-1.414-1.414L8 38.586l-5.95-5.95L.636 34.05 6.586 40l-5.95 5.95 1.414 1.414L8 41.414l5.95 5.95 1.414-1.414L9.414 40z" fill="%234caf50" fill-opacity="0.1" fill-rule="evenodd"/%3E%3C/svg%3E\')',
+            width: { xs: '100%', md: 300 },
+            bgcolor: '#333',
+            p: 3,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
           }}
         >
+          <Avatar
+            src={userProfile?.avatar_url}
+            sx={{
+              width: 120,
+              height: 120,
+              mb: 2,
+              border: '4px solid #1e88e5',
+              bgcolor: '#1e88e5'
+            }}
+          >
+            {user?.email?.charAt(0)}
+          </Avatar>
+          
+          <Typography variant="h5" sx={{ mb: 1 }}>
+            {user?.email?.split('@')[0] || 'Jane'}
+          </Typography>
+          
           <Box
             sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              mb: 4,
-              alignItems: "center",
+              width: '100%',
+              mt: 6,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2
             }}
           >
-            <Typography variant="h4" color="primary" fontWeight="bold">
-              Learning Adventure Map
-            </Typography>
-            <Chip
-              label={`Age Group: ${userAgeGroup}`}
-              color="secondary"
-              sx={{ fontWeight: "bold", px: 1 }}
-            />
-          </Box>
-
-          <Paper
-            elevation={2}
-            sx={{
-              p: 4,
-              borderRadius: 4,
-              bgcolor: "#fff",
-              height: "500px",
-              position: "relative",
-              overflow: "hidden",
-              mb: 4,
-              backgroundImage:
-                'url(\'data:image/svg+xml,%3Csvg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z" fill="%234caf50" fill-opacity="0.05" fill-rule="evenodd"/%3E%3C/svg%3E\')',
-            }}
-          >
-            {/* Draw connections between points */}
-            {coordinates.length > 1 &&
-              coordinates.slice(0, -1).map((start, index) => {
-                const end = coordinates[index + 1];
-                const color = getTopicColor(index);
-
-                // Calculate angle for the line
-                const dx = end.x - start.x;
-                const dy = end.y - start.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-
-                return (
-                  <Box
-                    key={`path-${index}`}
-                    sx={{
-                      position: "absolute",
-                      top: start.y + 40,
-                      left: start.x + 40,
-                      height: 6,
-                      width: distance,
-                      bgcolor: completedTopics.includes(topics[index]?.id)
-                        ? "gold"
-                        : color,
-                      borderRadius: 3,
-                      transform: `rotate(${angle}deg)`,
-                      transformOrigin: "left center",
-                      zIndex: 0,
-                      transition: "all 0.3s ease",
-                      boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                    }}
-                  />
-                );
-              })}
-
-            {/* Place map nodes */}
-            {topics.map((topic, index) => {
-              if (index >= coordinates.length) return null;
-              const coord = coordinates[index];
-              return (
-                <Box
-                  key={topic.id}
-                  sx={{
-                    position: "absolute",
-                    top: coord.y,
-                    left: coord.x,
+            {adventureLocations.map((location) => (
+              <Box
+                key={location.id}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 2,
+                  p: 2,
+                  borderRadius: 3,
+                  bgcolor: selectedLocation?.id === location.id ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  '&:hover': {
+                    bgcolor: 'rgba(255,255,255,0.05)'
+                  },
+                  cursor: 'pointer'
+                }}
+                onClick={() => handleSelectLocation(location.id)}
+              >
+                <Avatar 
+                  sx={{ 
+                    bgcolor: location.color, 
+                    opacity: location.id === 'peak' && !completedLocations.includes('forest') ? 0.5 : 1
                   }}
                 >
-                  <Zoom
-                    in={true}
-                    style={{
-                      transitionDelay: `${index * 150}ms`,
-                    }}
-                  >
-                    <Box>
-                      <MapNode
-                        topic={topic}
-                        index={index}
-                        onClick={handleSelectTopic}
-                        isActive={selectedTopic?.id === topic.id}
-                        completed={completedTopics.includes(topic.id)}
-                      />
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          mt: 1,
-                          textAlign: "center",
-                          fontWeight: "bold",
-                          fontSize: "0.85rem",
-                          maxWidth: 100,
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {topic.title}
-                      </Typography>
-                    </Box>
-                  </Zoom>
+                  {location.icon}
+                </Avatar>
+                <Box sx={{ flexGrow: 1 }}>
+                  <Typography>{location.title}</Typography>
+                  <Typography variant="caption" sx={{ opacity: 0.7 }}>
+                    {location.difficulty}
+                  </Typography>
                 </Box>
-              );
-            })}
-
-            {/* Flag for start/finish */}
-            {coordinates.length > 0 && (
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: coordinates[0].y - 20,
-                  left: coordinates[0].x - 20,
-                }}
-              >
-                <Tooltip
-                  title="Start your adventure here!"
-                  arrow
-                  placement="top"
-                >
-                  <Box sx={{ color: "#4caf50" }}>
-                    <FaFlag size={32} />
-                  </Box>
-                </Tooltip>
+                {completedLocations.includes(location.id) ? (
+                  <FaCheck color="#4caf50" size={20} />
+                ) : location.id === 'peak' && !completedLocations.includes('forest') ? (
+                  <FaLock size={18} color="#bdbdbd" />
+                ) : null}
               </Box>
-            )}
-
-            {coordinates.length > 1 && (
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: coordinates[coordinates.length - 1].y - 20,
-                  left: coordinates[coordinates.length - 1].x + 80,
-                }}
-              >
-                <Tooltip
-                  title="Complete all adventures to reach the finish!"
-                  arrow
-                  placement="top"
-                >
-                  <Box sx={{ color: "#f44336" }}>
-                    <FaFlag size={32} />
-                  </Box>
-                </Tooltip>
-              </Box>
-            )}
-          </Paper>
-
-          <Box sx={{ textAlign: "center", mt: 2 }}>
-            <Typography variant="body2" color="text.secondary">
-              Click on any adventure point to start exploring!
-            </Typography>
+            ))}
           </Box>
-        </Paper>
+        </Box>
+        
+        {/* Main area - Adventure map */}
+        <Box
+          sx={{
+            flexGrow: 1,
+            p: 3,
+            display: 'flex',
+            flexDirection: 'column',
+            position: 'relative',
+            backgroundImage: `url('data:image/svg+xml,%3Csvg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3z" fill="%23ffffff" fill-opacity="0.05" fill-rule="evenodd"/%3E%3C/svg%3E')`,
+          }}
+        >
+          <Paper
+            elevation={3}
+            sx={{
+              flexGrow: 1,
+              position: 'relative',
+              overflow: 'hidden',
+              borderRadius: 3,
+              border: '4px solid white',
+              backgroundImage: `url('data:image/svg+xml,%3Csvg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3z" fill="%2362d0ff" fill-opacity="0.1" fill-rule="evenodd"/%3E%3C/svg%3E')`,
+              backgroundColor: '#81d4fa',
+              backgroundSize: '80px 80px',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+              p: 4,
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%)',
+                animation: 'pulse 8s infinite',
+                pointerEvents: 'none',
+              },
+              '@keyframes pulse': {
+                '0%': {
+                  opacity: 0.5,
+                  backgroundSize: '100% 100%',
+                },
+                '50%': {
+                  opacity: 0.8,
+                  backgroundSize: '120% 120%',  
+                },
+                '100%': {
+                  opacity: 0.5,
+                  backgroundSize: '100% 100%',
+                },
+              }
+            }}
+          >
+            {/* Map Instructions */}
+            <Box 
+              sx={{ 
+                bgcolor: 'rgba(255,255,255,0.8)',
+                borderRadius: 2,
+                p: 2,
+                mb: 4,
+                maxWidth: 600,
+                position: 'relative',
+                overflow: 'hidden',
+                zIndex: 2,
+                boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+                transition: 'transform 0.3s, box-shadow 0.3s',
+                '&:hover': {
+                  transform: 'translateY(-5px)',
+                  boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
+                },
+              }}
+            >
+              <Typography variant="h5" gutterBottom>Adventure Map</Typography>
+              <Box component="ol" sx={{ pl: 3, m: 0 }}>
+                <Typography component="li" sx={{ mb: 1 }}>Visit each point on the map</Typography>
+                <Typography component="li" sx={{ mb: 1 }}>Answer the questions correctly</Typography>
+                <Typography component="li">Earn all three badges</Typography>
+              </Box>
+            </Box>
+            
+            {/* Main Map Area */}
+            <Box sx={{ position: 'relative', height: '70%' }}>
+              {/* Sky Background with Clouds */}
+              <Box sx={{ 
+                position: 'absolute', 
+                top: 0, 
+                left: 0, 
+                width: '100%', 
+                height: '60%', 
+                background: 'linear-gradient(to bottom, #64b5f6, #90caf9)',
+                zIndex: 0 
+              }}>
+                {/* Sun moved higher up */}
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: '15%',
+                    left: '10%',
+                    width: '50px',
+                    height: '50px',
+                    borderRadius: '50%',
+                    backgroundColor: '#ffeb3b',
+                    boxShadow: '0 0 20px 5px rgba(255, 235, 59, 0.7)',
+                    animation: 'sun-pulse 5s infinite alternate',
+                    zIndex: 1,
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      borderRadius: '50%',
+                      backgroundColor: 'rgba(255, 235, 59, 0.4)',
+                      animation: 'sun-halo 3s infinite',
+                      transform: 'scale(1.2)',
+                    },
+                    '@keyframes sun-pulse': {
+                      '0%': { transform: 'scale(1)' },
+                      '100%': { transform: 'scale(1.1)' }
+                    },
+                    '@keyframes sun-halo': {
+                      '0%, 100%': { opacity: 0.3, transform: 'scale(1.2)' },
+                      '50%': { opacity: 0.6, transform: 'scale(1.4)' }
+                    }
+                  }}
+                >
+                  {/* Sun rays */}
+                  {[...Array(8)].map((_, i) => (
+                    <Box
+                      key={i}
+                      sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        width: '40px',
+                        height: '2px',
+                        backgroundColor: '#ffeb3b',
+                        transformOrigin: '0 0',
+                        transform: `rotate(${i * 45}deg)`,
+                        animation: `ray-pulse 3s infinite ${i * 0.2}s`,
+                        '@keyframes ray-pulse': {
+                          '0%, 100%': { opacity: 0.7, width: '40px' },
+                          '50%': { opacity: 1, width: '50px' }
+                        }
+                      }}
+                    />
+                  ))}
+                </Box>
+                
+                {/* Rainbow moved higher */}
+                <Box sx={{
+                  position: 'absolute',
+                  top: '15%',
+                  right: '15%',
+                  width: '100px',
+                  height: '50px',
+                  overflow: 'hidden',
+                  zIndex: 1,
+                  opacity: 0.7,
+                  animation: 'rainbow-appear 10s infinite',
+                  '@keyframes rainbow-appear': {
+                    '0%, 100%': { opacity: 0.2 },
+                    '50%': { opacity: 0.7 }
+                  }
+                }}>
+                  {['#f44336', '#ff9800', '#ffeb3b', '#4caf50', '#2196f3', '#9c27b0'].map((color, i) => (
+                    <Box
+                      key={i}
+                      sx={{
+                        position: 'absolute',
+                        top: i * 4,
+                        left: 0,
+                        right: 0,
+                        height: '10px',
+                        borderRadius: '50% 50% 0 0',
+                        border: `3px solid ${color}`,
+                        borderBottom: 'none',
+                      }}
+                    />
+                  ))}
+                </Box>
+                
+                {/* More clouds in the sky - floating at different speeds */}
+                {[...Array(6)].map((_, i) => (
+                  <Box
+                    key={i}
+                    sx={{
+                      position: 'absolute',
+                      top: `${10 + (i % 3) * 15}%`,
+                      left: `${(i * 15) % 80}%`,
+                      width: `${60 + Math.random() * 40}px`,
+                      height: `${30 + Math.random() * 20}px`,
+                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                      borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+                      boxShadow: '0 5px 15px rgba(0,0,0,0.1)',
+                      animation: `cloud-float-${i} ${20 + i * 7}s infinite linear`,
+                      zIndex: 1,
+                      '&::after': {
+                        content: '""',
+                        position: 'absolute',
+                        bottom: 0,
+                        left: '20%',
+                        width: '60%',
+                        height: '50%',
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+                      },
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        bottom: '5%',
+                        right: '10%',
+                        width: '40%',
+                        height: '60%',
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+                      },
+                      [`@keyframes cloud-float-${i}`]: {
+                        '0%': { transform: 'translateX(-100px)' },
+                        '100%': { transform: 'translateX(calc(100vw + 100px))' }
+                      }
+                    }}
+                  />
+                ))}
+              </Box>
+              
+              {/* Ground Element */}
+              <Box sx={{ 
+                position: 'absolute', 
+                bottom: 0, 
+                left: 0, 
+                width: '100%', 
+                height: '40%',
+                background: 'linear-gradient(to top, #8d6e63 0%, #a1887f 15%, #81c784 15%, #66bb6a 100%)',
+                borderTopLeftRadius: '50% 20%',
+                borderTopRightRadius: '50% 20%',
+                boxShadow: 'inset 0 5px 15px rgba(0,0,0,0.2)',
+                zIndex: 1,
+                overflow: 'visible',
+                '&::after': {
+                  content: '""',
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '15%',
+                  background: '#8d6e63',
+                  borderTopLeftRadius: '15px',
+                  borderTopRightRadius: '15px',
+                }
+              }}>
+                {/* Ground details - small grass tufts */}
+                {[...Array(20)].map((_, i) => (
+                  <Box
+                    key={i}
+                    sx={{
+                      position: 'absolute',
+                      bottom: '15%',
+                      left: `${5 + (i * 5)}%`,
+                      width: '4px',
+                      height: `${5 + Math.random() * 8}px`,
+                      backgroundColor: '#33691e',
+                      transformOrigin: 'bottom center',
+                      animation: `grass-sway-${i} ${2 + Math.random() * 2}s infinite alternate`,
+                      [`@keyframes grass-sway-${i}`]: {
+                        '0%': { transform: 'rotate(-5deg)' },
+                        '100%': { transform: 'rotate(5deg)' }
+                      }
+                    }}
+                  />
+                ))}
+              </Box>
+
+              {/* Animated flowing river connecting all locations */}
+              <svg 
+                width="100%" 
+                height="100%" 
+                style={{ position: 'absolute', top: 0, left: 0, zIndex: 2, pointerEvents: 'none' }}
+              >
+                {/* Main river path connecting all locations - adjusted to match new layout */}
+                <path 
+                  d="M15% 85% C25% 75%, 40% 65%, 50% 50% C55% 45%, 70% 45%, 85% 55%" 
+                  fill="none"
+                  stroke="#2196f3"
+                  strokeWidth="20"
+                  strokeLinecap="round"
+                  style={{
+                    filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.2))',
+                  }}
+                />
+                {/* Blue river overlay with animation */}
+                <path 
+                  d="M15% 85% C25% 75%, 40% 65%, 50% 50% C55% 45%, 70% 45%, 85% 55%" 
+                  fill="none"
+                  stroke="#64b5f6"
+                  strokeWidth="16"
+                  strokeLinecap="round"
+                  strokeDasharray="20,10"
+                  style={{
+                    strokeDashoffset: 0,
+                    animation: 'flow 30s linear infinite',
+                  }}
+                />
+                {/* Lighter blue sparkles on river */}
+                <path 
+                  d="M15% 85% C25% 75%, 40% 65%, 50% 50% C55% 45%, 70% 45%, 85% 55%" 
+                  fill="none"
+                  stroke="#e3f2fd"
+                  strokeWidth="6"
+                  strokeLinecap="round"
+                  strokeDasharray="5,15"
+                  style={{
+                    strokeDashoffset: 0,
+                    animation: 'sparkle 20s linear infinite reverse',
+                    opacity: 0.7,
+                  }}
+                />
+                
+                {/* Add CSS animations for the river */}
+                <style>{`
+                  @keyframes flow {
+                    to {
+                      stroke-dashoffset: -200;
+                    }
+                  }
+                  @keyframes sparkle {
+                    to {
+                      stroke-dashoffset: 200;
+                    }
+                  }
+                  @keyframes ripple {
+                    0% { r: 0; opacity: 0.8; }
+                    100% { r: 15; opacity: 0; }
+                  }
+                `}</style>
+                
+                {/* Water ripples along the river */}
+                {[...Array(8)].map((_, i) => (
+                  <circle
+                    key={i}
+                    cx={`${20 + (i * 10)}%`}
+                    cy={`${85 - (i * 5)}%`}
+                    r="2"
+                    fill="#90caf9"
+                    style={{
+                      animation: `ripple ${3 + i * 0.5}s infinite ease-out ${i * 0.7}s`,
+                    }}
+                  />
+                ))}
+              </svg>
+
+              {/* Houses for the three locations, styled like buildings on the ground */}
+              {/* Village House - First Location (left) */}
+              <Box
+                sx={{
+                  position: 'absolute',
+                  left: '15%',
+                  bottom: '20%',
+                  width: '120px',
+                  height: '140px',
+                  zIndex: 3,
+                  cursor: 'pointer',
+                  transition: 'transform 0.3s',
+                  '&:hover': {
+                    transform: 'scale(1.05) translateY(-5px)'
+                  }
+                }}
+                onClick={() => handleSelectLocation("village")}
+              >
+                {/* House base */}
+                <Box sx={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: '10%',
+                  width: '80%',
+                  height: '70px',
+                  backgroundColor: '#e57373',
+                  borderRadius: '5px',
+                  boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  border: '2px solid #c62828'
+                }}>
+                  {/* Door */}
+                  <Box sx={{
+                    position: 'absolute',
+                    bottom: '0',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: '30px',
+                    height: '40px',
+                    backgroundColor: '#6d4c41',
+                    borderRadius: '5px 5px 0 0',
+                    border: '1px solid #5d4037',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                    <Box sx={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#ffc107' }} />
+                  </Box>
+                  {/* Windows */}
+                  <Box sx={{
+                    position: 'absolute',
+                    top: '10px',
+                    left: '10px',
+                    width: '20px',
+                    height: '20px',
+                    backgroundColor: '#bbdefb',
+                    border: '1px solid #1976d2',
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    padding: '2px',
+                  }}>
+                    <Box sx={{ backgroundColor: 'rgba(255,255,255,0.5)' }} />
+                    <Box sx={{ backgroundColor: 'rgba(255,255,255,0.5)' }} />
+                    <Box sx={{ backgroundColor: 'rgba(255,255,255,0.5)' }} />
+                    <Box sx={{ backgroundColor: 'rgba(255,255,255,0.5)' }} />
+                  </Box>
+                  <Box sx={{
+                    position: 'absolute',
+                    top: '10px',
+                    right: '10px',
+                    width: '20px',
+                    height: '20px',
+                    backgroundColor: '#bbdefb',
+                    border: '1px solid #1976d2',
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    padding: '2px',
+                  }}>
+                    <Box sx={{ backgroundColor: 'rgba(255,255,255,0.5)' }} />
+                    <Box sx={{ backgroundColor: 'rgba(255,255,255,0.5)' }} />
+                    <Box sx={{ backgroundColor: 'rgba(255,255,255,0.5)' }} />
+                    <Box sx={{ backgroundColor: 'rgba(255,255,255,0.5)' }} />
+                  </Box>
+                </Box>
+                {/* House roof */}
+                <Box sx={{
+                  position: 'absolute',
+                  bottom: '70px',
+                  left: '0',
+                  width: '100%',
+                  height: '50px',
+                  backgroundColor: '#b71c1c',
+                  clipPath: 'polygon(0% 100%, 50% 0%, 100% 100%)',
+                  zIndex: 1,
+                  boxShadow: '0 -5px 15px rgba(0,0,0,0.1)',
+                }} />
+                {/* House sign */}
+                <Box sx={{
+                  position: 'absolute',
+                  bottom: '-20px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '80px',
+                  padding: '5px',
+                  backgroundColor: '#fff8e1',
+                  border: '1px solid #ffca28',
+                  borderRadius: '4px',
+                  textAlign: 'center',
+                  boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+                  zIndex: 4,
+                }}>
+                  <Typography variant="caption" sx={{ fontWeight: 'bold', color: '#5d4037' }}>
+                    The Village
+                  </Typography>
+                </Box>
+                {/* Smoke from chimney */}
+                <Box sx={{ position: 'absolute', top: '10px', right: '30px', zIndex: -1 }}>
+                  {[...Array(3)].map((_, i) => (
+                    <Box
+                      key={i}
+                      sx={{
+                        position: 'absolute',
+                        width: '10px',
+                        height: '10px',
+                        backgroundColor: 'rgba(255,255,255,0.7)',
+                        borderRadius: '50%',
+                        animation: `smoke ${3 + i}s infinite ease-out`,
+                        animationDelay: `${i * 0.5}s`,
+                        '@keyframes smoke': {
+                          '0%': { transform: 'translate(0, 0) scale(1)', opacity: 0.7 },
+                          '100%': { transform: 'translate(-15px, -40px) scale(2)', opacity: 0 }
+                        }
+                      }}
+                    />
+                  ))}
+                </Box>
+                {/* Completion badge */}
+                {completedLocations.includes("village") && (
+                  <Box sx={{ 
+                    position: 'absolute',
+                    right: '10px',
+                    top: '25px',
+                    backgroundColor: '#2196f3',
+                    color: 'white',
+                    borderRadius: '50%',
+                    width: 30,
+                    height: 30,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '2px solid white',
+                    zIndex: 4,
+                    boxShadow: '0 3px 5px rgba(0,0,0,0.2)',
+                    animation: 'pulse-light 2s infinite',
+                  }}>
+                    <FaCheck size={15} />
+                  </Box>
+                )}
+              </Box>
+
+              {/* Forest Cabin - Middle Location */}
+              <Box
+                sx={{
+                  position: 'absolute',
+                  left: '50%',
+                  bottom: '18%',
+                  width: '130px',
+                  height: '120px',
+                  transform: 'translateX(-50%)',
+                  zIndex: 3,
+                  cursor: 'pointer',
+                  transition: 'transform 0.3s',
+                  '&:hover': {
+                    transform: 'translateX(-50%) scale(1.05) translateY(-5px)'
+                  }
+                }}
+                onClick={() => handleSelectLocation("forest")}
+              >
+                {/* Cabin base */}
+                <Box sx={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: '10%',
+                  width: '80%',
+                  height: '65px',
+                  backgroundColor: '#8d6e63',
+                  borderRadius: '5px',
+                  boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  border: '3px solid #5d4037',
+                  backgroundImage: 'repeating-linear-gradient(0deg, #5d4037, #5d4037 3px, #8d6e63 3px, #8d6e63 10px)',
+                }}>
+                  {/* Door */}
+                  <Box sx={{
+                    position: 'absolute',
+                    bottom: '0',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: '25px',
+                    height: '35px',
+                    backgroundColor: '#4e342e',
+                    border: '1px solid #3e2723',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                    <Box sx={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: '#fdd835' }} />
+                  </Box>
+                  {/* Windows */}
+                  <Box sx={{
+                    position: 'absolute',
+                    top: '15px',
+                    left: '15px',
+                    width: '15px',
+                    height: '15px',
+                    backgroundColor: '#ffecb3',
+                    border: '1px solid #4e342e',
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    padding: '1px',
+                  }}>
+                    <Box sx={{ backgroundColor: 'rgba(255,255,255,0.3)' }} />
+                    <Box sx={{ backgroundColor: 'rgba(255,255,255,0.3)' }} />
+                    <Box sx={{ backgroundColor: 'rgba(255,255,255,0.3)' }} />
+                    <Box sx={{ backgroundColor: 'rgba(255,255,255,0.3)' }} />
+                  </Box>
+                  <Box sx={{
+                    position: 'absolute',
+                    top: '15px',
+                    right: '15px',
+                    width: '15px',
+                    height: '15px',
+                    backgroundColor: '#ffecb3',
+                    border: '1px solid #4e342e',
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    padding: '1px',
+                  }}>
+                    <Box sx={{ backgroundColor: 'rgba(255,255,255,0.3)' }} />
+                    <Box sx={{ backgroundColor: 'rgba(255,255,255,0.3)' }} />
+                    <Box sx={{ backgroundColor: 'rgba(255,255,255,0.3)' }} />
+                    <Box sx={{ backgroundColor: 'rgba(255,255,255,0.3)' }} />
+                  </Box>
+                </Box>
+                {/* Cabin roof */}
+                <Box sx={{
+                  position: 'absolute',
+                  bottom: '65px',
+                  left: '0',
+                  width: '100%',
+                  height: '40px',
+                  backgroundColor: '#795548',
+                  clipPath: 'polygon(0% 100%, 50% 0%, 100% 100%)',
+                  zIndex: 1,
+                  boxShadow: '0 -5px 15px rgba(0,0,0,0.1)',
+                }} />
+                {/* Cabin sign */}
+                <Box sx={{
+                  position: 'absolute',
+                  bottom: '-15px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '70px',
+                  padding: '4px',
+                  backgroundColor: '#e8f5e9',
+                  border: '1px solid #66bb6a',
+                  borderRadius: '4px',
+                  textAlign: 'center',
+                  boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+                  zIndex: 4,
+                }}>
+                  <Typography variant="caption" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>
+                    The Forest
+                  </Typography>
+                </Box>
+                {/* Completion badge */}
+                {completedLocations.includes("forest") && (
+                  <Box sx={{ 
+                    position: 'absolute',
+                    right: '15px',
+                    top: '20px',
+                    backgroundColor: '#2196f3',
+                    color: 'white',
+                    borderRadius: '50%',
+                    width: 30,
+                    height: 30,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '2px solid white',
+                    zIndex: 4,
+                    boxShadow: '0 3px 5px rgba(0,0,0,0.2)',
+                    animation: 'pulse-light 2s infinite',
+                  }}>
+                    <FaCheck size={15} />
+                  </Box>
+                )}
+              </Box>
+
+              {/* Mountain Tower - Third Location (right) */}
+              <Box
+                sx={{
+                  position: 'absolute',
+                  right: '15%',
+                  bottom: '22%',
+                  width: '100px',
+                  height: '180px',
+                  zIndex: completedLocations.includes("forest") ? 3 : 2,
+                  opacity: completedLocations.includes("forest") ? 1 : 0.7,
+                  cursor: completedLocations.includes("forest") ? 'pointer' : 'not-allowed',
+                  transition: 'transform 0.3s',
+                  '&:hover': {
+                    transform: completedLocations.includes("forest") ? 'scale(1.05) translateY(-5px)' : 'none'
+                  }
+                }}
+                onClick={() => completedLocations.includes("forest") && handleSelectLocation("peak")}
+              >
+                {/* Tower base */}
+                <Box sx={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: '15%',
+                  width: '70%',
+                  height: '120px',
+                  backgroundColor: completedLocations.includes("forest") ? '#9575cd' : '#bdbdbd',
+                  borderRadius: '5px 5px 0 0',
+                  boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
+                  border: completedLocations.includes("forest") ? '2px solid #5e35b1' : '2px solid #9e9e9e',
+                }}>
+                  {/* Windows */}
+                  {[...Array(3)].map((_, i) => (
+                    <Box 
+                      key={i}
+                      sx={{
+                        position: 'absolute',
+                        top: `${20 + i * 30}px`,
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        width: '20px',
+                        height: '20px',
+                        backgroundColor: completedLocations.includes("forest") ? '#d1c4e9' : '#e0e0e0',
+                        border: completedLocations.includes("forest") ? '1px solid #7e57c2' : '1px solid #9e9e9e',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {!completedLocations.includes("forest") && i === 1 && (
+                        <FaLock size={10} color="#616161" />
+                      )}
+                    </Box>
+                  ))}
+                </Box>
+                {/* Tower top */}
+                <Box sx={{
+                  position: 'absolute',
+                  bottom: '120px',
+                  left: '20%',
+                  width: '60%',
+                  height: '40px',
+                  backgroundColor: completedLocations.includes("forest") ? '#7e57c2' : '#9e9e9e',
+                  clipPath: 'polygon(0% 100%, 50% 0%, 100% 100%)',
+                  zIndex: 1,
+                  boxShadow: '0 -5px 15px rgba(0,0,0,0.1)',
+                }}>
+                  {/* Snow particles on mountaintop */}
+                  {completedLocations.includes("forest") && (
+                    <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, overflow: 'hidden' }}>
+                      {[...Array(8)].map((_, i) => (
+                        <Box
+                          key={i}
+                          sx={{
+                            position: 'absolute',
+                            width: '3px',
+                            height: '3px',
+                            backgroundColor: 'white',
+                            borderRadius: '50%',
+                            opacity: 0.8,
+                            top: `${Math.random() * 100}%`,
+                            left: `${Math.random() * 100}%`,
+                            animation: `snow ${3 + Math.random() * 7}s infinite linear`,
+                            animationDelay: `${Math.random() * 5}s`,
+                            '@keyframes snow': {
+                              '0%': { transform: 'translateY(0)', opacity: 0 },
+                              '20%': { opacity: 0.8 },
+                              '100%': { transform: 'translateY(40px)', opacity: 0 }
+                            }
+                          }}
+                        />
+                      ))}
+                    </Box>
+                  )}
+                </Box>
+                {/* Tower sign */}
+                <Box sx={{
+                  position: 'absolute',
+                  bottom: '-15px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '70px',
+                  padding: '4px',
+                  backgroundColor: '#e8eaf6',
+                  border: '1px solid #3f51b5',
+                  borderRadius: '4px',
+                  textAlign: 'center',
+                  boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+                  zIndex: 4,
+                }}>
+                  <Typography variant="caption" sx={{ fontWeight: 'bold', color: '#303f9f' }}>
+                    The Peak
+                  </Typography>
+                </Box>
+                {/* Lock icon for locked peak */}
+                {!completedLocations.includes("forest") && (
+                  <Box sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 10,
+                  }}>
+                    <FaLock size={20} color="#e0e0e0" />
+                  </Box>
+                )}
+              </Box>
+
+              {/* Add multiple trees around the scene */}
+              {[...Array(12)].map((_, i) => (
+                <Box 
+                  key={i}
+                  sx={{
+                    position: 'absolute',
+                    left: `${5 + Math.random() * 90}%`,
+                    bottom: `${15 + Math.random() * 10}%`,
+                    width: `${15 + Math.random() * 10}px`,
+                    height: `${25 + Math.random() * 15}px`,
+                    zIndex: Math.random() > 0.5 ? 2 : 4,
+                    transform: `scale(${0.7 + Math.random() * 0.6}) rotate(${-5 + Math.random() * 10}deg)`,
+                    display: i < 8 ? 'block' : 'none', // Only show some trees on small screens
+                    '@media (min-width: 600px)': {
+                      display: 'block', // Show all trees on larger screens
+                    },
+                  }}
+                >
+                  {/* Tree trunk */}
+                  <Box sx={{ 
+                    position: 'absolute',
+                    bottom: 0,
+                    left: '50%',
+                    width: '4px',
+                    height: '40%',
+                    backgroundColor: '#795548',
+                    transform: 'translateX(-50%)',
+                  }} />
+                  {/* Tree foliage - different types */}
+                  {i % 3 === 0 ? (
+                    // Pine tree
+                    <>
+                      <Box sx={{ 
+                        position: 'absolute',
+                        bottom: '30%',
+                        left: '50%',
+                        width: '90%',
+                        height: '35%',
+                        backgroundColor: '#2e7d32',
+                        clipPath: 'polygon(0% 100%, 50% 0%, 100% 100%)',
+                        transform: 'translateX(-50%)',
+                      }} />
+                      <Box sx={{ 
+                        position: 'absolute',
+                        bottom: '45%',
+                        left: '50%',
+                        width: '80%',
+                        height: '30%',
+                        backgroundColor: '#388e3c',
+                        clipPath: 'polygon(0% 100%, 50% 0%, 100% 100%)',
+                        transform: 'translateX(-50%)',
+                      }} />
+                      <Box sx={{ 
+                        position: 'absolute',
+                        bottom: '60%',
+                        left: '50%',
+                        width: '60%',
+                        height: '25%',
+                        backgroundColor: '#43a047',
+                        clipPath: 'polygon(0% 100%, 50% 0%, 100% 100%)',
+                        transform: 'translateX(-50%)',
+                      }} />
+                    </>
+                  ) : i % 3 === 1 ? (
+                    // Round tree
+                    <Box sx={{ 
+                      position: 'absolute',
+                      bottom: '25%',
+                      left: '50%',
+                      width: '100%',
+                      height: '75%',
+                      backgroundColor: '#66bb6a',
+                      borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+                      transform: 'translateX(-50%)',
+                    }} />
+                  ) : (
+                    // Oval tree
+                    <Box sx={{ 
+                      position: 'absolute',
+                      bottom: '30%',
+                      left: '50%',
+                      width: '120%',
+                      height: '60%',
+                      backgroundColor: '#81c784',
+                      borderRadius: '50%',
+                      transform: 'translateX(-50%)',
+                    }} />
+                  )}
+                </Box>
+              ))}
+
+              {/* Add more butterflies around the houses */}
+              {[...Array(5)].map((_, i) => (
+                <Box
+                  key={i}
+                  sx={{
+                    position: 'absolute',
+                    bottom: `${30 + i * 10}%`,
+                    left: `${15 + i * 18}%`,
+                    width: '12px',
+                    height: '12px',
+                    zIndex: 5,
+                    animation: `butterfly-path-${i} ${15 + i * 5}s infinite ease-in-out`,
+                    [`@keyframes butterfly-path-${i}`]: {
+                      '0%, 100%': { transform: 'translate(0, 0) rotate(10deg)' },
+                      '25%': { transform: `translate(${20 + i * 10}px, ${-30 - i * 5}px) rotate(-10deg)` },
+                      '50%': { transform: `translate(${50 + i * 15}px, ${-10 - i * 3}px) rotate(5deg)` },
+                      '75%': { transform: `translate(${30 + i * 10}px, ${-20 - i * 4}px) rotate(-5deg)` },
+                    }
+                  }}
+                >
+                  {/* Butterfly wings */}
+                  <Box sx={{
+                    position: 'relative',
+                    width: '100%',
+                    height: '100%',
+                    '@keyframes wing-flap': {
+                      '0%': { transform: 'rotate(-20deg) scaleX(0.8)' },
+                      '100%': { transform: 'rotate(20deg) scaleX(1.2)' }
+                    }
+                  }}>
+                    <Box sx={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '5px',
+                      height: '7px',
+                      borderRadius: '50%',
+                      backgroundColor: ['#e91e63', '#9c27b0', '#2196f3', '#ff9800', '#4caf50'][i % 5],
+                      animation: 'wing-flap 0.15s infinite alternate',
+                    }} />
+                    <Box sx={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      width: '5px',
+                      height: '7px',
+                      borderRadius: '50%',
+                      backgroundColor: ['#e91e63', '#9c27b0', '#2196f3', '#ff9800', '#4caf50'][i % 5],
+                      animation: 'wing-flap 0.15s infinite alternate-reverse',
+                    }} />
+                    <Box sx={{
+                      position: 'absolute',
+                      top: '4px',
+                      left: '5.5px',
+                      width: '1px',
+                      height: '8px',
+                      backgroundColor: '#212121',
+                      transformOrigin: 'top',
+                    }} />
+                  </Box>
+                </Box>
+              ))}
+
+              {/* Floating items on river */}
+              <Box sx={{ position: 'absolute', zIndex: 3, left: 0, top: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+                {/* Leaf boat on river */}
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    width: '30px',
+                    height: '20px',
+                    bottom: '20%',
+                    left: '20%',
+                    animation: 'boat-journey 30s linear infinite',
+                    '@keyframes boat-journey': {
+                      '0%': { transform: 'translate(0, 0) rotate(5deg)', left: '15%', bottom: '20%' },
+                      '33%': { transform: 'translate(0, 0) rotate(-5deg)', left: '40%', bottom: '25%' },
+                      '66%': { transform: 'translate(0, 0) rotate(5deg)', left: '65%', bottom: '20%' },
+                      '100%': { transform: 'translate(0, 0) rotate(-5deg)', left: '85%', bottom: '25%' }
+                    }
+                  }}
+                >
+                  <Box sx={{ 
+                    width: '100%', 
+                    height: '100%', 
+                    backgroundColor: '#8bc34a', 
+                    borderRadius: '50% 50% 0 0 / 60% 60% 0 0',
+                    position: 'relative',
+                    transform: 'rotate(-45deg)',
+                    '&::after': {
+                      content: '""',
+                      position: 'absolute',
+                      top: '40%',
+                      left: '50%',
+                      width: '6px',
+                      height: '15px',
+                      backgroundColor: '#795548',
+                      transformOrigin: 'bottom',
+                      transform: 'translateX(-50%)',
+                    },
+                  }} />
+                </Box>
+                
+                {/* Rubber duck on river */}
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    width: '25px',
+                    height: '20px',
+                    bottom: '25%',
+                    left: '60%',
+                    zIndex: 3,
+                    animation: 'duck-float 40s linear infinite',
+                    '@keyframes duck-float': {
+                      '0%': { transform: 'translate(0, 0) rotate(-5deg)', left: '60%', bottom: '25%' },
+                      '50%': { transform: 'translate(0, 0) rotate(5deg)', left: '30%', bottom: '22%' },
+                      '100%': { transform: 'translate(0, 0) rotate(-5deg)', left: '60%', bottom: '25%' }
+                    }
+                  }}
+                >
+                  <Box sx={{ 
+                    width: '100%', 
+                    height: '100%', 
+                    backgroundColor: '#ffeb3b', 
+                    borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+                    position: 'relative',
+                    '&::before': { // duck bill
+                      content: '""',
+                      position: 'absolute',
+                      width: '10px',
+                      height: '5px',
+                      borderRadius: '40% 40% 50% 50%',
+                      backgroundColor: '#ff9800',
+                      top: '45%',
+                      left: '-5px',
+                    },
+                    '&::after': { // duck eye
+                      content: '""',
+                      position: 'absolute',
+                      width: '4px',
+                      height: '4px',
+                      borderRadius: '50%',
+                      backgroundColor: '#212121',
+                      top: '35%',
+                      left: '30%',
+                    },
+                  }} />
+                </Box>
+              </Box>
+
+              {/* Add small character on the river - adventurer in boat */}
+              <Box
+                sx={{
+                  position: 'absolute',
+                  zIndex: 4,
+                  width: '40px',
+                  height: '30px',
+                  animation: 'adventure-journey 35s linear infinite',
+                  '@keyframes adventure-journey': {
+                    '0%': { transform: 'translate(0, 0) rotate(10deg)', left: '10%', bottom: '18%' },
+                    '33%': { transform: 'translate(0, 0) rotate(-5deg)', left: '40%', bottom: '22%' },
+                    '66%': { transform: 'translate(0, 0) rotate(5deg)', left: '65%', bottom: '20%' },
+                    '100%': { transform: 'translate(0, 0) rotate(-5deg)', left: '85%', bottom: '25%' }
+                  }
+                }}
+              >
+                {/* Boat */}
+                <Box sx={{ 
+                  position: 'relative',
+                  width: '100%',
+                  height: '100%',
+                }}>
+                  {/* Boat hull */}
+                  <Box sx={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    width: '30px',
+                    height: '10px',
+                    backgroundColor: '#a1887f',
+                    borderRadius: '40% 40% 0 0',
+                    transform: 'rotate(90deg)',
+                    animation: 'boat-rock 2s infinite ease-in-out',
+                    '@keyframes boat-rock': {
+                      '0%, 100%': { transform: 'rotate(90deg)' },
+                      '50%': { transform: 'rotate(87deg)' }
+                    }
+                  }} />
+                  {/* Character */}
+                  <Box sx={{
+                    position: 'absolute',
+                    bottom: '7px',
+                    left: '12px',
+                    width: '10px',
+                    height: '15px',
+                    zIndex: 2,
+                  }}>
+                    {/* Body */}
+                    <Box sx={{
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      width: '10px',
+                      height: '10px',
+                      backgroundColor: '#4db6ac',
+                      borderRadius: '5px 5px 5px 5px / 7px 7px 3px 3px',
+                      animation: 'character-move 1s infinite alternate',
+                      '@keyframes character-move': {
+                        '0%': { transform: 'translateY(0)' },
+                        '100%': { transform: 'translateY(-1px)' }
+                      }
+                    }} />
+                    {/* Head */}
+                    <Box sx={{
+                      position: 'absolute',
+                      top: 0,
+                      left: '1px',
+                      width: '8px',
+                      height: '8px',
+                      backgroundColor: '#ffcc80',
+                      borderRadius: '50%',
+                    }} />
+                    {/* Eyes */}
+                    <Box sx={{
+                      position: 'absolute',
+                      top: '3px',
+                      left: '3px',
+                      width: '1px',
+                      height: '1px',
+                      backgroundColor: 'black',
+                      borderRadius: '50%',
+                    }} />
+                    <Box sx={{
+                      position: 'absolute',
+                      top: '3px',
+                      left: '6px',
+                      width: '1px',
+                      height: '1px',
+                      backgroundColor: 'black',
+                      borderRadius: '50%',
+                    }} />
+                    {/* Paddle */}
+                    <Box sx={{
+                      position: 'absolute',
+                      top: '5px',
+                      right: '-8px',
+                      width: '10px',
+                      height: '2px',
+                      backgroundColor: '#8d6e63',
+                      borderRadius: '1px',
+                      transformOrigin: 'right',
+                      animation: 'paddle 1.5s infinite',
+                      '@keyframes paddle': {
+                        '0%, 50%, 100%': { transform: 'rotate(0deg)' },
+                        '25%': { transform: 'rotate(-20deg)' },
+                        '75%': { transform: 'rotate(20deg)' }
+                      }
+                    }} />
+                  </Box>
+                </Box>
+              </Box>
+            </Box>
+          </Paper>
+        </Box>
       </Box>
 
-      {/* Topic content dialog */}
+      {/* Content dialog */}
       <ContentDialog />
     </Container>
   );
 };
 
-export default LearningAdventureMap;
+export default AdventureMapUI;
