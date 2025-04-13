@@ -119,7 +119,8 @@ const BackgroundElements = () => {
           style={{
             left: `${Math.random() * 100}%`,
             top: `${Math.random() * 100}%`,
-            animation: `twinkle ${2 + Math.random() * 4}s infinite alternate`,
+            // Slow down twinkle animation - increase duration to 6-10 seconds
+            animation: `twinkle ${6 + Math.random() * 4}s infinite alternate`,
           }}
         >
           <Star
@@ -627,7 +628,7 @@ const Game4 = () => {
           }
         }
         .animate-float-up {
-          animation: float-up 1s forwards;
+          animation: float-up 1.5s forwards; // Increased from 1s to 1.5s
         }
 
         @keyframes float {
@@ -643,7 +644,7 @@ const Game4 = () => {
           }
         }
         .animate-float {
-          animation: float 3s ease-in-out infinite;
+          animation: float 6s ease-in-out infinite; // Increased from 3s to 6s
         }
 
         @keyframes twinkle {
