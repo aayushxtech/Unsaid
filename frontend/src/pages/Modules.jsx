@@ -627,7 +627,7 @@ const ContentRenderer = ({ content }) => {
 };
 
 // Main component
-const AdventureMapUI = () => {
+const Models = () => {
   const { user } = useAuth();
   const theme = useTheme();
   const [loading, setLoading] = useState(true);
@@ -2610,4 +2610,4 @@ const AdventureMapUI = () => {
   );
 };
 
-export default AdventureMapUI;
+export default Models;
