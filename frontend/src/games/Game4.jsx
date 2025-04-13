@@ -883,59 +883,458 @@ const Game4 = ({ onBack }) => {
     return renderSceneContent();
   };
   
-  // Add missing renderStartScreen function
-  const renderStartScreen = () => {
-    return (
-      <Box 
-        sx={{ 
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '60vh',
-          textAlign: 'center',
-          p: 3,
-          borderRadius: 4,
-          bgcolor: darkMode ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.8)',
-          boxShadow: 3
-        }}
-      >
-        <Typography 
-          variant="h2" 
-          sx={{ 
-            fontWeight: 'bold', 
-            color: darkMode ? '#e1bee7' : '#7b1fa2',
-            mb: 2,
-            textShadow: darkMode ? '0 0 10px rgba(156, 39, 176, 0.5)' : '2px 2px 4px rgba(0,0,0,0.1)'
-          }}
-        >
-          Teen Life Navigator
-        </Typography>
+  // Replace the current renderStartScreen function with this enhanced version
+
+const renderStartScreen = () => {
+  return (
+    <Box
+      sx={{
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '90vh',
+        overflow: 'hidden',
+        borderRadius: 8,
+        bgcolor: darkMode ? 'rgba(0,0,0,0.5)' : 'transparent',
+      }}
+    >
+      {/* Dynamic animated background */}
+      <Box sx={{ 
+        position: 'absolute', 
+        top: 0, 
+        left: 0, 
+        right: 0, 
+        bottom: 0, 
+        overflow: 'hidden', 
+        zIndex: 0,
+        background: darkMode ? 
+          'linear-gradient(135deg, #170b2a 0%, #27104e 100%)' : 
+          'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)',
+      }}>
+        {/* Animated floating shapes */}
+        {Array.from({ length: 30 }).map((_, i) => (
+          <motion.div
+            key={i}
+            initial={{ 
+              x: Math.random() * window.innerWidth, 
+              y: Math.random() * window.innerHeight,
+              rotate: Math.random() * 360,
+              scale: Math.random() * 0.5 + 0.5
+            }}
+            animate={{ 
+              x: Math.random() * window.innerWidth, 
+              y: Math.random() * window.innerHeight,
+              rotate: Math.random() * 360,
+              scale: Math.random() * 0.5 + 0.5
+            }}
+            transition={{ 
+              repeat: Infinity, 
+              repeatType: "mirror",
+              duration: 15 + Math.random() * 20,
+              ease: "easeInOut"
+            }}
+            style={{ 
+              position: 'absolute',
+              width: Math.random() * 60 + 40,
+              height: Math.random() * 60 + 40,
+              borderRadius: Math.random() > 0.5 ? '50%' : Math.random() > 0.5 ? '30%' : '0%',
+              background: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 100 + 100)}, ${Math.floor(Math.random() * 255)}, ${Math.random() * 0.2 + 0.1})`,
+              filter: 'blur(40px)',
+              zIndex: 0
+            }}
+          />
+        ))}
         
-        <Typography variant="h5" sx={{ color: darkMode ? '#bbdefb' : '#1976d2', mb: 4 }}>
-          Join Swathi's journey through important life lessons
-        </Typography>
-        
-        <Button
-          variant="contained"
-          color="primary"
-          size="large"
-          onClick={() => setGameStarted(true)}
-          sx={{
-            py: 1.5,
-            px: 4,
-            fontSize: '1.2rem',
-            borderRadius: 30,
-            animation: 'pulse 1.5s infinite',
-            '@keyframes pulse': animationStyles['@keyframes pulse']
+        {/* Animated gradient overlay */}
+        <motion.div
+          initial={{ backgroundPosition: '0% 0%' }}
+          animate={{ backgroundPosition: '100% 100%' }}
+          transition={{ 
+            repeat: Infinity,
+            repeatType: "mirror",
+            duration: 10,
+            ease: "linear"
           }}
-        >
-          Start Your Journey
-        </Button>
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'radial-gradient(circle at center, transparent 0%, rgba(156, 39, 176, 0.2) 70%, rgba(156, 39, 176, 0.3) 100%)',
+            zIndex: 0
+          }}
+        />
       </Box>
-    );
-  };
-  
+
+      {/* Content Container to prevent overlapping */}
+      <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1, py: 5 }}>
+        {/* Header Section with Title Animation */}
+        <Box sx={{ mb: 6, textAlign: 'center' }}>
+          <motion.div
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            <Typography 
+              variant="h1" 
+              component="h1"
+              sx={{ 
+                fontWeight: 900, 
+                fontSize: { xs: '2.5rem', sm: '3.5rem', md: '4.5rem' },
+                color: darkMode ? '#e1bee7' : '#7b1fa2',
+                textShadow: darkMode ? '0 0 20px rgba(156, 39, 176, 0.5)' : '2px 2px 4px rgba(0,0,0,0.1)',
+                mb: 1,
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                background: 'linear-gradient(45deg, #7b1fa2, #ff4081)',
+                WebkitTextFillColor: 'transparent',
+                letterSpacing: '-1px',
+              }}
+            >
+              Teen Life Navigator
+            </Typography>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <Typography 
+              variant="h5" 
+              sx={{ 
+                color: darkMode ? '#bbdefb' : '#1565c0', 
+                mb: 2,
+                fontWeight: 500,
+                maxWidth: '700px',
+                mx: 'auto',
+                lineHeight: 1.5
+              }}
+            >
+              Join Swathi's journey through important life lessons and discover the path to confident growing up
+            </Typography>
+          </motion.div>
+        </Box>
+
+        {/* Main Content Area - Character and Button */}
+        <Grid container spacing={4} sx={{ alignItems: 'center', mb: 4 }}>
+          {/* Left Side - Character Animation */}
+          <Grid item xs={12} md={6} sx={{ position: 'relative', height: { xs: 350, md: 400 } }}>
+            {/* Character Images with Motion Effects */}
+            <Box sx={{ position: 'relative', height: '100%', display: 'flex', justifyContent: 'center' }}>
+              {/* Glowing background behind character */}
+              <Box
+                component={motion.div}
+                initial={{ scale: 0.8, opacity: 0.5 }}
+                animate={{ scale: [0.8, 1.1, 0.9], opacity: [0.5, 0.8, 0.6] }}
+                transition={{ repeat: Infinity, duration: 5 }}
+                sx={{
+                  position: 'absolute',
+                  width: 250,
+                  height: 250,
+                  borderRadius: '50%',
+                  background: 'radial-gradient(circle, rgba(156,39,176,0.4) 0%, rgba(233,30,99,0.2) 50%, rgba(156,39,176,0) 70%)',
+                  filter: 'blur(30px)',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  zIndex: 1
+                }}
+              />
+              
+              {/* Main Character */}
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.4, duration: 0.8, ease: "easeOut" }}
+                style={{ position: 'relative', zIndex: 3 }}
+              >
+                <motion.div
+                  animate={{ y: [0, -15, 0] }}
+                  transition={{ 
+                    repeat: Infinity, 
+                    duration: 3.5,
+                    ease: "easeInOut"
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src={swathiHappy}
+                    alt="Swathi"
+                    sx={{
+                      height: { xs: 280, md: 340 },
+                      maxWidth: '100%',
+                      objectFit: 'contain',
+                      filter: darkMode ? 'drop-shadow(0 0 8px rgba(255,255,255,0.3))' : 'drop-shadow(0 5px 15px rgba(0,0,0,0.2))',
+                      borderRadius: '30px',
+                      zIndex: 3
+                    }}
+                  />
+                </motion.div>
+              </motion.div>
+              
+              {/* Orbiting Elements */}
+              {[0, 1, 2].map((index) => (
+                <motion.div
+                  key={index}
+                  animate={{
+                    rotate: 360,
+                    scale: [1, 1.1, 1],
+                  }}
+                  transition={{
+                    rotate: {
+                      duration: 15 + index * 5,
+                      ease: "linear",
+                      repeat: Infinity
+                    },
+                    scale: {
+                      duration: 2 + index,
+                      repeat: Infinity,
+                      repeatType: "reverse"
+                    }
+                  }}
+                  style={{
+                    position: 'absolute',
+                    width: 180 + index * 60,
+                    height: 180 + index * 60,
+                    borderRadius: '50%',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    border: `2px dashed ${index === 0 ? '#ff4081' : index === 1 ? '#5c6bc0' : '#7e57c2'}`,
+                    opacity: 0.3,
+                    zIndex: 2
+                  }}
+                />
+              ))}
+              
+              {/* Floating Icons */}
+              {['💪', '❤️', '🧠', '🔍', '🌟'].map((emoji, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: 0, y: 0 }}
+                  animate={{ 
+                    opacity: [0, 1, 0],
+                    x: [0, (index % 2 === 0 ? 80 : -80) * Math.sin(index)],
+                    y: [-20, -80 - (index * 20)]
+                  }}
+                  transition={{ 
+                    repeat: Infinity, 
+                    duration: 4,
+                    delay: index * 1.2,
+                    repeatDelay: 3
+                  }}
+                  style={{
+                    position: 'absolute',
+                    left: '50%',
+                    top: '40%',
+                    fontSize: '32px',
+                    zIndex: 4
+                  }}
+                >
+                  {emoji}
+                </motion.div>
+              ))}
+            </Box>
+          </Grid>
+          
+          {/* Right Side - Text and Call to Action */}
+          <Grid item xs={12} md={6}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', md: 'flex-start' }}}>
+              {/* Speech bubble with typing animation */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0, x: 20 }}
+                animate={{ opacity: 1, scale: 1, x: 0 }}
+                transition={{ delay: 0.8, type: "spring", stiffness: 100 }}
+                style={{ alignSelf: 'flex-start', marginBottom: 40, maxWidth: '90%' }}
+              >
+                <Paper
+                  elevation={5}
+                  sx={{
+                    p: 3,
+                    borderRadius: 4,
+                    background: darkMode ? 'rgba(255,255,255,0.1)' : 'white',
+                    backdropFilter: 'blur(10px)',
+                    position: 'relative',
+                    '&:before': {
+                      content: '""',
+                      position: 'absolute',
+                      bottom: -18,
+                      left: 30,
+                      width: 0,
+                      height: 0,
+                      borderLeft: '25px solid transparent',
+                      borderRight: '5px solid transparent',
+                      borderTop: darkMode ? '20px solid rgba(255,255,255,0.1)' : '20px solid white',
+                    }
+                  }}
+                >
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      fontSize: '1.1rem',
+                      fontWeight: 500,
+                      color: darkMode ? 'white' : '#333',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <Box component="span" sx={{ color: '#e91e63', mr: 1, fontWeight: 'bold' }}>Swathi:</Box>
+                    <Box component="span">
+                      Hi! I'm Swathi. I'll help you navigate the challenges of growing up and learn about important topics in a fun way!
+                    </Box>
+                  </Typography>
+                </Paper>
+              </motion.div>
+              
+              {/* Action Buttons */}
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%', maxWidth: 350 }}>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.2, duration: 0.5 }}
+                >
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    size="large"
+                    fullWidth
+                    onClick={() => setGameStarted(true)}
+                    startIcon={<ArrowForward />}
+                    sx={{
+                      py: 1.8,
+                      fontSize: '1.2rem',
+                      borderRadius: 30,
+                      background: 'linear-gradient(45deg, #ff4081 30%, #f50057 90%)',
+                      boxShadow: '0 5px 15px rgba(255, 64, 129, 0.4)',
+                      animation: 'pulse 2s infinite',
+                      '@keyframes pulse': animationStyles['@keyframes pulse']
+                    }}
+                  >
+                    Start Your Journey
+                  </Button>
+                </motion.div>
+                
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1.6 }}
+                >
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      display: 'block',
+                      textAlign: 'center',
+                      mt: 1,
+                      color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)',
+                      fontStyle: 'italic'
+                    }}
+                  >
+                    An interactive journey designed especially for teens
+                  </Typography>
+                </motion.div>
+              </Box>
+            </Box>
+          </Grid>
+        </Grid>
+
+        {/* Feature Cards Section */}
+        <motion.div
+          initial={{ y: 50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 2, duration: 0.8 }}
+        >
+          <Typography
+            variant="h6"
+            sx={{
+              textAlign: 'center',
+              mb: 3,
+              color: darkMode ? '#e1bee7' : '#6200ea',
+              fontWeight: 600
+            }}
+          >
+            What You'll Discover
+          </Typography>
+          
+          <Grid container spacing={3} justifyContent="center">
+            {[
+              { icon: <Favorite sx={{ fontSize: 40 }} />, title: "Health & Wellness", desc: "Learn about your body and wellness" },
+              { icon: <Psychology sx={{ fontSize: 40 }} />, title: "Emotional Growth", desc: "Understand feelings and relationships" },
+              { icon: <School sx={{ fontSize: 40 }} />, title: "Life Skills", desc: "Build skills for confident living" },
+              { icon: <EmojiPeople sx={{ fontSize: 40 }} />, title: "Self Confidence", desc: "Develop a positive self-image" }
+            ].map((item, index) => (
+              <Grid item xs={6} sm={6} md={3} key={index}>
+                <motion.div
+                  whileHover={{ 
+                    y: -10, 
+                    boxShadow: '0 15px 30px rgba(0,0,0,0.2)',
+                    background: 'linear-gradient(135deg, #9c27b0 0%, #673ab7 100%)'
+                  }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ 
+                    delay: 2.2 + index * 0.2,
+                    type: "spring",
+                    stiffness: 100,
+                    hover: { type: "spring", stiffness: 300 }
+                  }}
+                >
+                  <Paper
+                    sx={{
+                      p: 3,
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: 4,
+                      textAlign: 'center',
+                      bgcolor: darkMode ? 'rgba(255,255,255,0.05)' : 'white',
+                      color: darkMode ? 'white' : 'inherit',
+                      transition: 'all 0.3s',
+                      '&:hover': {
+                        color: 'white'
+                      }
+                    }}
+                  >
+                    <Box 
+                      sx={{ 
+                        mb: 2, 
+                        p: 1.5,
+                        borderRadius: '50%',
+                        bgcolor: darkMode ? 'rgba(156,39,176,0.2)' : 'rgba(156,39,176,0.1)',
+                        color: index === 0 ? '#e91e63' : 
+                              index === 1 ? '#2196f3' : 
+                              index === 2 ? '#4caf50' : '#ff9800',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                      }}
+                    >
+                      {item.icon}
+                    </Box>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                      {item.title}
+                    </Typography>
+                    <Typography variant="body2">
+                      {item.desc}
+                    </Typography>
+                  </Paper>
+                </motion.div>
+              </Grid>
+            ))}
+          </Grid>
+        </motion.div>
+      </Container>
+    </Box>
+  );
+};
+
   // Update the renderStorySelection function to ensure story access works
 const renderStorySelection = () => {
   // Ensure unlockedStories has at least the first story
