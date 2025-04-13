@@ -148,6 +148,7 @@ const Register = () => {
           parental_consent: requiresGuardian ? formData.parentalConsent : false,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
+          aadhar_no: formData.aadhar_no,
         },
         {
           onConflict: "id",
@@ -169,6 +170,7 @@ const Register = () => {
         email: formData.email,
         firstName: formData.firstName,
         lastName: formData.lastName,
+        aadhar_no: formData.aadhar_no,
       };
 
       localStorage.setItem("user", JSON.stringify(userProfile));
@@ -376,6 +378,29 @@ const Register = () => {
                   <span className="text-xl mr-2">😕</span> {passwordError}
                 </p>
               )}
+            </div>
+            <div className="space-y-2">
+              <label
+                htmlFor="aadhar_no"
+                className="block text-base font-medium text-gray-700 flex items-center"
+              >
+                <span className="mr-2">🆔</span> Aadhar Number
+              </label>
+              <input
+                type="text"
+                id="aadhar_no"
+                name="aadhar_no"
+                value={formData.aadhar_no || ""}
+                onChange={handleChange}
+                pattern="[0-9]{12}"
+                maxLength="12"
+                placeholder="Enter your 12-digit Aadhar number"
+                required
+                className="w-full px-4 py-3 border-2 border-blue-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-base"
+              />
+              <p className="text-xs text-gray-500 ml-6">
+                Please enter your 12-digit Aadhar number without spaces
+              </p>
             </div>
 
             <div className="space-y-2">

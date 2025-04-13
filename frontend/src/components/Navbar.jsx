@@ -163,7 +163,7 @@ const Navbar = () => {
                     href="/ask"
                     className="text-purple-600 hover:text-purple-800 transition duration-200 font-medium text-lg rounded-full px-3 py-1 hover:bg-purple-100"
                   >
-                    Ask a Grown-up
+                    AI Support
                   </a>
                 </li>
                 <li>
@@ -171,7 +171,7 @@ const Navbar = () => {
                     href="/posts"
                     className="text-purple-600 hover:text-purple-800 transition duration-200 font-medium text-lg rounded-full px-3 py-1 hover:bg-purple-100"
                   >
-                    Share & Learn
+                    Forum
                   </a>
                 </li>
                 <li>
@@ -270,7 +270,7 @@ const Navbar = () => {
                   href="/ask"
                   className="block py-3 px-4 text-purple-600 hover:text-purple-800 font-medium text-lg rounded-xl hover:bg-purple-100"
                 >
-                  Ask a Grown-up
+                  AI Support
                 </a>
                 <a
                   href="/posts"
