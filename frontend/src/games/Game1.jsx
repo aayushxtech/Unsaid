@@ -76,10 +76,11 @@ const Game1 = () => {
           {items.map((item) => (
             <motion.div
               key={item.id}
-              className={`w-64 h-64 bg-gray-200 rounded-lg shadow-lg ${matches[item.id] ? "bg-green-500" : "bg-gray-200"
-                }`}
+              className={`w-64 h-64 bg-gray-200 rounded-lg shadow-lg ${
+                matches[item.id] ? "bg-green-500" : "bg-gray-200"
+              }`}
               style={{
-                backgroundImage: url(${item.image}),
+                backgroundImage: `url(${item.image})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }}
