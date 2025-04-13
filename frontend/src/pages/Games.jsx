@@ -27,7 +27,7 @@ import {
   Rocket,
   Heart,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, color } from "framer-motion";
 
 // Improved animated background bubble with interaction
 const AnimatedBubble = ({ size, color, delay, duration, left, top }) => {
@@ -572,8 +572,19 @@ const Games = () => {
       image: "/game3-thumbnail.jpg",
       path: "/games/game3",
       ageGroup: "20-45",
-      // Amber
+      color: "#FFBF00", // Amber
       emoji: "🧭",
+    },
+    {
+      id: "game4",
+      title: "Safe Touch",
+      description:
+        "Learn about safe and unsafe touches through interactive scenarios. Designed for ages 3-12.",
+      image: "/game4-thumbnail.jpg",
+      path: "/games/game4",
+      ageGroup: "3-12",
+      color: "#FBBF24", // Yellow
+      emoji: "🦸‍♂️",
     },
     {
       id: "game5",
