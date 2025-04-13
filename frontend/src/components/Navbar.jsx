@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -7,7 +8,6 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
-  // eslint-disable-next-line no-unused-vars
   const { user, signOut } = useAuth();
 
   const toggleMobileMenu = () => {
@@ -55,13 +55,16 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+    <nav className="sticky top-0 z-50 bg-blue-50 shadow-lg rounded-b-lg">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <div className="flex justify-between items-center">
           {/* Logo */}
           <a href="/" className="flex items-center">
-            <div className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text tracking-wide hover:scale-105 transition-transform duration-300 cursor-pointer">
-              UNSAID
+            <div className="flex items-center">
+              {/* Cartoon character icon/mascot could be added here */}
+              <div className="text-3xl font-extrabold bg-gradient-to-r from-purple-500 to-pink-500 text-transparent bg-clip-text tracking-wide hover:scale-105 transition-transform duration-300 cursor-pointer">
+                UNSAID
+              </div>
             </div>
           </a>
 
@@ -69,7 +72,8 @@ const Navbar = () => {
           <div className="md:hidden">
             <button
               onClick={toggleMobileMenu}
-              className="text-gray-600 hover:text-gray-900 focus:outline-none"
+              className="text-purple-600 hover:text-purple-800 focus:outline-none bg-purple-100 p-2 rounded-full"
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             >
               <svg
                 className="h-6 w-6"
@@ -98,7 +102,7 @@ const Navbar = () => {
                 <li>
                   <a
                     href="/"
-                    className="text-gray-600 hover:text-gray-900 transition duration-200 font-medium"
+                    className="text-purple-600 hover:text-purple-800 transition duration-200 font-medium text-lg rounded-full px-3 py-1 hover:bg-purple-100"
                   >
                     Home
                   </a>
@@ -106,15 +110,15 @@ const Navbar = () => {
                 <li>
                   <a
                     href="/about"
-                    className="text-gray-600 hover:text-gray-900 transition duration-200 font-medium"
+                    className="text-purple-600 hover:text-purple-800 transition duration-200 font-medium text-lg rounded-full px-3 py-1 hover:bg-purple-100"
                   >
-                    About
+                    About Us
                   </a>
                 </li>
                 <li>
                   <a
                     href="/how-it-works"
-                    className="text-gray-600 hover:text-gray-900 transition duration-200 font-medium"
+                    className="text-purple-600 hover:text-purple-800 transition duration-200 font-medium text-lg rounded-full px-3 py-1 hover:bg-purple-100"
                   >
                     How It Works
                   </a>
@@ -122,17 +126,17 @@ const Navbar = () => {
                 <li>
                   <a
                     href="/safety"
-                    className="text-gray-600 hover:text-gray-900 transition duration-200 font-medium"
+                    className="text-purple-600 hover:text-purple-800 transition duration-200 font-medium text-lg rounded-full px-3 py-1 hover:bg-purple-100"
                   >
-                    Safety
+                    Safety Zone
                   </a>
                 </li>
                 <li>
                   <a
                     href="/faqs"
-                    className="text-gray-600 hover:text-gray-900 transition duration-200 font-medium"
+                    className="text-purple-600 hover:text-purple-800 transition duration-200 font-medium text-lg rounded-full px-3 py-1 hover:bg-purple-100"
                   >
-                    FAQs
+                    Help & FAQs
                   </a>
                 </li>
               </>
@@ -141,41 +145,41 @@ const Navbar = () => {
                 <li>
                   <a
                     href="/modules"
-                    className="text-gray-600 hover:text-gray-900 transition duration-200 font-medium"
+                    className="text-purple-600 hover:text-purple-800 transition duration-200 font-medium text-lg rounded-full px-3 py-1 hover:bg-purple-100"
                   >
-                    My Modules
+                    My Learning
                   </a>
                 </li>
                 <li>
                   <a
                     href="/dashboard"
-                    className="text-gray-600 hover:text-gray-900 transition duration-200 font-medium"
+                    className="text-purple-600 hover:text-purple-800 transition duration-200 font-medium text-lg rounded-full px-3 py-1 hover:bg-purple-100"
                   >
-                    Dashboard
+                    My Space
                   </a>
                 </li>
                 <li>
                   <a
                     href="/ask"
-                    className="text-gray-600 hover:text-gray-900 transition duration-200 font-medium"
+                    className="text-purple-600 hover:text-purple-800 transition duration-200 font-medium text-lg rounded-full px-3 py-1 hover:bg-purple-100"
                   >
-                    Ask an Expert
+                    Ask a Grown-up
                   </a>
                 </li>
                 <li>
                   <a
                     href="/posts"
-                    className="text-gray-600 hover:text-gray-900 transition duration-200 font-medium"
+                    className="text-purple-600 hover:text-purple-800 transition duration-200 font-medium text-lg rounded-full px-3 py-1 hover:bg-purple-100"
                   >
-                    Posts
+                    Share & Learn
                   </a>
                 </li>
                 <li>
                   <a
                     href="/games"
-                    className="text-gray-600 hover:text-gray-900 transition duration-200 font-medium"
+                    className="text-purple-600 hover:text-purple-800 transition duration-200 font-medium text-lg rounded-full px-3 py-1 hover:bg-purple-100"
                   >
-                    Games
+                    Fun Games
                   </a>
                 </li>
               </>
@@ -188,21 +192,21 @@ const Navbar = () => {
               <>
                 <button
                   onClick={handleLoginClick}
-                  className="bg-blue-500 text-white font-medium py-2 px-4 rounded-md transition duration-200 shadow-sm hover:bg-blue-600 normal-case"
+                  className="bg-yellow-400 text-purple-700 font-bold py-2 px-4 rounded-full transition duration-200 shadow-md hover:bg-yellow-300 hover:shadow-lg hover:scale-105 text-lg"
                 >
-                  Login
+                  Sign In
                 </button>
                 <button
                   onClick={handleRegisterClick}
-                  className="bg-green-50 text-green-500 font-medium py-2 px-4 rounded-md transition-all duration-300 border border-transparent hover:bg-green-100 hover:border-green-500 hover:shadow-sm hover:scale-105 normal-case"
+                  className="bg-pink-500 text-white font-bold py-2 px-4 rounded-full transition-all duration-300 shadow-md hover:bg-pink-400 hover:shadow-lg hover:scale-105 text-lg"
                 >
-                  Register
+                  Join Us
                 </button>
               </>
             ) : (
               <button
                 onClick={handleLogout}
-                className="bg-red-500 text-white font-medium py-2 px-4 rounded-md transition duration-200 shadow-sm hover:bg-red-600 normal-case"
+                className="bg-orange-400 text-white font-bold py-2 px-4 rounded-full transition duration-200 shadow-md hover:bg-orange-300 hover:shadow-lg text-lg"
               >
                 Log Out
               </button>
@@ -213,95 +217,95 @@ const Navbar = () => {
 
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-200 shadow-lg">
+        <div className="md:hidden bg-blue-50 border-t border-purple-100 shadow-lg rounded-b-xl">
           <div className="px-4 pt-2 pb-4 space-y-2">
             {!user ? (
               <>
                 <a
                   href="/"
-                  className="block py-2 text-gray-600 hover:text-gray-900 font-medium"
+                  className="block py-3 px-4 text-purple-600 hover:text-purple-800 font-medium text-lg rounded-xl hover:bg-purple-100"
                 >
                   Home
                 </a>
                 <a
                   href="/about"
-                  className="block py-2 text-gray-600 hover:text-gray-900 font-medium"
+                  className="block py-3 px-4 text-purple-600 hover:text-purple-800 font-medium text-lg rounded-xl hover:bg-purple-100"
                 >
-                  About
+                  About Us
                 </a>
                 <a
                   href="/how-it-works"
-                  className="block py-2 text-gray-600 hover:text-gray-900 font-medium"
+                  className="block py-3 px-4 text-purple-600 hover:text-purple-800 font-medium text-lg rounded-xl hover:bg-purple-100"
                 >
                   How It Works
                 </a>
                 <a
                   href="/safety"
-                  className="block py-2 text-gray-600 hover:text-gray-900 font-medium"
+                  className="block py-3 px-4 text-purple-600 hover:text-purple-800 font-medium text-lg rounded-xl hover:bg-purple-100"
                 >
-                  Safety
+                  Safety Zone
                 </a>
                 <a
                   href="/faqs"
-                  className="block py-2 text-gray-600 hover:text-gray-900 font-medium"
+                  className="block py-3 px-4 text-purple-600 hover:text-purple-800 font-medium text-lg rounded-xl hover:bg-purple-100"
                 >
-                  FAQs
+                  Help & FAQs
                 </a>
               </>
             ) : (
               <>
                 <a
                   href="/dashboard"
-                  className="block py-2 text-gray-600 hover:text-gray-900 font-medium"
+                  className="block py-3 px-4 text-purple-600 hover:text-purple-800 font-medium text-lg rounded-xl hover:bg-purple-100"
                 >
-                  Dashboard
+                  My Space
                 </a>
                 <a
                   href="/modules"
-                  className="block py-2 text-gray-600 hover:text-gray-900 font-medium"
+                  className="block py-3 px-4 text-purple-600 hover:text-purple-800 font-medium text-lg rounded-xl hover:bg-purple-100"
                 >
-                  My Modules
+                  My Learning
                 </a>
                 <a
                   href="/ask"
-                  className="block py-2 text-gray-600 hover:text-gray-900 font-medium"
+                  className="block py-3 px-4 text-purple-600 hover:text-purple-800 font-medium text-lg rounded-xl hover:bg-purple-100"
                 >
-                  Ask an Expert
+                  Ask a Grown-up
                 </a>
                 <a
                   href="/posts"
-                  className="block py-2 text-gray-600 hover:text-gray-900 font-medium"
+                  className="block py-3 px-4 text-purple-600 hover:text-purple-800 font-medium text-lg rounded-xl hover:bg-purple-100"
                 >
-                  Posts
+                  Share & Learn
                 </a>
                 <a
                   href="/games"
-                  className="block py-2 text-gray-600 hover:text-gray-900 font-medium"
+                  className="block py-3 px-4 text-purple-600 hover:text-purple-800 font-medium text-lg rounded-xl hover:bg-purple-100"
                 >
-                  Games
+                  Fun Games
                 </a>
               </>
             )}
-            <div className="pt-4 flex flex-col space-y-2">
+            <div className="pt-4 flex flex-col space-y-3">
               {!user ? (
                 <>
                   <button
                     onClick={handleLoginClick}
-                    className="bg-blue-500 text-white font-medium py-2 normal-case rounded-md shadow-sm hover:bg-blue-600 w-full"
+                    className="bg-yellow-400 text-purple-700 font-bold py-3 rounded-xl shadow-md hover:bg-yellow-300 hover:shadow-lg text-lg"
                   >
-                    Login
+                    Sign In
                   </button>
                   <button
                     onClick={handleRegisterClick}
-                    className="bg-green-50 text-green-500 font-medium py-2 normal-case rounded-md border border-transparent hover:bg-green-100 hover:border-green-500 w-full text-center"
+                    className="bg-pink-500 text-white font-bold py-3 rounded-xl shadow-md hover:bg-pink-400 hover:shadow-lg text-lg"
                   >
-                    Register
+                    Join Us
                   </button>
                 </>
               ) : (
                 <button
                   onClick={handleLogout}
-                  className="bg-red-500 text-white font-medium py-2 normal-case rounded-md shadow-sm hover:bg-red-600 w-full"
+                  className="bg-orange-400 text-white font-bold py-3 rounded-xl shadow-md hover:bg-orange-300 hover:shadow-lg text-lg"
                 >
                   Log Out
                 </button>
@@ -314,7 +318,7 @@ const Navbar = () => {
       {/* Login Popup */}
       {showLoginPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full relative">
+          <div className="bg-white p-6 rounded-xl shadow-xl max-w-md w-full relative">
             <button
               onClick={toggleLoginPopup}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
