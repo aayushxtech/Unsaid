@@ -12,9 +12,8 @@ import Navbar from "./components/Navbar";
 //Temporary
 import Game1 from "./games/Game1";
 import Game2 from "./games/Game2";
-import Game3 from "./games/Game3"; 
+import Game3 from "./games/Game3";
 import Game5 from "./games/Game5";
-
 
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -39,6 +38,10 @@ import TopicAdd from "./pages/admin/pages/content/TopicAdd";
 import TopicView from "./pages/admin/pages/content/TopicView";
 import SubTopicAdd from "./pages/admin/pages/content/SubTopicAdd";
 import SubTopicView from "./pages/admin/pages/content/SubTopicView";
+
+// Parental Control Imports
+import ParentalControl from "./pages/ParentalControl";
+
 // Admin Quiz Imports
 import Quizzes from "./pages/admin/pages/quiz/Quizzes";
 import QuizAdd from "./pages/admin/pages/quiz/QuizAdd";
@@ -319,6 +322,16 @@ const App = () => {
               element={
                 <PrivateRoute>
                   <Game5 />
+                </PrivateRoute>
+              }
+            />
+
+            {/* parental control routes */}
+            <Route
+              path="/parental-control"
+              element={
+                <PrivateRoute>
+                  <ParentalControl />
                 </PrivateRoute>
               }
             />
