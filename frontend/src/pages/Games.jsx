@@ -586,6 +586,17 @@ const Games = () => {
       color: "#FBBF24", // Yellow
       emoji: "🧭",
     },
+    {
+      id: "game5",
+      title: "Protection Match",
+      description:
+        "Match different types of protection with their uses in this fun and educational game for ages 20-45.",
+      image: "/game5-thumbnail.jpg",
+      path: "/games/game5",
+      ageGroup: "20-45",
+      color: "#FBBF24", // Yellow
+      emoji: "🧭",
+    },
   ];
 
   // Child-friendly loading animation
